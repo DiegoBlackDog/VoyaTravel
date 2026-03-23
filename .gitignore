@@ -1,0 +1,1 @@
+node_modules/\n.env\nserver/uploads/paquetes/*\n!server/uploads/paquetes/.gitkeep\nclient/dist/\n.superpowers/
