@@ -1,1 +1,7 @@
-node_modules/\n.env\nserver/uploads/paquetes/*\n!server/uploads/paquetes/.gitkeep\nclient/dist/\n.superpowers/
+node_modules/
+.env
+server/uploads/paquetes/*
+!server/uploads/paquetes/.gitkeep
+client/dist/
+.superpowers/
+package-lock.json
