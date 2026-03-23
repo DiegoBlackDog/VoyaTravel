@@ -209,7 +209,9 @@ voya-travel/
 | nombre | VARCHAR(100) | NOT NULL |
 | slug | VARCHAR(100) | UNIQUE, NOT NULL |
 
-Categorías predefinidas: País, Región, Temporada, Tipo de transporte, Tipo de viaje, Destino, **Tipo de experiencia** (Relax, Aventura, Circuitos, Grupal, Eventos, Terrestre, Exótico).
+Categorías predefinidas: Temporada, Tipo de transporte, Tipo de viaje, **Tipo de experiencia** (Relax, Aventura, Circuitos, Grupal, Eventos, Terrestre, Exótico).
+
+> **Nota**: Las categorías "País" y "Región" NO se usan como etiquetas — esa información geográfica se maneja exclusivamente a través de la tabla `destinos` (con columnas `pais` y `region`) y la pivote `paquete_destinos`. Los filtros de país/región en el frontend consultan la tabla `destinos`, no las etiquetas.
 
 #### etiquetas
 | Columna | Tipo | Restricciones |
@@ -300,6 +302,8 @@ Claves predefinidas: `estadistica_paquetes`, `estadistica_paises`, `estadistica_
 | `/admin/paquetes/nuevo` | PaqueteEditPage | editor |
 | `/admin/paquetes/:id` | PaqueteEditPage | editor |
 | `/admin/etiquetas` | EtiquetasPage | editor |
+| `/admin/testimonios` | TestimoniosPage | editor |
+| `/admin/configuracion` | ConfiguracionPage | admin |
 | `/admin/usuarios` | UsuariosPage | admin |
 
 ### API (Express)
@@ -435,7 +439,7 @@ Todo el sitio, base de datos (nombres de tablas y columnas), y panel admin está
 
 ## Decisiones Técnicas
 
-- **SPA sin SSR**: aceptamos limitación SEO a cambio de simplicidad en cPanel. Mitigación con react-helmet y prerendering de páginas principales
+- **SPA sin SSR**: aceptamos limitación SEO a cambio de simplicidad en cPanel. Mitigación con react-helmet para meta tags dinámicos y `vite-plugin-prerender` para generar HTML estático de las rutas públicas principales (`/`, `/nosotros`, `/contacto`) en build time
 - **Sequelize como ORM**: abstracción sobre MySQL que simplifica queries, migraciones y relaciones
 - **CSS Modules**: evitan colisiones de nombres sin overhead de CSS-in-JS
 - **express-session con MySQL**: sesiones persistentes que sobreviven reinicios del servidor
