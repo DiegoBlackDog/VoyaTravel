@@ -1,0 +1,70 @@
+.topbar {
+  background-color: var(--color-verde);
+  color: var(--color-blanco);
+  font-size: 0.75rem;
+  padding: var(--espaciado-xs) 0;
+}
+
+.contenedor {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: 0 var(--espaciado-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaciado-md);
+}
+
+.contacto {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-md);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-xs);
+  color: var(--color-blanco);
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+.item:hover {
+  opacity: 1;
+}
+
+.item span {
+  letter-spacing: 0.01em;
+}
+
+.redes {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+}
+
+.redSocial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-blanco);
+  opacity: 0.85;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding: 2px;
+}
+
+.redSocial:hover {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+@media (max-width: 480px) {
+  .contacto {
+    gap: var(--espaciado-sm);
+  }
+
+  .item span {
+    display: none;
+  }
+}
