@@ -23,8 +23,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session(sessionConfig));
 
-// ── Static uploads ──
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// ── Static uploads — allow cross-origin image loading in dev ──
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // ── API Routes ──
 app.use('/api/auth', require('./routes/auth.routes'));
