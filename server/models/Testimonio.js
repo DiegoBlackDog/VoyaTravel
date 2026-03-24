@@ -37,6 +37,16 @@ const Testimonio = sequelize.define('Testimonio', {
     allowNull: false,
     defaultValue: 0,
   },
+  calificacion: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 5,
+  },
+  fuente: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    defaultValue: 'manual',
+  },
 }, {
   tableName: 'testimonios',
   updatedAt: false,

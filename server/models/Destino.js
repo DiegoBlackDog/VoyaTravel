@@ -24,6 +24,10 @@ const Destino = sequelize.define('Destino', {
     type: DataTypes.STRING(100),
     allowNull: true,
   },
+  imagen: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
 }, {
   tableName: 'destinos',
   timestamps: false,

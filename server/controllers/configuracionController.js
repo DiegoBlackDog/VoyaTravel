@@ -14,13 +14,14 @@ const obtener = async (req, res, next) => {
   }
 };
 
-// ── actualizar ── find by req.params.clave, update valor
+// ── actualizar ── upsert by clave
 const actualizar = async (req, res, next) => {
   try {
-    const registro = await Configuracion.findOne({ where: { clave: req.params.clave } });
-    if (!registro) return res.status(404).json({ error: 'Configuración no encontrada' });
-
-    await registro.update({ valor: req.body.valor });
+    const [registro] = await Configuracion.upsert({
+      clave: req.params.clave,
+      valor: req.body.valor ?? '',
+      tipo: 'texto',
+    });
     res.json({ configuracion: registro });
   } catch (err) {
     next(err);

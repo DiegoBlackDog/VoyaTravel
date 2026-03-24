@@ -7,7 +7,7 @@ import styles from './PaqueteCard.module.css';
  * Extrae las etiquetas por categoría.
  */
 function getEtiqueta(etiquetas = [], categoria) {
-  return etiquetas.find((e) => e.categoria === categoria);
+  return etiquetas.find((e) => e.categoria?.nombre === categoria);
 }
 
 /**
@@ -33,13 +33,14 @@ export default function PaqueteCard({ paquete }) {
     duracion_dias,
     imagenes = [],
     etiquetas = [],
+    destinos = [],
   } = paquete;
 
   const portada = imagenes.find((i) => i.es_portada) || imagenes[0];
   const imagen_portada = portada?.ruta_imagen || portada?.url || null;
 
-  const temporada = getEtiqueta(etiquetas, 'temporada');
-  const destino = getEtiqueta(etiquetas, 'destino');
+  const temporada = getEtiqueta(etiquetas, 'Temporada');
+  const destinoPrincipal = destinos[0];
 
   return (
     <Link to={`/paquetes/${slug}`} className={styles.card}>
@@ -58,8 +59,10 @@ export default function PaqueteCard({ paquete }) {
             {temporada.nombre}
           </span>
         )}
-        {destino && (
-          <span className={styles.destinoBadge}>{destino.nombre}</span>
+        {destinoPrincipal && (
+          <span className={styles.destinoBadge}>
+            {destinoPrincipal.nombre}{destinoPrincipal.pais ? `, ${destinoPrincipal.pais}` : ''}
+          </span>
         )}
       </div>
 

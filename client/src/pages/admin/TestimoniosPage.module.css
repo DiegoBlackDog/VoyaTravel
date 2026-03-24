@@ -76,6 +76,27 @@
 }
 
 /* ── Buttons ── */
+.botonGoogle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: #4285F4;
+  color: #fff;
+  border: none;
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.botonGoogle:hover {
+  background: #3367D6;
+}
+
 .botonPrimario {
   display: inline-flex;
   align-items: center;
@@ -171,6 +192,80 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--espaciado-sm);
+}
+
+.cardHeaderRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.badgeGoogle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: #EBF2FF;
+  color: #4285F4;
+  border-radius: var(--radio-completo);
+  font-size: 0.72rem;
+  font-weight: 600;
+  font-family: var(--font-cuerpo);
+}
+
+.cardEstrellas {
+  display: flex;
+  gap: 1px;
+}
+
+/* ── Google modal ── */
+.modalGoogleHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.googleIcono {
+  color: #4285F4;
+  flex-shrink: 0;
+}
+
+.modalGoogleHint {
+  font-family: var(--font-cuerpo);
+  font-size: 0.83rem;
+  color: var(--color-gris);
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  background: #EBF2FF;
+  border-radius: var(--radio-md);
+  border-left: 3px solid #4285F4;
+}
+
+/* ── Selector de estrellas ── */
+.estrellaSelector {
+  display: flex;
+  gap: 4px;
+}
+
+.estrellaBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  color: var(--color-borde);
+  transition: color 0.15s, transform 0.1s;
+}
+
+.estrellaBtn:hover,
+.estrellaBtnActiva {
+  color: #FBBF24;
+}
+
+.estrellaBtn:hover {
+  transform: scale(1.2);
 }
 
 .cardNombre {

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { FaChevronDown, FaChevronUp, FaTimes, FaFilter } from 'react-icons/fa';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { FaChevronDown, FaChevronUp, FaTimes, FaFilter, FaSearch } from 'react-icons/fa';
 import api from '../../services/api';
 import styles from './PaqueteFiltros.module.css';
 
@@ -101,12 +101,125 @@ function RangeSlider({ label, min, max, valueMin, valueMax, step = 1, formato, o
 }
 
 /* ------------------------------------------------------------------ */
+/* Buscador de destinos con autocompletado                              */
+/* ------------------------------------------------------------------ */
+
+function normalizar(str) {
+  return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function DestinoBuscador({ destinos, selected, onToggle }) {
+  const [query, setQuery] = useState('');
+  const [abierto, setAbierto] = useState(false);
+  const wrapRef = useRef(null);
+
+  // Cerrar al hacer click fuera
+  useEffect(() => {
+    function handler(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setAbierto(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const sugerencias = useMemo(() => {
+    const q = normalizar(query.trim());
+    if (!q) return [];
+    return destinos
+      .filter((d) => {
+        const nombre = normalizar(d.nombre);
+        const pais = normalizar(d.pais);
+        return (nombre.includes(q) || pais.includes(q)) && !selected.includes(d.slug);
+      })
+      .slice(0, 8);
+  }, [query, destinos, selected]);
+
+  const seleccionados = destinos.filter((d) => selected.includes(d.slug));
+
+  return (
+    <div ref={wrapRef} className={styles.buscadorWrap}>
+      {/* Chips de destinos seleccionados */}
+      {seleccionados.length > 0 && (
+        <div className={styles.destinoChips}>
+          {seleccionados.map((d) => (
+            <span key={d.slug} className={styles.destinoChip}>
+              <span>{d.nombre}</span>
+              {d.pais && <span className={styles.destinoChipPais}>, {d.pais}</span>}
+              <button
+                type="button"
+                className={styles.destinoChipX}
+                onClick={() => onToggle(d.slug)}
+                aria-label={`Quitar ${d.nombre}`}
+              >
+                <FaTimes size={9} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Input de búsqueda */}
+      <div className={styles.buscadorInputWrap}>
+        <FaSearch size={12} className={styles.buscadorIcono} />
+        <input
+          type="text"
+          className={styles.buscadorInput}
+          placeholder="Buscar ciudad o país..."
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setAbierto(true); }}
+          onFocus={() => setAbierto(true)}
+        />
+        {query && (
+          <button
+            type="button"
+            className={styles.buscadorLimpiar}
+            onClick={() => { setQuery(''); setAbierto(false); }}
+            aria-label="Limpiar búsqueda"
+          >
+            <FaTimes size={10} />
+          </button>
+        )}
+      </div>
+
+      {/* Dropdown de sugerencias */}
+      {abierto && sugerencias.length > 0 && (
+        <ul className={styles.buscadorDropdown} role="listbox">
+          {sugerencias.map((d) => (
+            <li key={d.slug} role="option">
+              <button
+                type="button"
+                className={styles.buscadorOpcion}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onToggle(d.slug);
+                  setQuery('');
+                  setAbierto(false);
+                }}
+              >
+                <span className={styles.buscadorOpcionNombre}>{d.nombre}</span>
+                {d.pais && <span className={styles.buscadorOpcionPais}>{d.pais}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {abierto && query.trim() && sugerencias.length === 0 && (
+        <div className={styles.buscadorSinResultados}>Sin resultados</div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Componente principal                                                  */
 /* ------------------------------------------------------------------ */
 
 export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, resetFiltros }) {
   const [destinos, setDestinos] = useState([]);
-  const [etiquetas, setEtiquetas] = useState({ Temporada: [], Transporte: [], Experiencia: [] });
+  const [etiquetas, setEtiquetas] = useState({ Temporada: [], Transporte: [], Experiencia: [], Viaje: [] });
   const [cargandoOpciones, setCargandoOpciones] = useState(true);
 
   // Estado local para sliders (para evitar llamadas en cada movimiento)
@@ -136,11 +249,12 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
         setDestinos(destinosData);
 
         // El API retorna { categorias: [{ nombre, etiquetas: [...] }] }
-        const grupos = { Temporada: [], Transporte: [], Experiencia: [] };
+        const grupos = { Temporada: [], Transporte: [], Experiencia: [], Viaje: [] };
         categoriasData.forEach((cat) => {
-          if (grupos[cat.nombre]) {
-            grupos[cat.nombre] = cat.etiquetas || [];
-          }
+          if (cat.nombre === 'Temporada') grupos.Temporada = cat.etiquetas || [];
+          else if (cat.nombre === 'Tipo de transporte') grupos.Transporte = cat.etiquetas || [];
+          else if (cat.nombre === 'Tipo de experiencia') grupos.Experiencia = cat.etiquetas || [];
+          else if (cat.nombre === 'Tipo de viaje') grupos.Viaje = cat.etiquetas || [];
         });
         setEtiquetas(grupos);
       })
@@ -222,64 +336,46 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
           {/* ---- Destino ---- */}
           {destinos.length > 0 && (
             <SeccionFiltro titulo="Destino">
-              <div className={styles.checkboxList}>
-                {destinos.map((d) => (
-                  <CheckboxItem
-                    key={d.id}
-                    label={d.nombre}
-                    value={d.slug}
-                    checked={selectedDestinos.includes(d.slug)}
-                    onChange={(v) => toggleFiltroMulti('destino', v)}
-                  />
-                ))}
-              </div>
+              <DestinoBuscador
+                destinos={destinos}
+                selected={selectedDestinos}
+                onToggle={(slug) => toggleFiltroMulti('destino', slug)}
+              />
             </SeccionFiltro>
           )}
 
           {/* ---- Precio ---- */}
           <SeccionFiltro titulo="Precio (USD)">
-            <RangeSlider
-              label="Precio"
-              min={PRECIO_MIN}
-              max={PRECIO_MAX}
-              step={50}
-              valueMin={precioMin}
-              valueMax={precioMax}
-              formato={(v) => `$${v.toLocaleString('es-UY')}`}
-              onChangeMin={setPrecioMin}
-              onChangeMax={setPrecioMax}
-            />
-            {/* Commit on pointer up */}
-            <div
-              onMouseUp={commitPrecio}
-              onTouchEnd={commitPrecio}
-              style={{ display: 'none' }}
-            />
-            <div
-              className={styles.sliderCommitArea}
-              onMouseUp={commitPrecio}
-              onTouchEnd={commitPrecio}
-            />
+            <div onMouseUp={commitPrecio} onTouchEnd={commitPrecio}>
+              <RangeSlider
+                label="Precio"
+                min={PRECIO_MIN}
+                max={PRECIO_MAX}
+                step={50}
+                valueMin={precioMin}
+                valueMax={precioMax}
+                formato={(v) => `$${v.toLocaleString('es-UY')}`}
+                onChangeMin={setPrecioMin}
+                onChangeMax={setPrecioMax}
+              />
+            </div>
           </SeccionFiltro>
 
           {/* ---- Duración ---- */}
           <SeccionFiltro titulo="Duración (días)">
-            <RangeSlider
-              label="Duración"
-              min={DURACION_MIN}
-              max={DURACION_MAX}
-              step={1}
-              valueMin={duracionMin}
-              valueMax={duracionMax}
-              formato={(v) => `${v} d`}
-              onChangeMin={setDuracionMin}
-              onChangeMax={setDuracionMax}
-            />
-            <div
-              className={styles.sliderCommitArea}
-              onMouseUp={commitDuracion}
-              onTouchEnd={commitDuracion}
-            />
+            <div onMouseUp={commitDuracion} onTouchEnd={commitDuracion}>
+              <RangeSlider
+                label="Duración"
+                min={DURACION_MIN}
+                max={DURACION_MAX}
+                step={1}
+                valueMin={duracionMin}
+                valueMax={duracionMax}
+                formato={(v) => `${v} d`}
+                onChangeMin={setDuracionMin}
+                onChangeMax={setDuracionMax}
+              />
+            </div>
           </SeccionFiltro>
 
           {/* ---- Temporada ---- */}
@@ -321,6 +417,23 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
             <SeccionFiltro titulo="Experiencia" defaultOpen={false}>
               <div className={styles.checkboxList}>
                 {etiquetas.Experiencia.map((e) => (
+                  <CheckboxItem
+                    key={e.id}
+                    label={e.nombre}
+                    value={e.slug}
+                    checked={selectedEtiquetas.includes(e.slug)}
+                    onChange={(v) => toggleFiltroMulti('etiqueta', v)}
+                  />
+                ))}
+              </div>
+            </SeccionFiltro>
+          )}
+
+          {/* ---- Tipo de viaje ---- */}
+          {etiquetas.Viaje.length > 0 && (
+            <SeccionFiltro titulo="Tipo de viaje" defaultOpen={false}>
+              <div className={styles.checkboxList}>
+                {etiquetas.Viaje.map((e) => (
                   <CheckboxItem
                     key={e.id}
                     label={e.nombre}

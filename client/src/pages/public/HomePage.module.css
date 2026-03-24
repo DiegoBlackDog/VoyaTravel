@@ -610,6 +610,10 @@
   color: var(--color-amarillo);
 }
 
+.estrellaVacia {
+  color: var(--color-borde);
+}
+
 .testimonioAutor {
   display: flex;
   align-items: center;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FiPlus, FiRefreshCw, FiAlertCircle, FiCheck, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { FaStar, FaGoogle } from 'react-icons/fa';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './TestimoniosPage.module.css';
@@ -12,7 +13,39 @@ const EMPTY_FORM = {
   imagen_url: '',
   activo: true,
   orden: 0,
+  calificacion: 5,
+  fuente: 'manual',
 };
+
+const EMPTY_GOOGLE_FORM = {
+  nombre: '',
+  texto: '',
+  calificacion: 5,
+  fecha_viaje: '',
+  imagen_url: '',
+  activo: true,
+  orden: 0,
+  fuente: 'google',
+  viaje: '',
+};
+
+function EstrellaSelector({ value, onChange }) {
+  return (
+    <div className={styles.estrellaSelector}>
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          className={`${styles.estrellaBtn} ${n <= value ? styles.estrellaBtnActiva : ''}`}
+          onClick={() => onChange(n)}
+          aria-label={`${n} estrellas`}
+        >
+          <FaStar size={20} />
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export default function TestimoniosPage() {
   const { usuario } = useAuth();
@@ -23,11 +56,16 @@ export default function TestimoniosPage() {
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
 
-  // Modal
+  // Modal normal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [guardando, setGuardando] = useState(false);
+
+  // Modal Google import
+  const [modalGoogle, setModalGoogle] = useState(false);
+  const [googleForm, setGoogleForm] = useState(EMPTY_GOOGLE_FORM);
+  const [guardandoGoogle, setGuardandoGoogle] = useState(false);
 
   // Delete confirmation
   const [confirmEliminar, setConfirmEliminar] = useState(null);
@@ -60,6 +98,42 @@ export default function TestimoniosPage() {
     setForm(EMPTY_FORM);
     setEditandoId(null);
     setModalAbierto(true);
+  };
+
+  const abrirGoogle = () => {
+    setGoogleForm(EMPTY_GOOGLE_FORM);
+    setModalGoogle(true);
+  };
+
+  const cerrarGoogle = () => {
+    setModalGoogle(false);
+    setGoogleForm(EMPTY_GOOGLE_FORM);
+  };
+
+  const handleGuardarGoogle = async (e) => {
+    e.preventDefault();
+    if (!googleForm.nombre.trim() || !googleForm.texto.trim()) return;
+    setGuardandoGoogle(true);
+    try {
+      await api.post('/testimonios', {
+        nombre: googleForm.nombre.trim(),
+        texto: googleForm.texto.trim(),
+        calificacion: googleForm.calificacion,
+        fecha_viaje: googleForm.fecha_viaje || null,
+        imagen_url: googleForm.imagen_url.trim(),
+        viaje: googleForm.viaje.trim(),
+        fuente: 'google',
+        activo: true,
+        orden: googleForm.orden ? parseInt(googleForm.orden, 10) : 0,
+      });
+      setExito('Review de Google importada correctamente.');
+      cerrarGoogle();
+      cargar();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Error al guardar la review.');
+    } finally {
+      setGuardandoGoogle(false);
+    }
   };
 
   const abrirEditar = (t) => {
@@ -159,6 +233,10 @@ export default function TestimoniosPage() {
             <FiRefreshCw size={14} />
             Recargar
           </button>
+          <button className={styles.botonGoogle} onClick={abrirGoogle}>
+            <FaGoogle size={14} />
+            Importar de Google
+          </button>
           <button className={styles.botonPrimario} onClick={abrirNuevo}>
             <FiPlus size={15} />
             Nuevo testimonio
@@ -194,6 +272,18 @@ export default function TestimoniosPage() {
                 <div>
                   <h3 className={styles.cardNombre}>{t.nombre}</h3>
                   {t.viaje && <span className={styles.cardViaje}>{t.viaje}</span>}
+                </div>
+                <div className={styles.cardHeaderRight}>
+                  {t.fuente === 'google' && (
+                    <span className={styles.badgeGoogle}><FaGoogle size={11} /> Google</span>
+                  )}
+                  {t.calificacion && (
+                    <span className={styles.cardEstrellas}>
+                      {[1,2,3,4,5].map((n) => (
+                        <FaStar key={n} size={11} style={{ color: n <= t.calificacion ? '#FBBF24' : '#d1d5db' }} />
+                      ))}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -341,6 +431,94 @@ export default function TestimoniosPage() {
                   disabled={!form.nombre.trim() || !form.texto.trim() || guardando}
                 >
                   {guardando ? 'Guardando...' : editandoId ? 'Guardar cambios' : 'Crear testimonio'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal importar de Google */}
+      {modalGoogle && (
+        <div className={styles.overlay} onClick={cerrarGoogle}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalGoogleHeader}>
+              <FaGoogle size={18} className={styles.googleIcono} />
+              <h2>Importar review de Google</h2>
+            </div>
+            <p className={styles.modalGoogleHint}>
+              Copiá los datos de la review tal como aparecen en Google Maps y pegálos acá.
+            </p>
+            <form onSubmit={handleGuardarGoogle}>
+              <div className={styles.formGroup}>
+                <label>Nombre del revisor *</label>
+                <input
+                  className={styles.formInput}
+                  type="text"
+                  value={googleForm.nombre}
+                  onChange={(e) => setGoogleForm((p) => ({ ...p, nombre: e.target.value }))}
+                  placeholder="Ej: Ana Pérez"
+                  autoFocus
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Calificación</label>
+                <EstrellaSelector
+                  value={googleForm.calificacion}
+                  onChange={(v) => setGoogleForm((p) => ({ ...p, calificacion: v }))}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Texto de la review *</label>
+                <textarea
+                  className={styles.formTextarea}
+                  value={googleForm.texto}
+                  onChange={(e) => setGoogleForm((p) => ({ ...p, texto: e.target.value }))}
+                  placeholder="Pegá el texto de la review de Google..."
+                  rows={4}
+                />
+              </div>
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Viaje (opcional)</label>
+                  <input
+                    className={styles.formInput}
+                    type="text"
+                    value={googleForm.viaje}
+                    onChange={(e) => setGoogleForm((p) => ({ ...p, viaje: e.target.value }))}
+                    placeholder="Ej: Cusco & Machu Picchu"
+                  />
+                </div>
+                <div className={styles.formGroup}>
+                  <label>Fecha de la review</label>
+                  <input
+                    className={styles.formInput}
+                    type="date"
+                    value={googleForm.fecha_viaje}
+                    onChange={(e) => setGoogleForm((p) => ({ ...p, fecha_viaje: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Foto de perfil (URL, opcional)</label>
+                <input
+                  className={styles.formInput}
+                  type="text"
+                  value={googleForm.imagen_url}
+                  onChange={(e) => setGoogleForm((p) => ({ ...p, imagen_url: e.target.value }))}
+                  placeholder="https://lh3.googleusercontent.com/..."
+                />
+              </div>
+              <div className={styles.modalAcciones}>
+                <button type="button" className={styles.botonSecundario} onClick={cerrarGoogle}>
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className={styles.botonPrimario}
+                  disabled={!googleForm.nombre.trim() || !googleForm.texto.trim() || guardandoGoogle}
+                >
+                  {guardandoGoogle ? 'Importando...' : 'Importar review'}
                 </button>
               </div>
             </form>

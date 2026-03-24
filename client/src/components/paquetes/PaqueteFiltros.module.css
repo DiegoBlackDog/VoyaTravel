@@ -365,3 +365,171 @@
     backdrop-filter: blur(2px);
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Buscador de destinos con autocompletado                              */
+/* ------------------------------------------------------------------ */
+
+.buscadorWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.destinoChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.destinoChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 10px;
+  background: rgba(55, 137, 102, 0.1);
+  border: 1px solid rgba(55, 137, 102, 0.3);
+  border-radius: var(--radio-completo);
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  color: var(--color-verde);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.destinoChipPais {
+  font-weight: 400;
+  color: var(--color-gris);
+}
+
+.destinoChipX {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 0 0 3px;
+  display: flex;
+  align-items: center;
+  color: var(--color-verde);
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.destinoChipX:hover {
+  opacity: 1;
+}
+
+.buscadorInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.buscadorIcono {
+  position: absolute;
+  left: 10px;
+  color: var(--color-gris-claro);
+  pointer-events: none;
+}
+
+.buscadorInput {
+  width: 100%;
+  padding: 8px 30px 8px 30px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.83rem;
+  color: var(--color-negro);
+  background: var(--color-blanco);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.buscadorInput:focus {
+  border-color: var(--color-verde);
+}
+
+.buscadorInput::placeholder {
+  color: var(--color-gris-claro);
+}
+
+.buscadorLimpiar {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--color-gris-claro);
+  padding: 2px;
+  transition: color 0.15s;
+}
+
+.buscadorLimpiar:hover {
+  color: var(--color-negro);
+}
+
+.buscadorDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--color-blanco);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  box-shadow: var(--sombra-md);
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.buscadorOpcion {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.buscadorOpcion:hover {
+  background: var(--color-crema);
+}
+
+.buscadorOpcionNombre {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-negro);
+  font-weight: 500;
+}
+
+.buscadorOpcionPais {
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  color: var(--color-gris);
+}
+
+.buscadorSinResultados {
+  padding: 8px 12px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  color: var(--color-gris);
+  background: var(--color-blanco);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  box-shadow: var(--sombra-md);
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+}

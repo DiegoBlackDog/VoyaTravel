@@ -4,7 +4,7 @@ export default function PaqueteItinerario({ itinerarios = [] }) {
   if (!itinerarios.length) return null;
 
   // Sort by orden, fallback to dia
-  const ordenados = [...itinerarios].sort((a, b) => (a.orden ?? a.dia) - (b.orden ?? b.dia));
+  const ordenados = [...itinerarios].sort((a, b) => (a.orden ?? a.numero_dia) - (b.orden ?? b.numero_dia));
 
   return (
     <div className={styles.itinerario}>
@@ -19,7 +19,7 @@ export default function PaqueteItinerario({ itinerarios = [] }) {
           {/* Contenido */}
           <div className={styles.contenido}>
             <div className={styles.diaHeader}>
-              <span className={styles.diaLabel}>Día {item.dia}</span>
+              <span className={styles.diaLabel}>Día {item.numero_dia}</span>
               <h3 className={styles.diaTitulo}>{item.titulo}</h3>
             </div>
             {item.descripcion && (

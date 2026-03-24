@@ -9,9 +9,9 @@ const GRUPOS = [
     titulo: 'Contacto',
     descripcion: 'Información de contacto visible en el sitio web.',
     campos: [
-      { clave: 'whatsapp_numero', label: 'WhatsApp', placeholder: '+54 9 11 1234-5678', hint: 'Número con código de país' },
+      { clave: 'whatsapp_numero', label: 'WhatsApp', placeholder: '+598 99 123 456', hint: 'Número con código de país' },
       { clave: 'email_contacto', label: 'Email de contacto', placeholder: 'hola@voya.travel', hint: '' },
-      { clave: 'telefono', label: 'Teléfono', placeholder: '+54 11 1234-5678', hint: '' },
+      { clave: 'telefono_contacto', label: 'Teléfono', placeholder: '+598 2 123 4567', hint: '' },
     ],
   },
   {
@@ -19,10 +19,10 @@ const GRUPOS = [
     titulo: 'Estadísticas',
     descripcion: 'Números destacados que se muestran en la página de inicio.',
     campos: [
-      { clave: 'estadistica_destinos', label: 'Destinos', placeholder: 'Ej: 45', hint: 'Cantidad de destinos' },
-      { clave: 'estadistica_viajeros', label: 'Viajeros', placeholder: 'Ej: 1200', hint: 'Cantidad de viajeros' },
-      { clave: 'estadistica_experiencia', label: 'Años de experiencia', placeholder: 'Ej: 15', hint: '' },
-      { clave: 'estadistica_anios', label: 'Años activos', placeholder: 'Ej: 10', hint: '' },
+      { clave: 'estadistica_paquetes', label: 'Paquetes', placeholder: 'Ej: 120+', hint: '' },
+      { clave: 'estadistica_paises', label: 'Países', placeholder: 'Ej: 30+', hint: '' },
+      { clave: 'estadistica_actividades', label: 'Actividades', placeholder: 'Ej: 50+', hint: '' },
+      { clave: 'estadistica_viajeros', label: 'Viajeros felices', placeholder: 'Ej: 10K+', hint: '' },
     ],
   },
 ];

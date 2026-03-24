@@ -21,9 +21,9 @@ const LINKS_EXPLORAR = [
 export default function Footer() {
   const { configuracion } = useConfiguracion();
 
-  const whatsapp = configuracion?.whatsapp || '';
+  const whatsapp = configuracion?.whatsapp_numero || '';
   const email = configuracion?.email_contacto || '';
-  const telefono = configuracion?.telefono || '';
+  const telefono = configuracion?.telefono_contacto || '';
   const instagram = configuracion?.instagram || '';
   const facebook = configuracion?.facebook || '';
   const whatsappUrl = whatsapp

@@ -67,11 +67,11 @@ const POR_QUE_VOYA = [
 
 const TEMPORADAS = [
   { value: '', label: 'Cualquier temporada' },
-  { value: 'verano', label: 'Verano' },
-  { value: 'invierno', label: 'Invierno' },
-  { value: 'primavera', label: 'Primavera' },
-  { value: 'otono', label: 'Otoño' },
-  { value: 'todo-el-ano', label: 'Todo el año' },
+  { value: 'temporada-verano', label: 'Verano' },
+  { value: 'temporada-invierno', label: 'Invierno' },
+  { value: 'temporada-primavera', label: 'Primavera' },
+  { value: 'temporada-otono', label: 'Otoño' },
+  { value: 'temporada-todo-el-ano', label: 'Todo el año' },
 ];
 
 const DURACIONES = [
@@ -149,16 +149,20 @@ function TestimonioCard({ testimonio }) {
   return (
     <div className={styles.testimonioCard}>
       <FaQuoteLeft className={styles.comilla} />
-      <p className={styles.testimonioTexto}>{testimonio.contenido}</p>
+      <p className={styles.testimonioTexto}>{testimonio.texto}</p>
       <div className={styles.testimonioEstrellas}>
         {[1, 2, 3, 4, 5].map((s) => (
-          <FaStar key={s} size={12} className={styles.estrella} />
+          <FaStar
+            key={s}
+            size={12}
+            className={s <= (testimonio.calificacion || 5) ? styles.estrella : styles.estrellaVacia}
+          />
         ))}
       </div>
       <div className={styles.testimonioAutor}>
-        {testimonio.foto ? (
+        {testimonio.imagen_url ? (
           <img
-            src={testimonio.foto}
+            src={testimonio.imagen_url}
             alt={testimonio.nombre}
             className={styles.testimonioFoto}
             onError={(e) => { e.target.style.display = 'none'; }}
@@ -216,8 +220,8 @@ export default function HomePage() {
   function handleBuscar(e) {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (destino) params.set('destino', destino);
-    if (temporada) params.set('temporada', temporada);
+    if (destino) params.set('busqueda', destino);
+    if (temporada) params.set('etiqueta', temporada);
     if (duracion) {
       if (duracion === '15+') {
         params.set('duracion_min', '15');

@@ -10,6 +10,46 @@ const MONEDAS = [
   { value: 'EUR', label: 'EUR (Euro)' },
 ];
 
+const OPCIONES_INCLUYE = [
+  'Vuelo de ida y vuelta',
+  'Hotel (habitación doble)',
+  'Traslados aeropuerto - hotel',
+  'Desayuno incluido',
+  'Media pensión (desayuno + cena)',
+  'Pensión completa',
+  'Guía de turismo en español',
+  'Seguro de viaje básico',
+  'Asistencia al viajero 24hs',
+  'Visitas y excursiones indicadas',
+  'Transfers incluidos',
+  'Impuestos y tasas incluidas',
+  'City tax incluida',
+];
+
+const OPCIONES_NO_INCLUYE = [
+  'Vuelos internacionales',
+  'Visa y trámites consulares',
+  'Gastos personales',
+  'Propinas',
+  'Seguro de viaje premium',
+  'Comidas no mencionadas',
+  'Actividades opcionales',
+  'Bebidas en restaurantes',
+  'Equipaje adicional',
+  'Recargo por habitación individual',
+  'Traslados no indicados',
+];
+
+const CONDICIONES_DEFAULT = `Los paquetes están sujetos a disponibilidad al momento de la reserva. Los precios pueden variar sin previo aviso.
+
+Se requiere el 30% de seña para confirmar la reserva, el saldo restante debe abonarse 30 días antes de la fecha de salida.
+
+Cancelaciones con más de 30 días de anticipación: reembolso del 80% de la seña. Con menos de 30 días: sin reembolso.
+
+Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).
+
+Todos los precios están expresados en USD por persona en base doble, salvo indicación contraria.`;
+
 export default function PaqueteForm({
   defaultValues,
   etiquetas = [],
@@ -36,7 +76,7 @@ export default function PaqueteForm({
       moneda: 'USD',
       duracion_dias: '',
       duracion_noches: '',
-      condiciones: '',
+      condiciones: CONDICIONES_DEFAULT,
       disponible: true,
       destacado: false,
       etiquetas_ids: [],
@@ -278,6 +318,22 @@ export default function PaqueteForm({
                 </div>
               ))}
             </div>
+            {/* Selector de opciones predefinidas */}
+            <select
+              className={styles.select}
+              value=""
+              onChange={(e) => {
+                if (e.target.value && !incluye.includes(e.target.value)) {
+                  setIncluye((prev) => [...prev, e.target.value]);
+                }
+              }}
+            >
+              <option value="">+ Opción predefinida...</option>
+              {OPCIONES_INCLUYE.filter((o) => !incluye.includes(o)).map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+            {/* Input para texto personalizado */}
             <div className={styles.agregarWrap}>
               <input
                 type="text"
@@ -285,7 +341,7 @@ export default function PaqueteForm({
                 value={nuevoIncluye}
                 onChange={(e) => setNuevoIncluye(e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, agregarIncluye)}
-                placeholder="Ej: Desayuno incluido"
+                placeholder="O escribí uno personalizado..."
               />
               <button
                 type="button"
@@ -314,6 +370,22 @@ export default function PaqueteForm({
                 </div>
               ))}
             </div>
+            {/* Selector de opciones predefinidas */}
+            <select
+              className={styles.select}
+              value=""
+              onChange={(e) => {
+                if (e.target.value && !noIncluye.includes(e.target.value)) {
+                  setNoIncluye((prev) => [...prev, e.target.value]);
+                }
+              }}
+            >
+              <option value="">+ Opción predefinida...</option>
+              {OPCIONES_NO_INCLUYE.filter((o) => !noIncluye.includes(o)).map((o) => (
+                <option key={o} value={o}>{o}</option>
+              ))}
+            </select>
+            {/* Input para texto personalizado */}
             <div className={styles.agregarWrap}>
               <input
                 type="text"
@@ -321,7 +393,7 @@ export default function PaqueteForm({
                 value={nuevoNoIncluye}
                 onChange={(e) => setNuevoNoIncluye(e.target.value)}
                 onKeyDown={(e) => handleKeyDown(e, agregarNoIncluye)}
-                placeholder="Ej: Vuelos internacionales"
+                placeholder="O escribí uno personalizado..."
               />
               <button
                 type="button"

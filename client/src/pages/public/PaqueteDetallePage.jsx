@@ -47,6 +47,7 @@ export default function PaqueteDetallePage() {
   const [paquete, setPaquete] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
+  const [tabActiva, setTabActiva] = useState('incluye');
 
   useEffect(() => {
     let cancelado = false;
@@ -93,7 +94,7 @@ export default function PaqueteDetallePage() {
     etiquetas = [],
     destinos = [],
     imagenes = [],
-    itinerarios = [],
+    itinerario: itinerarios = [],
     incluye = [],
     no_incluye = [],
     condiciones,
@@ -135,7 +136,20 @@ export default function PaqueteDetallePage() {
       {/* ============================================================ */}
       {/* HEADER DEL PAQUETE                                            */}
       {/* ============================================================ */}
-      <header className={styles.header}>
+      <header
+        className={styles.header}
+        style={
+          destinoPrincipal?.imagen
+            ? {
+                backgroundImage: `url(${destinoPrincipal.imagen})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+              }
+            : undefined
+        }
+      >
+        {destinoPrincipal?.imagen && <div className={styles.headerImgOverlay} />}
         <div className={styles.headerInner}>
           <div className={styles.metaFila}>
             {destinoPrincipal && (
@@ -190,57 +204,89 @@ export default function PaqueteDetallePage() {
               </section>
             )}
 
-            {/* Incluye / No incluye */}
-            {(incluyeArr.length > 0 || noIncluyeArr.length > 0) && (
-              <section className={styles.seccion}>
-                <h2 className={styles.seccionTitulo}>¿Qué incluye?</h2>
-                <div className={styles.incluyeGrid}>
-                  {incluyeArr.length > 0 && (
-                    <div className={styles.incluyeColumna}>
-                      <h3 className={styles.incluyeSubtitulo}>Incluye</h3>
-                      <ul className={styles.incluyeLista}>
-                        {incluyeArr.map((item, i) => (
-                          <li key={i} className={styles.incluyeItem}>
-                            <FaCheckCircle size={15} className={styles.iconoIncluye} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+            {/* Tabs: Qué incluye / Itinerario / Condiciones */}
+            <div className={styles.tabs}>
+              <div className={styles.tabsNav} role="tablist">
+                <button
+                  role="tab"
+                  aria-selected={tabActiva === 'incluye'}
+                  className={`${styles.tabBtn} ${tabActiva === 'incluye' ? styles.tabBtnActivo : ''}`}
+                  onClick={() => setTabActiva('incluye')}
+                >
+                  ¿Qué incluye?
+                </button>
+                {itinerarios.length > 0 && (
+                  <button
+                    role="tab"
+                    aria-selected={tabActiva === 'itinerario'}
+                    className={`${styles.tabBtn} ${tabActiva === 'itinerario' ? styles.tabBtnActivo : ''}`}
+                    onClick={() => setTabActiva('itinerario')}
+                  >
+                    Itinerario
+                  </button>
+                )}
+                {condiciones && (
+                  <button
+                    role="tab"
+                    aria-selected={tabActiva === 'condiciones'}
+                    className={`${styles.tabBtn} ${tabActiva === 'condiciones' ? styles.tabBtnActivo : ''}`}
+                    onClick={() => setTabActiva('condiciones')}
+                  >
+                    Condiciones
+                  </button>
+                )}
+              </div>
 
-                  {noIncluyeArr.length > 0 && (
-                    <div className={styles.incluyeColumna}>
-                      <h3 className={styles.incluyeSubtitulo}>No incluye</h3>
-                      <ul className={styles.incluyeLista}>
-                        {noIncluyeArr.map((item, i) => (
-                          <li key={i} className={styles.incluyeItem}>
-                            <FaTimesCircle size={15} className={styles.iconoNoIncluye} />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+              {/* Panel: Qué incluye */}
+              <div className={tabActiva === 'incluye' ? styles.tabPanelActivo : styles.tabPanel}>
+                {incluyeArr.length === 0 && noIncluyeArr.length === 0 ? (
+                  <p className={styles.descripcion}>No se especificaron detalles de inclusión.</p>
+                ) : (
+                  <div className={styles.incluyeGrid}>
+                    {incluyeArr.length > 0 && (
+                      <div className={styles.incluyeColumna}>
+                        <h3 className={styles.incluyeSubtitulo}>Incluye</h3>
+                        <ul className={styles.incluyeLista}>
+                          {incluyeArr.map((item, i) => (
+                            <li key={i} className={styles.incluyeItem}>
+                              <FaCheckCircle size={15} className={styles.iconoIncluye} />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {noIncluyeArr.length > 0 && (
+                      <div className={styles.incluyeColumna}>
+                        <h3 className={styles.incluyeSubtitulo}>No incluye</h3>
+                        <ul className={styles.incluyeLista}>
+                          {noIncluyeArr.map((item, i) => (
+                            <li key={i} className={styles.incluyeItem}>
+                              <FaTimesCircle size={15} className={styles.iconoNoIncluye} />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Panel: Itinerario */}
+              {itinerarios.length > 0 && (
+                <div className={tabActiva === 'itinerario' ? styles.tabPanelActivo : styles.tabPanel}>
+                  <PaqueteItinerario itinerarios={itinerarios} />
                 </div>
-              </section>
-            )}
+              )}
 
-            {/* Itinerario */}
-            {itinerarios.length > 0 && (
-              <section className={styles.seccion}>
-                <h2 className={styles.seccionTitulo}>Itinerario día a día</h2>
-                <PaqueteItinerario itinerarios={itinerarios} />
-              </section>
-            )}
-
-            {/* Condiciones */}
-            {condiciones && (
-              <section className={styles.seccion}>
-                <h2 className={styles.seccionTitulo}>Condiciones</h2>
-                <p className={styles.condiciones}>{condiciones}</p>
-              </section>
-            )}
+              {/* Panel: Condiciones */}
+              {condiciones && (
+                <div className={tabActiva === 'condiciones' ? styles.tabPanelActivo : styles.tabPanel}>
+                  <p className={styles.condiciones}>{condiciones}</p>
+                </div>
+              )}
+            </div>
           </main>
 
           {/* ---- Sidebar ---- */}

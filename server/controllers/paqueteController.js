@@ -44,14 +44,15 @@ function buildOrden(orden) {
 const listar = async (req, res, next) => {
   try {
     const {
-      pagina = 1,
+      pagina, page,
       limite = 12,
-      orden,
+      orden, ordenar,
       busqueda,
       destino,
       temporada,
       transporte,
       experiencia,
+      etiqueta,
       precio_min,
       precio_max,
       duracion_min,
@@ -59,6 +60,10 @@ const listar = async (req, res, next) => {
       disponible,
       destacado,
     } = req.query;
+
+    // Accept both naming conventions (frontend uses page/ordenar, legacy uses pagina/orden)
+    const paginaFinal = page || pagina || 1;
+    const ordenFinal = ordenar || orden;
 
     const where = {};
 
@@ -86,12 +91,37 @@ const listar = async (req, res, next) => {
     if (duracion_min) where.duracion_dias = { ...where.duracion_dias, [Op.gte]: Number(duracion_min) };
     if (duracion_max) where.duracion_dias = { ...where.duracion_dias, [Op.lte]: Number(duracion_max) };
 
-    // Tag-based filtering: collect slugs from destino, temporada, transporte, experiencia
+    // Collect ID constraints from separate filter types, then intersect
+    const idConstraints = [];
+
+    // Destino filter via Destino model (not etiquetas)
+    if (destino) {
+      const destinoSlugs = destino.split(',');
+      const destinosEncontrados = await Destino.findAll({ where: { slug: { [Op.in]: destinoSlugs } } });
+      const destinoIds = destinosEncontrados.map((d) => d.id);
+      if (destinoIds.length > 0) {
+        const paquetesConDestino = await Paquete.findAll({
+          attributes: ['id'],
+          include: [{
+            model: Destino,
+            as: 'destinos',
+            where: { id: { [Op.in]: destinoIds } },
+            attributes: [],
+          }],
+          raw: true,
+        });
+        idConstraints.push(paquetesConDestino.map((p) => p.id));
+      } else {
+        idConstraints.push([]);
+      }
+    }
+
+    // Tag-based filtering: temporada, transporte, experiencia (legacy params) + etiqueta (frontend param)
     const tagSlugs = [];
-    if (destino) tagSlugs.push(...destino.split(','));
     if (temporada) tagSlugs.push(...temporada.split(','));
     if (transporte) tagSlugs.push(...transporte.split(','));
     if (experiencia) tagSlugs.push(...experiencia.split(','));
+    if (etiqueta) tagSlugs.push(...etiqueta.split(','));
 
     if (tagSlugs.length > 0) {
       const etiquetas = await Etiqueta.findAll({ where: { slug: { [Op.in]: tagSlugs } } });
@@ -107,21 +137,30 @@ const listar = async (req, res, next) => {
           }],
           raw: true,
         });
-        const paqueteIds = paqueteEtiquetas.map((p) => p.id);
-        where.id = { [Op.in]: paqueteIds.length > 0 ? paqueteIds : [0] };
+        idConstraints.push(paqueteEtiquetas.map((p) => p.id));
       } else {
-        where.id = { [Op.in]: [0] };
+        idConstraints.push([]);
       }
     }
 
+    // Intersect all ID constraints
+    if (idConstraints.length > 0) {
+      let ids = idConstraints[0];
+      for (let i = 1; i < idConstraints.length; i++) {
+        const set = new Set(idConstraints[i]);
+        ids = ids.filter((id) => set.has(id));
+      }
+      where.id = { [Op.in]: ids.length > 0 ? ids : [0] };
+    }
+
     const lim = Math.min(Math.max(Number(limite), 1), 100);
-    const pag = Math.max(Number(pagina), 1);
+    const pag = Math.max(Number(paginaFinal), 1);
     const offset = (pag - 1) * lim;
 
     const { count: total, rows: paquetes } = await Paquete.findAndCountAll({
       where,
       include: includeBase,
-      order: buildOrden(orden),
+      order: buildOrden(ordenFinal),
       limit: lim,
       offset,
       distinct: true,

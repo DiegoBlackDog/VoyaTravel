@@ -75,6 +75,19 @@
   height: 400px;
   background: radial-gradient(circle, rgba(55, 137, 102, 0.18) 0%, transparent 70%);
   pointer-events: none;
+  z-index: 0;
+}
+
+.headerImgOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(0, 0, 0, 0.78) 0%,
+    rgba(0, 0, 0, 0.58) 50%,
+    rgba(15, 50, 35, 0.72) 100%
+  );
+  z-index: 0;
 }
 
 .headerInner {
@@ -277,6 +290,56 @@
 
 .condiciones p:last-child {
   margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tabs                                                                 */
+/* ------------------------------------------------------------------ */
+
+.tabs {
+  margin-bottom: 40px;
+}
+
+.tabsNav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-borde);
+  margin-bottom: 28px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: 12px 22px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.tabBtn:hover {
+  color: var(--color-verde);
+}
+
+.tabBtnActivo {
+  color: var(--color-verde);
+  border-bottom-color: var(--color-verde);
+}
+
+.tabPanel {
+  display: none;
+}
+
+.tabPanelActivo {
+  display: block;
 }
 
 /* ------------------------------------------------------------------ */
