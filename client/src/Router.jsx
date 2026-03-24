@@ -3,9 +3,9 @@ import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import PublicLayout from './components/layout/PublicLayout';
 import HomePage from './pages/public/HomePage';
+import PaquetesPage from './pages/public/PaquetesPage';
 
 // Public pages (placeholders for now)
-const PaquetesPage = () => <div>Paquetes</div>;
 const PaqueteDetallePage = () => <div>Detalle</div>;
 const NosotrosPage = () => <div>Nosotros</div>;
 const ContactoPage = () => <div>Contacto</div>;
