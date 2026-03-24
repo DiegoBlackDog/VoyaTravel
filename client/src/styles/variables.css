@@ -1,0 +1,43 @@
+:root {
+  /* Voyâ Brand Colors */
+  --color-verde: #378966;
+  --color-verde-oscuro: #2a6b4f;
+  --color-verde-claro: #4a9e76;
+  --color-salmon: #fc7c5e;
+  --color-salmon-oscuro: #e66b4f;
+  --color-negro: #1d1d1b;
+  --color-crema: #f7efed;
+  --color-amarillo: #ffc757;
+  --color-blanco: #ffffff;
+  --color-gris: #666666;
+  --color-gris-claro: #999999;
+  --color-borde: #e0e0e0;
+
+  /* Typography */
+  --font-titulares: 'Supertuba Light', 'Arial Black', sans-serif;
+  --font-cuerpo: 'Geomanist Light', 'Helvetica Neue', Arial, sans-serif;
+
+  /* Spacing */
+  --espaciado-xs: 4px;
+  --espaciado-sm: 8px;
+  --espaciado-md: 16px;
+  --espaciado-lg: 24px;
+  --espaciado-xl: 32px;
+  --espaciado-2xl: 48px;
+
+  /* Border Radius */
+  --radio-sm: 6px;
+  --radio-md: 10px;
+  --radio-lg: 14px;
+  --radio-xl: 20px;
+  --radio-completo: 9999px;
+
+  /* Shadows */
+  --sombra-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --sombra-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --sombra-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  /* Layout */
+  --ancho-maximo: 1200px;
+  --navbar-altura: 64px;
+}

@@ -1,0 +1,15 @@
+@import './reset.css';
+@import './variables.css';
+
+.contenedor {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: 0 var(--espaciado-lg);
+}
+
+/* Utility classes */
+.texto-centro { text-align: center; }
+.texto-verde { color: var(--color-verde); }
+.texto-salmon { color: var(--color-salmon); }
+.fondo-verde { background-color: var(--color-verde); }
+.fondo-crema { background-color: var(--color-crema); }
