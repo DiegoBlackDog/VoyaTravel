@@ -24,11 +24,11 @@ export default function Footer() {
   const whatsapp = configuracion?.whatsapp || '';
   const email = configuracion?.email_contacto || '';
   const telefono = configuracion?.telefono || '';
-  const instagram = configuracion?.instagram || '#';
-  const facebook = configuracion?.facebook || '#';
+  const instagram = configuracion?.instagram || '';
+  const facebook = configuracion?.facebook || '';
   const whatsappUrl = whatsapp
     ? `https://wa.me/${whatsapp.replace(/\D/g, '')}`
-    : 'https://wa.me/';
+    : null;
 
   const anio = new Date().getFullYear();
 
@@ -43,24 +43,28 @@ export default function Footer() {
               Tu agencia de viajes de confianza en Uruguay. Exploramos el mundo juntos con destinos únicos y experiencias inolvidables.
             </p>
             <div className={styles.redes}>
-              <a
-                href={instagram !== '#' ? instagram : undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.redSocial}
-                aria-label="Instagram"
-              >
-                <FaInstagram size={18} />
-              </a>
-              <a
-                href={facebook !== '#' ? facebook : undefined}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.redSocial}
-                aria-label="Facebook"
-              >
-                <FaFacebook size={18} />
-              </a>
+              {instagram && (
+                <a
+                  href={instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.redSocial}
+                  aria-label="Instagram"
+                >
+                  <FaInstagram size={18} />
+                </a>
+              )}
+              {facebook && (
+                <a
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.redSocial}
+                  aria-label="Facebook"
+                >
+                  <FaFacebook size={18} />
+                </a>
+              )}
               {whatsapp && (
                 <a
                   href={whatsappUrl}

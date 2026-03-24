@@ -3,6 +3,10 @@ import api from '../services/api';
 
 let cache = null;
 
+export function invalidarConfiguracion() {
+  cache = null;
+}
+
 export function useConfiguracion() {
   const [configuracion, setConfiguracion] = useState(cache);
   const [cargando, setCargando] = useState(!cache);

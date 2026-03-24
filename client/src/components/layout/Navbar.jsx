@@ -20,7 +20,7 @@ export default function Navbar() {
   const whatsapp = configuracion?.whatsapp || '';
   const whatsappUrl = whatsapp
     ? `https://wa.me/${whatsapp.replace(/\D/g, '')}`
-    : 'https://wa.me/';
+    : null;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -66,15 +66,17 @@ export default function Navbar() {
         </ul>
 
         {/* Desktop CTA */}
-        <a
-          href={whatsappUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={styles.ctaWhatsapp}
-        >
-          <FaWhatsapp size={16} />
-          <span>Consultar</span>
-        </a>
+        {whatsappUrl && (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.ctaWhatsapp}
+          >
+            <FaWhatsapp size={16} />
+            <span>Consultar</span>
+          </a>
+        )}
 
         {/* Hamburger */}
         <button
@@ -104,18 +106,20 @@ export default function Navbar() {
               </NavLink>
             </li>
           ))}
-          <li>
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.ctaMovil}
-              onClick={cerrarMenu}
-            >
-              <FaWhatsapp size={16} />
-              <span>Consultar por WhatsApp</span>
-            </a>
-          </li>
+          {whatsappUrl && (
+            <li>
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.ctaMovil}
+                onClick={cerrarMenu}
+              >
+                <FaWhatsapp size={16} />
+                <span>Consultar por WhatsApp</span>
+              </a>
+            </li>
+          )}
         </ul>
       </div>
     </nav>
