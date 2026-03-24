@@ -208,7 +208,7 @@ export default function HomePage() {
   /* Fetch testimonios */
   useEffect(() => {
     api.get('/testimonios')
-      .then(({ data }) => setTestimonios(data.data || data || []))
+      .then(({ data }) => setTestimonios(data.testimonios || []))
       .catch(() => setTestimonios([]));
   }, []);
 

@@ -40,7 +40,7 @@ export function usePaquetes(filtros = {}) {
     listar(params)
       .then((res) => {
         if (cancelado) return;
-        setPaquetes(res.data || []);
+        setPaquetes(res.paquetes || []);
         setTotal(res.total ?? 0);
         setPagina(res.pagina ?? 1);
         setTotalPaginas(res.totalPaginas ?? 1);

@@ -24,7 +24,7 @@ export function useConfiguracion() {
     async function fetchConfiguracion() {
       try {
         const { data } = await api.get('/configuracion');
-        const config = data.data || data;
+        const config = data.configuracion || data.data || data;
         cache = config;
         if (!cancelado) {
           setConfiguracion(config);

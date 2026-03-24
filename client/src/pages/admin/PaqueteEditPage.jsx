@@ -44,7 +44,7 @@ export default function PaqueteEditPage() {
 
     try {
       const { data } = await api.get(`/paquetes/${id}`);
-      const paq = data.data || data;
+      const paq = data.paquete || data;
 
       setPaquete(paq);
       setItinerario(
@@ -72,7 +72,7 @@ export default function PaqueteEditPage() {
     if (!id) return;
     try {
       const { data } = await api.get(`/paquetes/${id}`);
-      const paq = data.data || data;
+      const paq = data.paquete || data;
       setPaquete(paq);
     } catch {
       // Silent fail
@@ -102,7 +102,7 @@ export default function PaqueteEditPage() {
         refrescarPaquete();
       } else {
         const { data } = await api.post('/paquetes', payload);
-        const nuevoPaquete = data.data || data;
+        const nuevoPaquete = data.paquete || data;
         const nuevoId = nuevoPaquete.id;
         setExito('Paquete creado. Redirigiendo...');
         setTimeout(() => {

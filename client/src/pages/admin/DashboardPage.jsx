@@ -44,7 +44,7 @@ export default function DashboardPage() {
     setError('');
     try {
       const { data } = await api.get('/paquetes', { params: { limit: 1000 } });
-      const paquetes = data.data || data;
+      const paquetes = data.paquetes || [];
 
       const total = paquetes.length;
       const disponibles = paquetes.filter((p) => p.activo !== false && p.visible !== false).length;

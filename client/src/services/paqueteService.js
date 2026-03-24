@@ -21,7 +21,7 @@ export function urlImagen(filename) {
  */
 export async function obtenerDestacados() {
   const { data } = await api.get('/paquetes/destacados');
-  return data.data || data;
+  return data.paquetes || data.data || [];
 }
 
 /**
@@ -51,5 +51,5 @@ export async function listar(params = {}) {
  */
 export async function obtenerPorSlug(slug) {
   const { data } = await api.get(`/paquetes/${slug}`);
-  return data.data || data;
+  return data.paquete || data;
 }
