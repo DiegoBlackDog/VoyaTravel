@@ -1,0 +1,254 @@
+.formulario {
+  background: var(--color-blanco);
+}
+
+.titulo {
+  font-family: var(--font-titulares);
+  font-size: 1.35rem;
+  color: var(--color-negro);
+  margin: 0 0 6px;
+}
+
+.subtitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-gris);
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+/* Campo */
+.campo {
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.requerido {
+  color: var(--color-salmon);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 10px 14px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  color: var(--color-negro);
+  background: #fafafa;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: var(--color-verde);
+  background: var(--color-blanco);
+}
+
+.inputError {
+  border-color: var(--color-salmon);
+}
+
+.error {
+  display: block;
+  font-family: var(--font-cuerpo);
+  font-size: 0.77rem;
+  color: var(--color-salmon-oscuro);
+  margin-top: 4px;
+}
+
+/* Pasajeros row */
+.pasajerosRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pasajerosRow .campo {
+  margin-bottom: 0;
+}
+
+.inputNumero {
+  width: 100%;
+  padding: 10px 10px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  color: var(--color-negro);
+  background: #fafafa;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.inputNumero:focus {
+  border-color: var(--color-verde);
+  background: var(--color-blanco);
+}
+
+/* Error de envío */
+.errorEnvio {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #fff3f0;
+  border: 1px solid #ffd0c5;
+  border-radius: var(--radio-md);
+  color: var(--color-salmon-oscuro);
+  font-family: var(--font-cuerpo);
+  font-size: 0.83rem;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+/* Botón enviar */
+.btnEnviar {
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--color-verde);
+  color: var(--color-blanco);
+  border: none;
+  border-radius: var(--radio-completo);
+  font-family: var(--font-cuerpo);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btnEnviar:hover:not(:disabled) {
+  background: var(--color-verde-oscuro);
+  transform: translateY(-1px);
+}
+
+.btnEnviar:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Separador */
+.separador {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: var(--color-gris-claro);
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+}
+
+.separador::before,
+.separador::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-borde);
+}
+
+/* WhatsApp button */
+.whatsappBtn {
+  width: 100%;
+  padding: 13px 20px;
+  background: #25d366;
+  color: var(--color-blanco);
+  border: none;
+  border-radius: var(--radio-completo);
+  font-family: var(--font-cuerpo);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.whatsappBtn:hover {
+  background: #1eb956;
+  transform: translateY(-1px);
+}
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Estado de éxito */
+.exito {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 0;
+  gap: 12px;
+}
+
+.exitoIcono {
+  color: var(--color-verde);
+}
+
+.exitoTitulo {
+  font-family: var(--font-titulares);
+  font-size: 1.3rem;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.exitoTexto {
+  font-family: var(--font-cuerpo);
+  font-size: 0.88rem;
+  color: var(--color-gris);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 300px;
+}
+
+.nuevaConsultaBtn {
+  background: none;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-completo);
+  padding: 10px 20px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  width: 100%;
+}
+
+.nuevaConsultaBtn:hover {
+  border-color: var(--color-verde);
+  color: var(--color-verde);
+}

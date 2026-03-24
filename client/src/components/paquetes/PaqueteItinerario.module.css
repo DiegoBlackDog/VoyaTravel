@@ -1,0 +1,88 @@
+.itinerario {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.dia {
+  display: flex;
+  gap: 20px;
+  position: relative;
+}
+
+/* Timeline column */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  width: 24px;
+}
+
+.punto {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-verde);
+  border: 3px solid var(--color-blanco);
+  box-shadow: 0 0 0 2px var(--color-verde);
+  flex-shrink: 0;
+  margin-top: 4px;
+  z-index: 1;
+}
+
+.linea {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--color-verde), rgba(55, 137, 102, 0.25));
+  min-height: 32px;
+}
+
+/* Content */
+.contenido {
+  padding-bottom: 32px;
+  flex: 1;
+  min-width: 0;
+}
+
+.diaHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.diaLabel {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-verde);
+  background: rgba(55, 137, 102, 0.1);
+  padding: 3px 10px;
+  border-radius: var(--radio-completo);
+  white-space: nowrap;
+}
+
+.diaTitulo {
+  font-family: var(--font-titulares);
+  font-size: 1.15rem;
+  color: var(--color-negro);
+  margin: 0;
+  line-height: 1.25;
+}
+
+.diaDescripcion {
+  font-family: var(--font-cuerpo);
+  font-size: 0.92rem;
+  color: var(--color-gris);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Last item has no bottom padding */
+.dia:last-child .contenido {
+  padding-bottom: 8px;
+}

@@ -1,0 +1,77 @@
+.galeriaWrapper {
+  width: 100%;
+  border-radius: var(--radio-xl);
+  overflow: hidden;
+  box-shadow: var(--sombra-md);
+  background: var(--color-negro);
+}
+
+.swiper {
+  width: 100%;
+  height: 480px;
+}
+
+.slide {
+  overflow: hidden;
+}
+
+.imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.placeholder {
+  width: 100%;
+  height: 340px;
+  border-radius: var(--radio-xl);
+  background: var(--color-crema);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gris-claro);
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+}
+
+/* Override Swiper dots */
+.swiper :global(.swiper-pagination-bullet) {
+  background: rgba(255, 255, 255, 0.6);
+  opacity: 1;
+  width: 8px;
+  height: 8px;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.swiper :global(.swiper-pagination-bullet-active) {
+  background: var(--color-verde);
+  transform: scale(1.3);
+}
+
+.swiper :global(.swiper-button-next),
+.swiper :global(.swiper-button-prev) {
+  color: var(--color-blanco);
+  background: rgba(0, 0, 0, 0.35);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.swiper :global(.swiper-button-next):hover,
+.swiper :global(.swiper-button-prev):hover {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.swiper :global(.swiper-button-next)::after,
+.swiper :global(.swiper-button-prev)::after {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .swiper {
+    height: 280px;
+  }
+}
