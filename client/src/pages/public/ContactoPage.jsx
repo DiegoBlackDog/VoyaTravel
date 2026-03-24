@@ -48,8 +48,11 @@ export default function ContactoPage() {
     }
   }
 
+  const whatsappDisponible = !cargandoConfig && configuracion?.whatsapp;
+
   function handleWhatsApp() {
-    const numero = configuracion?.whatsapp || '';
+    if (!whatsappDisponible) return;
+    const numero = configuracion.whatsapp.replace(/\D/g, '');
     const texto = encodeURIComponent('Hola! Me gustaría obtener más información sobre sus paquetes.');
     window.open(`https://wa.me/${numero}?text=${texto}`, '_blank', 'noopener,noreferrer');
   }

@@ -240,7 +240,7 @@ export default function NosotrosPage() {
               <span className={styles.statLabel}>Paquetes activos</span>
             </div>
             <div className={styles.statItem}>
-              <span className={styles.statNumero}>6</span>
+              <span className={styles.statNumero}>{new Date().getFullYear() - 2018}</span>
               <span className={styles.statLabel}>Años de experiencia</span>
             </div>
           </div>

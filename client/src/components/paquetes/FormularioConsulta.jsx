@@ -6,7 +6,8 @@ import { useConfiguracion } from '../../hooks/useConfiguracion';
 import styles from './FormularioConsulta.module.css';
 
 export default function FormularioConsulta({ paquete }) {
-  const { configuracion } = useConfiguracion();
+  const { configuracion, cargando: cargandoConfig } = useConfiguracion();
+  const whatsappDisponible = !cargandoConfig && configuracion?.whatsapp;
   const [enviado, setEnviado] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState('');
 
@@ -30,13 +31,15 @@ export default function FormularioConsulta({ paquete }) {
   async function onSubmit(datos) {
     setErrorEnvio('');
     try {
-      const paxInfo = `Pasajeros: ${datos.adultos} adulto(s)${datos.ninos > 0 ? `, ${datos.ninos} niño(s)` : ''}${datos.infantes > 0 ? `, ${datos.infantes} infante(s)` : ''}`;
       await enviarConsulta({
         nombre: datos.nombre,
         email: datos.email,
-        telefono: datos.celular,
-        mensaje: `${paxInfo}\n\n${datos.mensaje}`,
-        paquete_nombre: paquete?.titulo || '',
+        celular: datos.celular,
+        mensaje: datos.mensaje,
+        paquete_titulo: paquete?.titulo || '',
+        adultos: datos.adultos,
+        ninos: datos.ninos,
+        infantes: datos.infantes,
       });
       setEnviado(true);
       reset();
@@ -62,14 +65,16 @@ export default function FormularioConsulta({ paquete }) {
         <p className={styles.exitoTexto}>
           Nos pondremos en contacto contigo a la brevedad. También podés escribirnos por WhatsApp para una respuesta más rápida.
         </p>
-        <button
-          type="button"
-          className={styles.whatsappBtn}
-          onClick={handleWhatsApp}
-        >
-          <FaWhatsapp size={18} />
-          Escribir por WhatsApp
-        </button>
+        {whatsappDisponible && (
+          <button
+            type="button"
+            className={styles.whatsappBtn}
+            onClick={handleWhatsApp}
+          >
+            <FaWhatsapp size={18} />
+            Escribir por WhatsApp
+          </button>
+        )}
         <button
           type="button"
           className={styles.nuevaConsultaBtn}
@@ -223,18 +228,22 @@ export default function FormularioConsulta({ paquete }) {
         </button>
       </form>
 
-      <div className={styles.separador}>
-        <span>o también</span>
-      </div>
+      {whatsappDisponible && (
+        <div className={styles.separador}>
+          <span>o también</span>
+        </div>
+      )}
 
-      <button
-        type="button"
-        className={styles.whatsappBtn}
-        onClick={handleWhatsApp}
-      >
-        <FaWhatsapp size={18} />
-        Consultar por WhatsApp
-      </button>
+      {whatsappDisponible && (
+        <button
+          type="button"
+          className={styles.whatsappBtn}
+          onClick={handleWhatsApp}
+        >
+          <FaWhatsapp size={18} />
+          Consultar por WhatsApp
+        </button>
+      )}
     </div>
   );
 }

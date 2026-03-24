@@ -177,10 +177,7 @@ export default function PaqueteDetallePage() {
             {descripcion && (
               <section className={styles.seccion}>
                 <h2 className={styles.seccionTitulo}>Descripción</h2>
-                <div
-                  className={styles.descripcion}
-                  dangerouslySetInnerHTML={{ __html: descripcion }}
-                />
+                <p className={styles.descripcion}>{descripcion}</p>
               </section>
             )}
 
@@ -232,10 +229,7 @@ export default function PaqueteDetallePage() {
             {condiciones && (
               <section className={styles.seccion}>
                 <h2 className={styles.seccionTitulo}>Condiciones</h2>
-                <div
-                  className={styles.condiciones}
-                  dangerouslySetInnerHTML={{ __html: condiciones }}
-                />
+                <p className={styles.condiciones}>{condiciones}</p>
               </section>
             )}
           </main>
