@@ -1,0 +1,206 @@
+.contenedor {
+  background: #fff;
+  border-radius: var(--radio-lg);
+  border: 1.5px solid var(--color-borde);
+  padding: var(--espaciado-lg);
+}
+
+.seccionTitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  font-family: var(--font-cuerpo);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin: 0 0 var(--espaciado-md);
+}
+
+.aviso {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-gris);
+  background: var(--color-crema);
+  padding: 10px var(--espaciado-md);
+  border-radius: var(--radio-md);
+  margin: 0 0 var(--espaciado-md);
+}
+
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaciado-sm);
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: var(--radio-md);
+  padding: 8px var(--espaciado-md);
+  margin-bottom: var(--espaciado-md);
+  color: #dc2626;
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+}
+
+.errorCerrar {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+}
+
+/* ── Drop Zone ── */
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaciado-xl) var(--espaciado-md);
+  border: 2px dashed var(--color-borde);
+  border-radius: var(--radio-md);
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  text-align: center;
+}
+
+.dropZone:hover {
+  border-color: var(--color-verde);
+  background: rgba(55, 137, 102, 0.03);
+}
+
+.dropZoneActiva {
+  border-color: var(--color-verde);
+  background: rgba(55, 137, 102, 0.06);
+}
+
+.dropZoneDeshabilitada {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dropZoneDeshabilitada:hover {
+  border-color: var(--color-borde);
+  background: #fafafa;
+}
+
+.inputOculto {
+  display: none;
+}
+
+.dropIcono {
+  color: var(--color-gris-claro);
+  margin-bottom: var(--espaciado-sm);
+}
+
+.dropTexto {
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  color: var(--color-negro);
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.dropHint {
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  color: var(--color-gris-claro);
+  margin: 0;
+}
+
+/* ── Gallery ── */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: var(--espaciado-sm);
+  margin-top: var(--espaciado-md);
+}
+
+.thumbnail {
+  position: relative;
+  border-radius: var(--radio-md);
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+
+.thumbnail:hover .thumbnailOverlay {
+  opacity: 1;
+}
+
+.thumbnailPortada {
+  border-color: var(--color-verde);
+}
+
+.thumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbnailOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaciado-sm);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.thumbnailBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radio-completo);
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-negro);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.thumbnailBtn:hover {
+  background: #fff;
+}
+
+.thumbnailBtnActivo {
+  background: var(--color-amarillo);
+  color: #fff;
+}
+
+.thumbnailBtnActivo:hover {
+  background: var(--color-amarillo);
+}
+
+.thumbnailBtnEliminar:hover {
+  background: #fecaca;
+  color: #dc2626;
+}
+
+.badgePortada {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  padding: 2px 8px;
+  background: var(--color-verde);
+  color: #fff;
+  font-family: var(--font-cuerpo);
+  font-size: 0.7rem;
+  font-weight: 600;
+  border-radius: var(--radio-sm);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .galeria {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}

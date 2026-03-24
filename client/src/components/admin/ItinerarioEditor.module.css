@@ -1,0 +1,201 @@
+.contenedor {
+  background: #fff;
+  border-radius: var(--radio-lg);
+  border: 1.5px solid var(--color-borde);
+  padding: var(--espaciado-lg);
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaciado-md);
+  flex-wrap: wrap;
+  gap: var(--espaciado-sm);
+}
+
+.seccionTitulo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  font-family: var(--font-cuerpo);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.botonAgregar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  background: var(--color-verde);
+  color: #fff;
+  border: none;
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.botonAgregar:hover {
+  background: var(--color-verde-oscuro);
+}
+
+.vacio {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-gris);
+  text-align: center;
+  padding: var(--espaciado-xl) 0;
+  margin: 0;
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-md);
+}
+
+/* ── Day card ── */
+.diaCard {
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  padding: var(--espaciado-md);
+  background: #fafafa;
+  transition: border-color 0.15s;
+}
+
+.diaCard:hover {
+  border-color: var(--color-verde-claro);
+}
+
+.diaHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaciado-sm);
+}
+
+.diaNumero {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-verde);
+  background: rgba(55, 137, 102, 0.08);
+  padding: 3px 10px;
+  border-radius: var(--radio-sm);
+}
+
+.diaAcciones {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.botonMover {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.botonMover:hover:not(:disabled) {
+  border-color: var(--color-verde);
+  color: var(--color-verde);
+}
+
+.botonMover:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.botonEliminar {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.botonEliminar:hover {
+  border-color: #fecaca;
+  color: #dc2626;
+  background: #fff5f5;
+}
+
+/* ── Fields ── */
+.diaCampos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-sm);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin-bottom: 4px;
+}
+
+.input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-negro);
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--color-verde);
+}
+
+.textarea {
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-negro);
+  background: #fff;
+  outline: none;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+
+.textarea:focus {
+  border-color: var(--color-verde);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .contenedor {
+    padding: var(--espaciado-md);
+  }
+}

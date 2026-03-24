@@ -10,15 +10,13 @@ import NosotrosPage from './pages/public/NosotrosPage';
 import ContactoPage from './pages/public/ContactoPage';
 import LoginPage from './pages/admin/LoginPage';
 import DashboardPage from './pages/admin/DashboardPage';
-
-// Admin pages (placeholders until implemented)
-const PaquetesListPage = () => <div>Admin Paquetes</div>;
-const PaqueteEditPage = () => <div>Editar Paquete</div>;
-const EtiquetasPage = () => <div>Etiquetas</div>;
-const DestinosPage = () => <div>Destinos</div>;
-const TestimoniosPage = () => <div>Testimonios</div>;
-const ConfiguracionPage = () => <div>Configuración</div>;
-const UsuariosPage = () => <div>Usuarios</div>;
+import PaquetesListPage from './pages/admin/PaquetesListPage';
+import PaqueteEditPage from './pages/admin/PaqueteEditPage';
+import EtiquetasPage from './pages/admin/EtiquetasPage';
+import DestinosPage from './pages/admin/DestinosPage';
+import TestimoniosPage from './pages/admin/TestimoniosPage';
+import ConfiguracionPage from './pages/admin/ConfiguracionPage';
+import UsuariosPage from './pages/admin/UsuariosPage';
 
 function RutaProtegida({ rolMinimo }) {
   const { usuario, cargando } = useContext(AuthContext);

@@ -1,0 +1,204 @@
+.pagina {
+  padding: var(--espaciado-xl);
+  max-width: 1100px;
+}
+
+/* ── Header ── */
+.encabezado {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--espaciado-md);
+  margin-bottom: var(--espaciado-xl);
+  flex-wrap: wrap;
+}
+
+.titulo {
+  font-family: var(--font-titulares);
+  font-size: 2rem;
+  color: var(--color-negro);
+  margin: 0 0 4px;
+  line-height: 1.1;
+}
+
+.subtitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  color: var(--color-gris);
+  margin: 0;
+}
+
+/* ── Alerts ── */
+.alerta {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  background: #fff5f5;
+  border: 1px solid #fecaca;
+  border-radius: var(--radio-md);
+  padding: 10px var(--espaciado-md);
+  margin-bottom: var(--espaciado-lg);
+  color: #dc2626;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+}
+
+.alertaExito {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radio-md);
+  padding: 10px var(--espaciado-md);
+  margin-bottom: var(--espaciado-lg);
+  color: #16a34a;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+}
+
+.alertaCerrar {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  color: inherit;
+}
+
+/* ── Section groups ── */
+.seccionGrupo {
+  background: #fff;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  padding: var(--espaciado-lg);
+  margin-bottom: var(--espaciado-lg);
+}
+
+.seccionTitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-gris);
+  margin: 0 0 var(--espaciado-lg);
+  padding-bottom: var(--espaciado-sm);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.seccionDesc {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  color: var(--color-gris-claro);
+  margin: -8px 0 var(--espaciado-lg);
+}
+
+/* ── Form ── */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--espaciado-md);
+}
+
+.formGroup {
+  margin-bottom: 0;
+}
+
+.formGroup label {
+  display: block;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin-bottom: 4px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-negro);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.formInput:focus {
+  border-color: var(--color-verde);
+}
+
+.formInput::placeholder {
+  color: var(--color-gris-claro);
+}
+
+.formHint {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  color: var(--color-gris-claro);
+  margin-top: 2px;
+}
+
+/* ── Buttons ── */
+.seccionAcciones {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espaciado-sm);
+  margin-top: var(--espaciado-lg);
+  padding-top: var(--espaciado-md);
+  border-top: 1px solid var(--color-borde);
+}
+
+.botonPrimario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  background: var(--color-verde);
+  color: #fff;
+  border: none;
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.botonPrimario:hover {
+  background: var(--color-verde-oscuro);
+}
+
+.botonPrimario:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Loading ── */
+.cargando {
+  text-align: center;
+  padding: var(--espaciado-2xl);
+  font-family: var(--font-cuerpo);
+  color: var(--color-gris);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .pagina {
+    padding: var(--espaciado-lg) var(--espaciado-md);
+  }
+
+  .titulo {
+    font-size: 1.6rem;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
