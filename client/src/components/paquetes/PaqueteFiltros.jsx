@@ -129,18 +129,17 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
   /* Fetch destinos y etiquetas */
   useEffect(() => {
     Promise.all([
-      api.get('/destinos').then(({ data }) => data.data || data || []),
-      api.get('/etiquetas').then(({ data }) => data.data || data || []),
+      api.get('/destinos').then(({ data }) => data.destinos || data.data || []),
+      api.get('/etiquetas').then(({ data }) => data.categorias || data.data || []),
     ])
-      .then(([destinosData, etiquetasData]) => {
+      .then(([destinosData, categoriasData]) => {
         setDestinos(destinosData);
 
-        // Agrupar etiquetas por categoría (nombre)
+        // El API retorna { categorias: [{ nombre, etiquetas: [...] }] }
         const grupos = { Temporada: [], Transporte: [], Experiencia: [] };
-        etiquetasData.forEach((e) => {
-          const cat = e.categoria; // puede ser string con el nombre de la categoría
-          if (grupos[cat]) {
-            grupos[cat].push(e);
+        categoriasData.forEach((cat) => {
+          if (grupos[cat.nombre]) {
+            grupos[cat.nombre] = cat.etiquetas || [];
           }
         });
         setEtiquetas(grupos);
