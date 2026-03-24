@@ -29,7 +29,7 @@ export default function PaqueteGaleria({ imagenes = [], titulo = '' }) {
         {imagenes.map((img) => (
           <SwiperSlide key={img.id} className={styles.slide}>
             <img
-              src={urlImagen(img.url)}
+              src={urlImagen(img.ruta_imagen || img.url)}
               alt={`${titulo} - imagen ${img.orden}`}
               className={styles.imagen}
               loading="lazy"

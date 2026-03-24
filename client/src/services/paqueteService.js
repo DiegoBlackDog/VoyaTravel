@@ -10,8 +10,12 @@ const BASE_URL = import.meta.env.DEV
  * @returns {string} URL completa
  */
 export function urlImagen(filename) {
-  if (!filename) return '/placeholder-paquete.jpg';
+  if (!filename) return null;
   if (filename.startsWith('http')) return filename;
+  // ruta_imagen comes as "/uploads/paquetes/uuid.jpg" — prepend host in dev
+  if (filename.startsWith('/')) {
+    return import.meta.env.DEV ? `http://localhost:4000${filename}` : filename;
+  }
   return `${BASE_URL}${filename}`;
 }
 

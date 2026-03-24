@@ -188,7 +188,7 @@ export default function ImageUploader({ paqueteId, imagenes = [], onUpdate }) {
                 className={`${styles.thumbnail} ${img.es_portada ? styles.thumbnailPortada : ''}`}
               >
                 <img
-                  src={resolverUrl(img.url)}
+                  src={resolverUrl(img.ruta_imagen || img.url)}
                   alt=""
                   className={styles.thumbnailImg}
                 />

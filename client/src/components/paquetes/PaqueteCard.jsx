@@ -31,9 +31,12 @@ export default function PaqueteCard({ paquete }) {
     resumen,
     precio_adulto,
     duracion_dias,
-    imagen_portada,
+    imagenes = [],
     etiquetas = [],
   } = paquete;
+
+  const portada = imagenes.find((i) => i.es_portada) || imagenes[0];
+  const imagen_portada = portada?.ruta_imagen || portada?.url || null;
 
   const temporada = getEtiqueta(etiquetas, 'temporada');
   const destino = getEtiqueta(etiquetas, 'destino');
