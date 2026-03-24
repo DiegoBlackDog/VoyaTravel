@@ -1,0 +1,323 @@
+/* ── Layout shell ── */
+.shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-crema);
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--color-negro);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 200;
+  overflow-y: auto;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Logo ── */
+.logo {
+  display: block;
+  font-family: var(--font-titulares);
+  font-size: 2rem;
+  color: #ffffff;
+  text-decoration: none;
+  padding: var(--espaciado-xl) var(--espaciado-lg) var(--espaciado-lg);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+/* ── Navigation ── */
+.nav {
+  flex: 1;
+  padding: var(--espaciado-sm) 0;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  padding: 10px var(--espaciado-lg);
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  border-radius: 0;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.navLinkActivo {
+  background: rgba(55, 137, 102, 0.18);
+  color: var(--color-verde-claro);
+}
+
+.navLinkActivo::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--color-verde);
+  border-radius: 0 2px 2px 0;
+}
+
+.navIcon {
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.navLinkActivo .navIcon {
+  opacity: 1;
+}
+
+/* ── Footer sidebar (user info + logout) ── */
+.footerSidebar {
+  padding: var(--espaciado-md) var(--espaciado-md);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.usuarioInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  margin-bottom: var(--espaciado-sm);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-verde);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.usuarioDatos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.usuarioNombre {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Role badges */
+.badge {
+  display: inline-block;
+  font-family: var(--font-cuerpo);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 1px 7px;
+  border-radius: var(--radio-completo);
+  width: fit-content;
+}
+
+.badgeAdmin {
+  background: rgba(252, 124, 94, 0.2);
+  color: var(--color-salmon);
+}
+
+.badgeEditor {
+  background: rgba(55, 137, 102, 0.2);
+  color: var(--color-verde-claro);
+}
+
+.badgeVisor {
+  background: rgba(255, 199, 87, 0.2);
+  color: var(--color-amarillo);
+}
+
+/* Logout button */
+.botonLogout {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+  width: 100%;
+  padding: 8px var(--espaciado-sm);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radio-md);
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.botonLogout:hover:not(:disabled) {
+  background: rgba(252, 124, 94, 0.12);
+  color: var(--color-salmon);
+  border-color: rgba(252, 124, 94, 0.2);
+}
+
+.botonLogout:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Main content ── */
+.contenido {
+  flex: 1;
+  margin-left: 240px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Mobile top bar (hidden on desktop) ── */
+.topbarMovil {
+  display: none;
+  align-items: center;
+  height: 56px;
+  background: var(--color-negro);
+  padding: 0 var(--espaciado-md);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 150;
+  gap: var(--espaciado-md);
+}
+
+.hamburger {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: var(--espaciado-xs);
+  border-radius: var(--radio-sm);
+  transition: background 0.15s;
+}
+
+.hamburger:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.logoMovil {
+  font-family: var(--font-titulares);
+  font-size: 1.4rem;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+}
+
+.topbarSpacer {
+  flex: 1;
+}
+
+/* Overlay */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 190;
+  backdrop-filter: blur(2px);
+}
+
+/* Close button inside sidebar (mobile) */
+.cerrarSidebar {
+  display: none;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  padding: var(--espaciado-sm);
+  position: absolute;
+  top: var(--espaciado-sm);
+  right: var(--espaciado-sm);
+  border-radius: var(--radio-sm);
+  transition: background 0.15s, color 0.15s;
+}
+
+.cerrarSidebar:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+/* Spinner logout */
+.spinnerLogout {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  animation: girar 0.7s linear infinite;
+}
+
+@keyframes girar {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive (< 768px) ── */
+@media (max-width: 767px) {
+  .topbarMovil {
+    display: flex;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+    min-width: 280px;
+    position: fixed;
+  }
+
+  .sidebarAbierto {
+    transform: translateX(0);
+  }
+
+  .cerrarSidebar {
+    display: block;
+  }
+
+  .logo {
+    padding-top: var(--espaciado-2xl);
+  }
+
+  .contenido {
+    margin-left: 0;
+    padding-top: 56px; /* height of topbarMovil */
+  }
+}
