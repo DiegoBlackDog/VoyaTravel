@@ -46,7 +46,7 @@ export default function PaqueteCard({ paquete }) {
           alt={titulo}
           loading="lazy"
           onError={(e) => {
-            e.target.src = 'https://placehold.co/400x280/378966/white?text=Voyâ';
+            e.target.src = '/placeholder-paquete.jpg';
           }}
         />
         {temporada && (

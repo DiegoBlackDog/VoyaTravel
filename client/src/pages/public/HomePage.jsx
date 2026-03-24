@@ -285,6 +285,7 @@ export default function HomePage() {
               <input
                 type="text"
                 placeholder="¿A dónde querés ir?"
+                aria-label="Destino"
                 value={destino}
                 onChange={(e) => setDestino(e.target.value)}
                 className={styles.buscadorInput}
@@ -299,6 +300,7 @@ export default function HomePage() {
                 value={temporada}
                 onChange={(e) => setTemporada(e.target.value)}
                 className={styles.buscadorSelect}
+                aria-label="Temporada"
               >
                 {TEMPORADAS.map((t) => (
                   <option key={t.value} value={t.value}>
@@ -316,6 +318,7 @@ export default function HomePage() {
                 value={duracion}
                 onChange={(e) => setDuracion(e.target.value)}
                 className={styles.buscadorSelect}
+                aria-label="Duración"
               >
                 {DURACIONES.map((d) => (
                   <option key={d.value} value={d.value}>
@@ -333,6 +336,7 @@ export default function HomePage() {
                 value={presupuesto}
                 onChange={(e) => setPresupuesto(e.target.value)}
                 className={styles.buscadorSelect}
+                aria-label="Presupuesto"
               >
                 {PRESUPUESTOS.map((p) => (
                   <option key={p.value} value={p.value}>

@@ -1,6 +1,8 @@
 import api from './api';
 
-const BASE_URL = 'http://localhost:4000/uploads/';
+const BASE_URL = import.meta.env.DEV
+  ? 'http://localhost:4000/uploads/'
+  : '/uploads/';
 
 /**
  * Construye la URL completa para una imagen de portada.
