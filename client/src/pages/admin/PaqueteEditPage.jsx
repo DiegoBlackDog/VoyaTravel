@@ -104,10 +104,7 @@ export default function PaqueteEditPage() {
         const { data } = await api.post('/paquetes', payload);
         const nuevoPaquete = data.paquete || data;
         const nuevoId = nuevoPaquete.id;
-        setExito('Paquete creado. Redirigiendo...');
-        setTimeout(() => {
-          navigate(`/admin/paquetes/${nuevoId}`, { replace: true });
-        }, 600);
+        navigate(`/admin/paquetes/${nuevoId}`, { replace: true });
       }
     } catch (err) {
       const msg =
