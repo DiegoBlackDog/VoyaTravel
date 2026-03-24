@@ -2,9 +2,9 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
 import PublicLayout from './components/layout/PublicLayout';
+import HomePage from './pages/public/HomePage';
 
 // Public pages (placeholders for now)
-const HomePage = () => <div>Home</div>;
 const PaquetesPage = () => <div>Paquetes</div>;
 const PaqueteDetallePage = () => <div>Detalle</div>;
 const NosotrosPage = () => <div>Nosotros</div>;
