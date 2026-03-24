@@ -237,55 +237,53 @@ export default function PaqueteDetallePage() {
                 )}
               </div>
 
-              {/* Panel: Qué incluye */}
-              <div className={tabActiva === 'incluye' ? styles.tabPanelActivo : styles.tabPanel}>
-                {incluyeArr.length === 0 && noIncluyeArr.length === 0 ? (
-                  <p className={styles.descripcion}>No se especificaron detalles de inclusión.</p>
-                ) : (
-                  <div className={styles.incluyeGrid}>
-                    {incluyeArr.length > 0 && (
-                      <div className={styles.incluyeColumna}>
-                        <h3 className={styles.incluyeSubtitulo}>Incluye</h3>
-                        <ul className={styles.incluyeLista}>
-                          {incluyeArr.map((item, i) => (
-                            <li key={i} className={styles.incluyeItem}>
-                              <FaCheckCircle size={15} className={styles.iconoIncluye} />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {noIncluyeArr.length > 0 && (
-                      <div className={styles.incluyeColumna}>
-                        <h3 className={styles.incluyeSubtitulo}>No incluye</h3>
-                        <ul className={styles.incluyeLista}>
-                          {noIncluyeArr.map((item, i) => (
-                            <li key={i} className={styles.incluyeItem}>
-                              <FaTimesCircle size={15} className={styles.iconoNoIncluye} />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <div className={styles.tabsContenido}>
+                {/* Panel: Qué incluye */}
+                <div className={tabActiva === 'incluye' ? styles.tabPanelActivo : styles.tabPanel}>
+                  {incluyeArr.length === 0 && noIncluyeArr.length === 0 ? (
+                    <p className={styles.descripcion}>No se especificaron detalles de inclusión.</p>
+                  ) : (
+                    <div className={styles.incluyeGrid}>
+                      {incluyeArr.length > 0 && (
+                        <div className={styles.incluyeColumna}>
+                          <h3 className={styles.incluyeSubtitulo}>Incluye</h3>
+                          <ul className={styles.incluyeLista}>
+                            {incluyeArr.map((item, i) => (
+                              <li key={i} className={styles.incluyeItem}>
+                                <FaCheckCircle size={15} className={styles.iconoIncluye} />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {noIncluyeArr.length > 0 && (
+                        <div className={styles.incluyeColumna}>
+                          <h3 className={styles.incluyeSubtitulo}>No incluye</h3>
+                          <ul className={styles.incluyeLista}>
+                            {noIncluyeArr.map((item, i) => (
+                              <li key={i} className={styles.incluyeItem}>
+                                <FaTimesCircle size={15} className={styles.iconoNoIncluye} />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-              {/* Panel: Itinerario */}
-              {itinerarios.length > 0 && (
+                {/* Panel: Itinerario */}
                 <div className={tabActiva === 'itinerario' ? styles.tabPanelActivo : styles.tabPanel}>
                   <PaqueteItinerario itinerarios={itinerarios} />
                 </div>
-              )}
 
-              {/* Panel: Condiciones */}
-              {condiciones && (
+                {/* Panel: Condiciones */}
                 <div className={tabActiva === 'condiciones' ? styles.tabPanelActivo : styles.tabPanel}>
-                  <p className={styles.condiciones}>{condiciones}</p>
+                  {condiciones && <p className={styles.condiciones}>{condiciones}</p>}
                 </div>
-              )}
+              </div>
             </div>
           </main>
 

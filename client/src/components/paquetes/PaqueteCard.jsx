@@ -1,26 +1,55 @@
 import { Link } from 'react-router-dom';
-import { FaPlane, FaHotel, FaUtensils, FaBed, FaTag } from 'react-icons/fa';
+import {
+  FaPlane, FaHotel, FaUtensils, FaBed, FaTag, FaCoffee,
+  FaBus, FaShip, FaTrain, FaCar, FaMotorcycle, FaBicycle,
+} from 'react-icons/fa';
 import { urlImagen } from '../../services/paqueteService';
 import styles from './PaqueteCard.module.css';
 
-/**
- * Extrae las etiquetas por categoría.
- */
 function getEtiqueta(etiquetas = [], categoria) {
   return etiquetas.find((e) => e.categoria?.nombre === categoria);
 }
 
-/**
- * Determina qué servicios muestra la tarjeta basándose en etiquetas.
- * Por ahora mostramos iconos fijos (todos los paquetes incluyen vuelo, hotel, comidas, alojamiento).
- * En el futuro se pueden filtrar por etiquetas de categoría "servicio".
- */
-const SERVICIOS = [
-  { icon: FaPlane, label: 'Vuelo' },
-  { icon: FaHotel, label: 'Hotel' },
-  { icon: FaUtensils, label: 'Comidas' },
-  { icon: FaBed, label: 'Alojamiento' },
-];
+const ICONOS_TRANSPORTE = {
+  'aéreo': FaPlane,
+  'aereo': FaPlane,
+  'vuelo': FaPlane,
+  'terrestre': FaBus,
+  'bus': FaBus,
+  'ómnibus': FaBus,
+  'omnibus': FaBus,
+  'crucero': FaShip,
+  'barco': FaShip,
+  'marítimo': FaShip,
+  'maritimo': FaShip,
+  'tren': FaTrain,
+  'ferroviario': FaTrain,
+  'auto': FaCar,
+  'automóvil': FaCar,
+  'automovil': FaCar,
+  'moto': FaMotorcycle,
+  'bicicleta': FaBicycle,
+  'ciclismo': FaBicycle,
+};
+
+function getIconoTransporte(etiquetas = []) {
+  const transporte = getEtiqueta(etiquetas, 'Tipo de transporte');
+  if (!transporte) return FaPlane;
+  const key = transporte.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [palabra, Icono] of Object.entries(ICONOS_TRANSPORTE)) {
+    if (key.includes(palabra)) return Icono;
+  }
+  return FaPlane;
+}
+
+function getIconoComida(etiquetas = []) {
+  const comida = getEtiqueta(etiquetas, 'Régimen');
+  if (!comida) return FaUtensils;
+  const key = comida.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  if (key.includes('sin')) return null;
+  if (key.includes('desayuno')) return FaCoffee;
+  return FaUtensils;
+}
 
 export default function PaqueteCard({ paquete }) {
   if (!paquete) return null;
@@ -31,6 +60,7 @@ export default function PaqueteCard({ paquete }) {
     resumen,
     precio_adulto,
     duracion_dias,
+    duracion_noches,
     imagenes = [],
     etiquetas = [],
     destinos = [],
@@ -72,14 +102,17 @@ export default function PaqueteCard({ paquete }) {
 
         <div className={styles.duracion}>
           {duracion_dias} {duracion_dias === 1 ? 'día' : 'días'}
+          {duracion_noches > 0 && ` / ${duracion_noches} ${duracion_noches === 1 ? 'noche' : 'noches'}`}
         </div>
 
         <div className={styles.servicios}>
-          {SERVICIOS.map(({ icon: Icon, label }) => (
-            <span key={label} className={styles.servicio} title={label}>
-              <Icon size={14} />
-            </span>
-          ))}
+          {[getIconoTransporte(etiquetas), FaHotel, getIconoComida(etiquetas), FaBed]
+            .filter(Boolean)
+            .map((Icon, i) => (
+              <span key={i} className={styles.servicio}>
+                <Icon size={14} />
+              </span>
+            ))}
         </div>
 
         <div className={styles.pie}>

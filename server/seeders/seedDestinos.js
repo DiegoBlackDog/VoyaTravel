@@ -20,10 +20,9 @@ function slug(texto) {
     .replace(/^-|-$/g, '');
 }
 
-// URL de imagen via Unsplash (sin API key, imágenes por keyword)
-function img(query) {
-  const q = encodeURIComponent(query);
-  return `https://source.unsplash.com/featured/1200x600/?${q},travel`;
+// URL de imagen consistente por seed (picsum.photos — sin API key, siempre disponible)
+function img(slugDestino) {
+  return `https://picsum.photos/seed/${encodeURIComponent(slugDestino)}/1200/600`;
 }
 
 // Estructura: { pais, region, ciudades: [nombre, ...] }
@@ -167,27 +166,20 @@ async function seedDestinos() {
     for (const { pais, region, ciudades } of PAISES) {
       for (const ciudad of ciudades) {
         const nombreSlug = slug(`${ciudad}-${pais}`);
-        const imagen = img(`${ciudad} ${pais}`);
+        const imagen = img(nombreSlug);
 
-        const existe = await Destino.findOne({ where: { slug: nombreSlug } });
-        if (existe) {
-          omitidos++;
-          continue;
-        }
-
-        await Destino.create({
+        const [, built] = await Destino.upsert({
           nombre: ciudad,
           slug: nombreSlug,
           pais,
           region,
           imagen,
         });
-        creados++;
+        if (built) creados++; else omitidos++;
       }
     }
 
-    console.log(`\n✓ Destinos creados:  ${creados}`);
-    console.log(`✓ Ya existían:       ${omitidos}`);
+    console.log(`\n✓ Destinos creados/actualizados: ${creados + omitidos}`);
     console.log(`✓ Total en dataset:  ${PAISES.reduce((acc, p) => acc + p.ciudades.length, 0)}`);
     process.exit(0);
   } catch (err) {

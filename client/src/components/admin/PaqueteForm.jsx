@@ -1,8 +1,101 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { FiPlus, FiX, FiSave } from 'react-icons/fi';
+import { FiPlus, FiX, FiSave, FiSearch } from 'react-icons/fi';
 import slugify from '../../utils/slugify';
 import styles from './PaqueteForm.module.css';
+
+/* ------------------------------------------------------------------ */
+/* Buscador de destinos para el formulario                              */
+/* ------------------------------------------------------------------ */
+function normalizar(str) {
+  return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function DestinoBuscadorForm({ destinos, selectedIds, onChange }) {
+  const [query, setQuery] = useState('');
+  const [abierto, setAbierto] = useState(false);
+  const wrapRef = useRef(null);
+
+  useEffect(() => {
+    function handler(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const sugerencias = useMemo(() => {
+    const q = normalizar(query.trim());
+    if (!q) return [];
+    return destinos
+      .filter((d) => {
+        const nombre = normalizar(d.nombre);
+        const pais = normalizar(d.pais);
+        return (nombre.includes(q) || pais.includes(q)) && !(selectedIds || []).includes(d.id);
+      })
+      .slice(0, 8);
+  }, [query, destinos, selectedIds]);
+
+  const seleccionados = destinos.filter((d) => (selectedIds || []).includes(d.id));
+
+  const toggle = (id) => {
+    const ids = selectedIds || [];
+    onChange(ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+  };
+
+  return (
+    <div ref={wrapRef} className={styles.destinoBuscador}>
+      {seleccionados.length > 0 && (
+        <div className={styles.destinoChips}>
+          {seleccionados.map((d) => (
+            <span key={d.id} className={styles.destinoChip}>
+              <span>{d.nombre}</span>
+              {d.pais && <span className={styles.destinoChipPais}>, {d.pais}</span>}
+              <button type="button" className={styles.destinoChipX} onClick={() => toggle(d.id)}>
+                <FiX size={10} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className={styles.destinoInputWrap}>
+        <FiSearch size={13} className={styles.destinoIcono} />
+        <input
+          type="text"
+          className={styles.destinoInput}
+          placeholder="Buscar ciudad o país..."
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setAbierto(true); }}
+          onFocus={() => setAbierto(true)}
+        />
+        {query && (
+          <button type="button" className={styles.destinoLimpiar} onClick={() => { setQuery(''); setAbierto(false); }}>
+            <FiX size={11} />
+          </button>
+        )}
+      </div>
+      {abierto && sugerencias.length > 0 && (
+        <ul className={styles.destinoDropdown}>
+          {sugerencias.map((d) => (
+            <li key={d.id}>
+              <button
+                type="button"
+                className={styles.destinoOpcion}
+                onMouseDown={(e) => { e.preventDefault(); toggle(d.id); setQuery(''); setAbierto(false); }}
+              >
+                <span className={styles.destinoOpcionNombre}>{d.nombre}</span>
+                {d.pais && <span className={styles.destinoOpcionPais}>{d.pais}</span>}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {abierto && query.trim() && sugerencias.length === 0 && (
+        <div className={styles.destinoSinResultados}>Sin resultados</div>
+      )}
+    </div>
+  );
+}
 
 const MONEDAS = [
   { value: 'USD', label: 'USD (Dolar)' },
@@ -304,21 +397,6 @@ export default function PaqueteForm({
           {/* Incluye */}
           <div className={styles.campo}>
             <label className={styles.label}>Incluye</label>
-            <div className={styles.listaItems}>
-              {incluye.map((item, i) => (
-                <div key={i} className={styles.itemChip}>
-                  <span className={styles.itemTexto}>{item}</span>
-                  <button
-                    type="button"
-                    className={styles.itemEliminar}
-                    onClick={() => eliminarIncluye(i)}
-                  >
-                    <FiX size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            {/* Selector de opciones predefinidas */}
             <select
               className={styles.select}
               value=""
@@ -333,7 +411,6 @@ export default function PaqueteForm({
                 <option key={o} value={o}>{o}</option>
               ))}
             </select>
-            {/* Input para texto personalizado */}
             <div className={styles.agregarWrap}>
               <input
                 type="text"
@@ -343,34 +420,25 @@ export default function PaqueteForm({
                 onKeyDown={(e) => handleKeyDown(e, agregarIncluye)}
                 placeholder="O escribí uno personalizado..."
               />
-              <button
-                type="button"
-                className={styles.botonAgregarItem}
-                onClick={agregarIncluye}
-              >
+              <button type="button" className={styles.botonAgregarItem} onClick={agregarIncluye}>
                 <FiPlus size={14} />
               </button>
+            </div>
+            <div className={styles.listaItems}>
+              {incluye.map((item, i) => (
+                <div key={i} className={styles.itemChip}>
+                  <span className={styles.itemTexto}>{item}</span>
+                  <button type="button" className={styles.itemEliminar} onClick={() => eliminarIncluye(i)}>
+                    <FiX size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
 
           {/* No incluye */}
           <div className={styles.campo}>
             <label className={styles.label}>No incluye</label>
-            <div className={styles.listaItems}>
-              {noIncluye.map((item, i) => (
-                <div key={i} className={`${styles.itemChip} ${styles.itemChipRojo}`}>
-                  <span className={styles.itemTexto}>{item}</span>
-                  <button
-                    type="button"
-                    className={styles.itemEliminar}
-                    onClick={() => eliminarNoIncluye(i)}
-                  >
-                    <FiX size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            {/* Selector de opciones predefinidas */}
             <select
               className={styles.select}
               value=""
@@ -385,7 +453,6 @@ export default function PaqueteForm({
                 <option key={o} value={o}>{o}</option>
               ))}
             </select>
-            {/* Input para texto personalizado */}
             <div className={styles.agregarWrap}>
               <input
                 type="text"
@@ -395,13 +462,19 @@ export default function PaqueteForm({
                 onKeyDown={(e) => handleKeyDown(e, agregarNoIncluye)}
                 placeholder="O escribí uno personalizado..."
               />
-              <button
-                type="button"
-                className={styles.botonAgregarItem}
-                onClick={agregarNoIncluye}
-              >
+              <button type="button" className={styles.botonAgregarItem} onClick={agregarNoIncluye}>
                 <FiPlus size={14} />
               </button>
+            </div>
+            <div className={styles.listaItems}>
+              {noIncluye.map((item, i) => (
+                <div key={i} className={`${styles.itemChip} ${styles.itemChipRojo}`}>
+                  <span className={styles.itemTexto}>{item}</span>
+                  <button type="button" className={styles.itemEliminar} onClick={() => eliminarNoIncluye(i)}>
+                    <FiX size={12} />
+                  </button>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -475,35 +548,13 @@ export default function PaqueteForm({
           name="destinos_ids"
           control={control}
           render={({ field }) => (
-            <div className={styles.checkboxLista}>
-              {destinos.map((destino) => {
-                const checked = (field.value || []).includes(destino.id);
-                return (
-                  <label key={destino.id} className={styles.checkboxItem}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkbox}
-                      checked={checked}
-                      onChange={(e) => {
-                        const ids = field.value || [];
-                        if (e.target.checked) {
-                          field.onChange([...ids, destino.id]);
-                        } else {
-                          field.onChange(ids.filter((id) => id !== destino.id));
-                        }
-                      }}
-                    />
-                    <span className={styles.checkboxTexto}>
-                      {destino.nombre}
-                      {destino.pais && <span className={styles.checkboxMeta}> ({destino.pais})</span>}
-                    </span>
-                  </label>
-                );
-              })}
-              {destinos.length === 0 && (
-                <p className={styles.sinDatos}>No hay destinos disponibles.</p>
-              )}
-            </div>
+            destinos.length === 0
+              ? <p className={styles.sinDatos}>No hay destinos disponibles.</p>
+              : <DestinoBuscadorForm
+                  destinos={destinos}
+                  selectedIds={field.value || []}
+                  onChange={field.onChange}
+                />
           )}
         />
       </div>

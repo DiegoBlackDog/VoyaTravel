@@ -334,12 +334,26 @@
   border-bottom-color: var(--color-verde);
 }
 
+.tabsContenido {
+  display: grid;
+  grid-template-areas: 'panel';
+  min-height: 180px;
+}
+
 .tabPanel {
-  display: none;
+  grid-area: panel;
+  visibility: hidden;
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
 }
 
 .tabPanelActivo {
-  display: block;
+  grid-area: panel;
+  visibility: visible;
+  pointer-events: auto;
+  height: auto;
+  overflow: visible;
 }
 
 /* ------------------------------------------------------------------ */

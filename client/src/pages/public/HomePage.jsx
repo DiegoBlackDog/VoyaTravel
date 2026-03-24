@@ -15,7 +15,52 @@ import {
   FaStar,
   FaChevronLeft,
   FaChevronRight,
+  FaChevronDown,
 } from 'react-icons/fa';
+
+/* ── Custom dropdown para el buscador hero ── */
+function BuscadorSelect({ icon: Icon, opciones, value, onChange, placeholder }) {
+  const [abierto, setAbierto] = useState(false);
+  const ref = useRef(null);
+  const label = opciones.find((o) => o.value === value)?.label || placeholder;
+
+  useEffect(() => {
+    function handler(e) {
+      if (ref.current && !ref.current.contains(e.target)) setAbierto(false);
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div ref={ref} className={styles.buscadorDropdownWrap}>
+      <button
+        type="button"
+        className={`${styles.buscadorDropdownBtn} ${value ? styles.buscadorDropdownBtnActivo : ''}`}
+        onClick={() => setAbierto((a) => !a)}
+      >
+        <Icon className={styles.buscadorIcono} />
+        <span className={styles.buscadorDropdownLabel}>{label}</span>
+        <FaChevronDown className={`${styles.buscadorDropdownArrow} ${abierto ? styles.buscadorDropdownArrowOpen : ''}`} />
+      </button>
+      {abierto && (
+        <ul className={styles.buscadorDropdownMenu}>
+          {opciones.map((o) => (
+            <li key={o.value}>
+              <button
+                type="button"
+                className={`${styles.buscadorDropdownOpcion} ${value === o.value ? styles.buscadorDropdownOpcionActiva : ''}`}
+                onMouseDown={(e) => { e.preventDefault(); onChange(o.value); setAbierto(false); }}
+              >
+                {o.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
@@ -307,57 +352,33 @@ export default function HomePage() {
 
             <div className={styles.buscadorSeparador} />
 
-            <div className={styles.buscadorCampo}>
-              <FaCalendarAlt className={styles.buscadorIcono} />
-              <select
-                value={temporada}
-                onChange={(e) => setTemporada(e.target.value)}
-                className={styles.buscadorSelect}
-                aria-label="Temporada"
-              >
-                {TEMPORADAS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <BuscadorSelect
+              icon={FaCalendarAlt}
+              opciones={TEMPORADAS}
+              value={temporada}
+              onChange={setTemporada}
+              placeholder="Cualquier temporada"
+            />
 
             <div className={styles.buscadorSeparador} />
 
-            <div className={styles.buscadorCampo}>
-              <FaClock className={styles.buscadorIcono} />
-              <select
-                value={duracion}
-                onChange={(e) => setDuracion(e.target.value)}
-                className={styles.buscadorSelect}
-                aria-label="Duración"
-              >
-                {DURACIONES.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <BuscadorSelect
+              icon={FaClock}
+              opciones={DURACIONES}
+              value={duracion}
+              onChange={setDuracion}
+              placeholder="Cualquier duración"
+            />
 
             <div className={styles.buscadorSeparador} />
 
-            <div className={styles.buscadorCampo}>
-              <FaDollarSign className={styles.buscadorIcono} />
-              <select
-                value={presupuesto}
-                onChange={(e) => setPresupuesto(e.target.value)}
-                className={styles.buscadorSelect}
-                aria-label="Presupuesto"
-              >
-                {PRESUPUESTOS.map((p) => (
-                  <option key={p.value} value={p.value}>
-                    {p.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <BuscadorSelect
+              icon={FaDollarSign}
+              opciones={PRESUPUESTOS}
+              value={presupuesto}
+              onChange={setPresupuesto}
+              placeholder="Cualquier presupuesto"
+            />
 
             <button type="submit" className={styles.buscadorBtn}>
               <FaSearch size={16} />
@@ -461,7 +482,7 @@ export default function HomePage() {
       {/* ========================================================= */}
       {/* POR QUÉ VOYÂ                                              */}
       {/* ========================================================= */}
-      <section className={styles.seccion}>
+      <section className={`${styles.seccion} ${styles.seccionMenta}`}>
         <div className={styles.contenedor}>
           <div className={styles.seccionHeaderCentrado}>
             <p className={styles.seccionEyebrow}>Nuestro compromiso</p>
