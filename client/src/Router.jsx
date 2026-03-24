@@ -4,11 +4,9 @@ import { AuthContext } from './context/AuthContext';
 import PublicLayout from './components/layout/PublicLayout';
 import HomePage from './pages/public/HomePage';
 import PaquetesPage from './pages/public/PaquetesPage';
-
-// Public pages (placeholders for now)
-const PaqueteDetallePage = () => <div>Detalle</div>;
-const NosotrosPage = () => <div>Nosotros</div>;
-const ContactoPage = () => <div>Contacto</div>;
+import PaqueteDetallePage from './pages/public/PaqueteDetallePage';
+import NosotrosPage from './pages/public/NosotrosPage';
+import ContactoPage from './pages/public/ContactoPage';
 
 // Admin pages (placeholders)
 const LoginPage = () => <div>Login</div>;
