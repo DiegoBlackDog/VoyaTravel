@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import {
   FaHeart,
   FaGlobe,
@@ -87,6 +88,14 @@ export default function NosotrosPage() {
 
   return (
     <div className={styles.pagina}>
+      <Helmet>
+        <title>Nosotros | Voyâ</title>
+        <meta name="description" content="Conocé a Voyâ, la agencia de viajes uruguaya que diseña experiencias únicas. Nuestra misión, valores y el equipo detrás de cada viaje." />
+        <meta property="og:title" content="Nosotros | Voyâ" />
+        <meta property="og:description" content="Conocé a Voyâ, la agencia de viajes uruguaya que diseña experiencias únicas." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* ========================================================= */}
       {/* HERO                                                        */}
       {/* ========================================================= */}

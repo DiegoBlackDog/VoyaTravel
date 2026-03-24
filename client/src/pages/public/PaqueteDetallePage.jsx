@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   FaCheckCircle,
   FaTimesCircle,
@@ -110,6 +111,14 @@ export default function PaqueteDetallePage() {
 
   return (
     <div className={styles.pagina}>
+      <Helmet>
+        <title>{titulo} | Voyâ</title>
+        <meta name="description" content={resumen || `Conocé todos los detalles del paquete ${titulo}. Consultá precios, itinerario y más.`} />
+        <meta property="og:title" content={`${titulo} | Voyâ`} />
+        <meta property="og:description" content={resumen || `Conocé todos los detalles del paquete ${titulo}.`} />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* ============================================================ */}
       {/* BREADCRUMB                                                     */}
       {/* ============================================================ */}

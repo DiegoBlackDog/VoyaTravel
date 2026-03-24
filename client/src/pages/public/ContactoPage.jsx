@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useForm } from 'react-hook-form';
 import {
   FaEnvelope,
@@ -59,6 +60,14 @@ export default function ContactoPage() {
 
   return (
     <div className={styles.pagina}>
+      <Helmet>
+        <title>Contacto | Voyâ</title>
+        <meta name="description" content="Ponete en contacto con Voyâ. Escribinos para cotizar tu viaje, resolver dudas o simplemente saludar. Te respondemos a la brevedad." />
+        <meta property="og:title" content="Contacto | Voyâ" />
+        <meta property="og:description" content="Ponete en contacto con Voyâ. Escribinos para cotizar tu viaje o resolver dudas." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* ========================================================= */}
       {/* HEADER                                                      */}
       {/* ========================================================= */}

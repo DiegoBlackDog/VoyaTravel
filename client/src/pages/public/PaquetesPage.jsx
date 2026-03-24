@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   FaThLarge,
   FaList,
@@ -130,6 +131,14 @@ export default function PaquetesPage() {
 
   return (
     <div className={styles.pagina}>
+      <Helmet>
+        <title>Paquetes de Viaje | Voyâ</title>
+        <meta name="description" content="Explorá todos nuestros paquetes de viaje. Filtrá por destino, precio, temporada y encontrá el viaje que siempre soñaste." />
+        <meta property="og:title" content="Paquetes de Viaje | Voyâ" />
+        <meta property="og:description" content="Explorá todos nuestros paquetes de viaje. Filtrá por destino, precio, temporada y encontrá el viaje que siempre soñaste." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* ============================================================ */}
       {/* HEADER                                                         */}
       {/* ============================================================ */}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   FaSearch,
   FaMapMarkerAlt,
@@ -260,6 +261,14 @@ export default function HomePage() {
 
   return (
     <div className={styles.pagina}>
+      <Helmet>
+        <title>Voyâ | Agencia de Viajes</title>
+        <meta name="description" content="Descubrí los mejores paquetes de viaje desde Uruguay. Diseñamos experiencias únicas para que viajes sin preocupaciones." />
+        <meta property="og:title" content="Voyâ | Agencia de Viajes" />
+        <meta property="og:description" content="Descubrí los mejores paquetes de viaje desde Uruguay. Diseñamos experiencias únicas para que viajes sin preocupaciones." />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* ========================================================= */}
       {/* HERO                                                        */}
       {/* ========================================================= */}
