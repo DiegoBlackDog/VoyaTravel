@@ -43,7 +43,7 @@ export default function PaqueteEditPage() {
     }
 
     try {
-      const { data } = await api.get(`/paquetes/${id}`);
+      const { data } = await api.get(`/paquetes/id/${id}`);
       const paq = data.paquete || data;
 
       setPaquete(paq);
@@ -71,7 +71,7 @@ export default function PaqueteEditPage() {
   const refrescarPaquete = useCallback(async () => {
     if (!id) return;
     try {
-      const { data } = await api.get(`/paquetes/${id}`);
+      const { data } = await api.get(`/paquetes/id/${id}`);
       const paq = data.paquete || data;
       setPaquete(paq);
     } catch {

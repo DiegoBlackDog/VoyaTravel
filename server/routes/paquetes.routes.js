@@ -6,6 +6,7 @@ const { requireMinRole } = require('../middleware/roles');
 const {
   listar,
   destacados,
+  obtenerPorId,
   obtenerPorSlug,
   crear,
   actualizar,
@@ -16,6 +17,7 @@ const {
 // Public
 router.get('/', listar);
 router.get('/destacados', destacados);
+router.get('/id/:id', requireAuth, requireMinRole('editor'), obtenerPorId);
 router.get('/:slug', obtenerPorSlug);
 
 // Editor+

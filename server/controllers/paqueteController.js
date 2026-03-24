@@ -154,6 +154,18 @@ const destacados = async (req, res, next) => {
   }
 };
 
+// ── obtenerPorId ── (admin use)
+
+const obtenerPorId = async (req, res, next) => {
+  try {
+    const paquete = await Paquete.findByPk(req.params.id, { include: includeCompleto });
+    if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+    res.json({ paquete });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // ── obtenerPorSlug ──
 
 const obtenerPorSlug = async (req, res, next) => {
@@ -262,4 +274,4 @@ const eliminar = async (req, res, next) => {
   }
 };
 
-module.exports = { listar, destacados, obtenerPorSlug, crear, actualizar, toggleDisponible, eliminar };
+module.exports = { listar, destacados, obtenerPorId, obtenerPorSlug, crear, actualizar, toggleDisponible, eliminar };

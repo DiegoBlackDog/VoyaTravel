@@ -113,8 +113,8 @@ export default function PaqueteForm({
       noValidate
     >
       {/* ══════════ Seccion 1: Info basica ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Informacion basica</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Informacion basica</h3>
 
         <div className={styles.filaDos}>
           <div className={styles.campo}>
@@ -167,11 +167,11 @@ export default function PaqueteForm({
             rows={5}
           />
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 2: Precios ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Precios</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Precios</h3>
 
         <div className={styles.filaCuatro}>
           <div className={styles.campo}>
@@ -224,11 +224,11 @@ export default function PaqueteForm({
             </select>
           </div>
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 3: Duracion ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Duracion</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Duracion</h3>
 
         <div className={styles.filaDos}>
           <div className={styles.campo}>
@@ -254,11 +254,11 @@ export default function PaqueteForm({
             />
           </div>
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 4: Incluye / No incluye ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Incluye / No incluye</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Incluye / No incluye</h3>
 
         <div className={styles.filaDos}>
           {/* Incluye */}
@@ -333,11 +333,11 @@ export default function PaqueteForm({
             </div>
           </div>
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 5: Condiciones ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Condiciones</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Condiciones</h3>
 
         <div className={styles.campo}>
           <textarea
@@ -348,11 +348,11 @@ export default function PaqueteForm({
             rows={4}
           />
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 6: Etiquetas ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Etiquetas</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Etiquetas</h3>
 
         <Controller
           name="etiquetas_ids"
@@ -393,11 +393,11 @@ export default function PaqueteForm({
             </div>
           )}
         />
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 7: Destinos ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Destinos</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Destinos</h3>
 
         <Controller
           name="destinos_ids"
@@ -434,11 +434,11 @@ export default function PaqueteForm({
             </div>
           )}
         />
-      </fieldset>
+      </div>
 
       {/* ══════════ Seccion 8: Opciones ══════════ */}
-      <fieldset className={styles.seccion}>
-        <legend className={styles.seccionTitulo}>Opciones</legend>
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Opciones</h3>
 
         <div className={styles.togglesWrap}>
           <label className={styles.toggleItem}>
@@ -481,7 +481,7 @@ export default function PaqueteForm({
             />
           </label>
         </div>
-      </fieldset>
+      </div>
 
       {/* ══════════ Boton guardar ══════════ */}
       <div className={styles.acciones}>
