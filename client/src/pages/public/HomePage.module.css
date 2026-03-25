@@ -108,12 +108,9 @@
 .hero {
   position: relative;
   min-height: 60vh;
-  background: linear-gradient(
-    135deg,
-    var(--color-verde-oscuro) 0%,
-    var(--color-verde) 50%,
-    var(--color-verde-claro) 100%
-  );
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.25) 100%),
+    url('/hero-bg.jpg') center/cover no-repeat;
   display: flex;
   flex-direction: column;
   align-items: center;
