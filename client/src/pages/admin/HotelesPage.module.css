@@ -1,0 +1,280 @@
+.acordeon {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.acordeonItem {
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.acordeonHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.acordeonHeader:hover {
+  background: var(--color-crema);
+}
+
+.acordeonTitulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.destinoNombre {
+  font-family: var(--font-cuerpo);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-negro);
+}
+
+.destinoPais {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  color: var(--color-gris);
+}
+
+.hotelCount {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-crema);
+  border: 1px solid var(--color-borde);
+  border-radius: 99px;
+  padding: 2px 8px;
+  color: var(--color-gris);
+}
+
+.acordeonArrow {
+  color: var(--color-gris);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.acordeonArrowOpen {
+  transform: rotate(180deg);
+}
+
+.acordeonBody {
+  padding: 0 20px 16px;
+  border-top: 1px solid var(--color-borde);
+}
+
+.hotelTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  margin-bottom: 12px;
+}
+
+.hotelTabla th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gris);
+  border-bottom: 1.5px solid var(--color-borde);
+}
+
+.hotelTabla td {
+  padding: 10px 12px;
+  color: var(--color-negro);
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: middle;
+}
+
+.hotelTabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.hotelTabla tbody tr:hover {
+  background: rgba(55, 137, 102, 0.02);
+}
+
+.filaSeleccionada {
+  background: rgba(55, 137, 102, 0.06) !important;
+}
+
+.hotelNombre {
+  font-weight: 600;
+}
+
+.webLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-verde);
+  font-size: 0.82rem;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.webLink:hover {
+  text-decoration: underline;
+}
+
+.sinHoteles {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-gris);
+  padding: 12px 0 8px;
+  margin: 0;
+}
+
+.botonAgregarHotel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-verde);
+  border: 1.5px dashed var(--color-verde);
+  border-radius: var(--radio-sm);
+  padding: 6px 14px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-top: 4px;
+}
+
+.botonAgregarHotel:hover {
+  background: rgba(55, 137, 102, 0.06);
+}
+
+/* ── Import modal ── */
+.importModal {
+  background: #fff;
+  border-radius: var(--radio-lg);
+  padding: var(--espaciado-xl);
+  max-width: 680px;
+  width: 94vw;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-md);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.importHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.importTitulo {
+  font-family: var(--font-titulares);
+  font-size: 1.3rem;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.importResumen {
+  font-family: var(--font-cuerpo);
+  font-size: 0.9rem;
+  color: var(--color-gris);
+  margin: 0;
+}
+
+.importWarnings {
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: var(--radio-sm);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.importWarnings p {
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  color: #92400e;
+  margin: 0;
+}
+
+.importTablaWrap {
+  overflow-y: auto;
+  max-height: 320px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+}
+
+.importTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+}
+
+.importTabla th {
+  text-align: left;
+  padding: 7px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gris);
+  background: var(--color-crema);
+  border-bottom: 1.5px solid var(--color-borde);
+  position: sticky;
+  top: 0;
+}
+
+.importTabla td {
+  padding: 8px 12px;
+  color: var(--color-negro);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.importTabla tbody tr:last-child td { border-bottom: none; }
+
+.importResult {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--espaciado-xl) 0;
+  gap: 8px;
+  text-align: center;
+}
+
+.importResultIcon {
+  color: var(--color-verde);
+  margin-bottom: 8px;
+}
+
+.importResult p {
+  font-family: var(--font-cuerpo);
+  font-size: 1rem;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.importOmitido {
+  font-size: 0.85rem !important;
+  color: var(--color-gris) !important;
+}
+
+.importError {
+  font-size: 0.85rem !important;
+  color: #dc2626 !important;
+}

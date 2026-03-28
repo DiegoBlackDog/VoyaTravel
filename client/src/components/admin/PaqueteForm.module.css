@@ -266,38 +266,38 @@
   margin: 0;
 }
 
+/* ── Opciones compactas ── */
+.opcionesCompactas {
+  display: flex;
+  gap: var(--espaciado-xl);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.opcionItem {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+}
+
+.opcionLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  display: block;
+}
+
+.opcionDesc {
+  font-size: 0.75rem;
+  color: var(--color-gris);
+  display: block;
+}
+
 /* ── Toggles ── */
 .togglesWrap {
   display: flex;
   flex-direction: column;
   gap: var(--espaciado-md);
-}
-
-.toggleItem {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  column-gap: var(--espaciado-md);
-  align-items: center;
-  padding: var(--espaciado-sm) 0;
-  cursor: pointer;
-}
-
-.toggleLabel {
-  font-family: var(--font-cuerpo);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-negro);
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.toggleDesc {
-  font-family: var(--font-cuerpo);
-  font-size: 0.8rem;
-  color: var(--color-gris);
-  grid-column: 1;
-  grid-row: 2;
 }
 
 .toggle {
@@ -537,4 +537,358 @@
   border-radius: var(--radio-md);
   box-shadow: var(--sombra-md);
   z-index: 200;
+}
+
+/* ── Costos internos ── */
+.soloAdmin {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--color-salmon);
+  margin-left: 6px;
+}
+
+.costosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.costoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-crema);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}
+
+.costoTag {
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-xs, 4px);
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: var(--color-gris);
+  white-space: nowrap;
+}
+
+.costoNeto {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--color-negro);
+  font-size: 0.85rem;
+}
+
+.costoAcciones {
+  display: flex;
+  gap: 4px;
+}
+
+.costoBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--color-borde);
+  background: #fff;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.costoBtn:hover { color: var(--color-negro); background: #f0f0f0; }
+.costoBtnEliminar:hover { color: var(--color-salmon); background: #fff0ee; }
+
+.botonAgregarCosto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-verde);
+  border: 1.5px dashed var(--color-verde);
+  border-radius: var(--radio-sm);
+  padding: 6px 14px;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.botonAgregarCosto:hover { background: rgba(55,137,102,0.06); }
+
+/* ── Modal costo ── */
+.costoModalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+}
+
+.costoModal {
+  background: #fff;
+  border-radius: var(--radio-lg);
+  padding: var(--espaciado-xl);
+  width: 100%;
+  max-width: 560px;
+  box-shadow: var(--sombra-xl, 0 20px 60px rgba(0,0,0,0.2));
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-md);
+}
+
+.costoModalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.costoModalTitulo {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-negro);
+}
+
+.costoModalCerrar {
+  display: flex;
+  align-items: center;
+  color: var(--color-gris);
+  padding: 4px;
+  border-radius: var(--radio-sm);
+  transition: color 0.15s;
+}
+.costoModalCerrar:hover { color: var(--color-negro); }
+
+.costoModalGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--espaciado-md);
+}
+
+.costoModalLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-gris);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.costoModalInput {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  padding: 7px 10px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  color: var(--color-negro);
+  width: 100%;
+}
+.costoModalInput:focus { outline: none; border-color: var(--color-verde); }
+
+.costoModalTextarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.costoModalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espaciado-sm);
+  padding-top: var(--espaciado-sm);
+  border-top: 1px solid var(--color-borde);
+}
+
+.costoModalCancelar {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  padding: 8px 18px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  color: var(--color-gris);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.costoModalCancelar:hover { background: var(--color-crema); }
+
+.costoModalGuardar {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radio-sm);
+  background: var(--color-verde);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.costoModalGuardar:hover { background: var(--color-verde-oscuro); }
+
+/* ── Etiquetas multiselect ── */
+.etqGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: var(--espaciado-md);
+}
+
+.etqWrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etqBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  color: var(--color-negro);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.etqBtn:hover,
+.etqBtnAbierto {
+  border-color: var(--color-verde);
+}
+
+.etqBtnLabel {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gris);
+}
+
+.etqBadge {
+  background: var(--color-verde);
+  color: #fff;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  line-height: 1.4;
+}
+
+.etqArrow {
+  color: var(--color-gris);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.etqArrowOpen {
+  transform: rotate(180deg);
+}
+
+.etqDropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1.5px solid var(--color-verde);
+  border-radius: var(--radio-sm);
+  box-shadow: var(--sombra-md);
+  z-index: 300;
+  padding: 6px 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.etqOpcion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: var(--color-negro);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.etqOpcion:hover {
+  background: var(--color-crema);
+}
+
+.etqChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.etqChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(55,137,102,0.1);
+  color: var(--color-verde);
+  border: 1px solid rgba(55,137,102,0.25);
+  border-radius: 99px;
+  padding: 2px 8px 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.etqChip button {
+  display: flex;
+  align-items: center;
+  color: var(--color-verde);
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.etqChip button:hover { opacity: 1; }
+
+/* ── Alojamientos ── */
+.alojHotel {
+  font-weight: 600;
+  color: var(--color-negro);
+  font-size: 0.85rem;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alojModal {
+  max-width: 640px;
+}
+
+.alojModalTop {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaciado-md);
+}
+
+.alojPreciosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--espaciado-md);
+}
+
+@media (max-width: 540px) {
+  .alojModalTop { grid-template-columns: 1fr; }
+  .alojPreciosGrid { grid-template-columns: 1fr 1fr; }
 }

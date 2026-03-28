@@ -141,6 +141,11 @@ export default function PaqueteEditPage() {
       no_incluye: paquete.no_incluye || [],
       etiquetas_ids: (paquete.etiquetas || []).map((e) => e.id),
       destinos_ids: (paquete.destinos || []).map((d) => d.id),
+      costos: paquete.costos || [],
+      alojamientos: (paquete.alojamientos || []).map((a) => ({
+        ...a,
+        hotel_nombre: a.hotel?.nombre || '',
+      })),
     };
   };
 

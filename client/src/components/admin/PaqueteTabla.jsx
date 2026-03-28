@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../../services/api';
 import { Link } from 'react-router-dom';
 import {
   FiEdit2,
@@ -6,6 +7,8 @@ import {
   FiEye,
   FiEyeOff,
   FiAlertTriangle,
+  FiDollarSign,
+  FiX,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './PaqueteTabla.module.css';
@@ -53,11 +56,82 @@ function ModalConfirmar({ paquete, onConfirmar, onCancelar, cargando }) {
   );
 }
 
+function ModalCostos({ paquete, onCerrar }) {
+  const [costos, setCostos] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [expandido, setExpandido] = useState(null);
+
+  useEffect(() => {
+    api.get(`/paquetes/id/${paquete.id}`)
+      .then(({ data }) => setCostos((data.paquete || data).costos || []))
+      .catch(() => setCostos([]))
+      .finally(() => setCargando(false));
+  }, [paquete.id]);
+
+  return (
+    <div className={styles.modalOverlay} role="dialog" aria-modal="true">
+      <div className={`${styles.modal} ${styles.modalCostos}`}>
+        <div className={styles.modalCostosHeader}>
+          <h3 className={styles.modalTitulo}>Costos — {paquete.titulo}</h3>
+          <button className={styles.modalCerrar} onClick={onCerrar}><FiX size={18} /></button>
+        </div>
+
+        {cargando ? (
+          <p className={styles.costosSinDatos}>Cargando...</p>
+        ) : costos.length === 0 ? (
+          <p className={styles.costosSinDatos}>No hay costos cargados para este paquete.</p>
+        ) : (
+          <div className={styles.costosLista}>
+            {costos.map((c, i) => (
+              <div key={i} className={styles.costoItem}>
+                <div className={styles.costoItemResumen}>
+                  <span className={styles.costoChip}>{c.operador || '—'}</span>
+                  <span className={styles.costoChip}>{c.tipo || '—'}</span>
+                  <span className={styles.costoChip}>{c.sistema || '—'}</span>
+                  <span className={styles.costoNetoVal}>
+                    {c.neto != null ? `$${Number(c.neto).toLocaleString('es-UY')}` : '—'}
+                  </span>
+                  <button
+                    className={styles.costoVerBtn}
+                    onClick={() => setExpandido(expandido === i ? null : i)}
+                  >
+                    {expandido === i ? 'Ocultar' : 'Ver detalle'}
+                  </button>
+                </div>
+                {expandido === i && (
+                  <div className={styles.costoDetalle}>
+                    <div className={styles.costoDetalleGrid}>
+                      <div><span className={styles.costoDetalleLabel}>Bruto</span><span>{c.bruto != null ? `$${Number(c.bruto).toLocaleString('es-UY')}` : '—'}</span></div>
+                      <div><span className={styles.costoDetalleLabel}>Neto</span><span>{c.neto != null ? `$${Number(c.neto).toLocaleString('es-UY')}` : '—'}</span></div>
+                      <div><span className={styles.costoDetalleLabel}>Fecha cot.</span><span>{c.fecha_cotizacion || '—'}</span></div>
+                    </div>
+                    {c.notas && (
+                      <div className={styles.costoNotas}>
+                        <span className={styles.costoDetalleLabel}>Notas</span>
+                        <p>{c.notas}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className={styles.modalAcciones}>
+          <button className={styles.botonCancelar} onClick={onCerrar}>Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function PaqueteTabla({ paquetes, cargando, onToggleVisible, onEliminar }) {
   const { usuario } = useAuth();
-  const [confirmando, setConfirmando] = useState(null); // paquete a eliminar
+  const [confirmando, setConfirmando] = useState(null);
   const [eliminando, setEliminando] = useState(false);
-  const [toggling, setToggling] = useState(null); // id del paquete que está cambiando
+  const [toggling, setToggling] = useState(null);
+  const [verCostos, setVerCostos] = useState(null);
 
   const jerarquia = { admin: 3, editor: 2, visor: 1 };
   const rol = jerarquia[usuario?.rol] || 0;
@@ -125,8 +199,9 @@ export default function PaqueteTabla({ paquetes, cargando, onToggleVisible, onEl
                 || p.destino?.nombre
                 || p.destino
                 || '—';
-              const precio = p.precio_adulto != null
-                ? `$${Number(p.precio_adulto).toLocaleString('es-MX')}`
+              const precioVal = p.precio_desde ?? p.precio_adulto;
+              const precio = precioVal != null
+                ? `$${Number(precioVal).toLocaleString('es-MX')}`
                 : '—';
               const dias = p.duracion_dias ?? '—';
 
@@ -159,11 +234,14 @@ export default function PaqueteTabla({ paquetes, cargando, onToggleVisible, onEl
                         onClick={() => handleToggle(p)}
                         disabled={toggling === p.id}
                       >
-                        {disponible ? (
-                          <FiEyeOff size={15} />
-                        ) : (
-                          <FiEye size={15} />
-                        )}
+                        {disponible ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+                      </button>
+                      <button
+                        className={styles.botonIcono}
+                        title="Ver costos"
+                        onClick={() => setVerCostos(p)}
+                      >
+                        <FiDollarSign size={15} />
                       </button>
                       {puedeEliminar && (
                         <button
@@ -189,6 +267,13 @@ export default function PaqueteTabla({ paquetes, cargando, onToggleVisible, onEl
           onConfirmar={handleConfirmarEliminar}
           onCancelar={() => setConfirmando(null)}
           cargando={eliminando}
+        />
+      )}
+
+      {verCostos && (
+        <ModalCostos
+          paquete={verCostos}
+          onCerrar={() => setVerCostos(null)}
         />
       )}
     </>

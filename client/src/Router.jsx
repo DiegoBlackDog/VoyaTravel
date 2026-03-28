@@ -14,9 +14,14 @@ import PaquetesListPage from './pages/admin/PaquetesListPage';
 import PaqueteEditPage from './pages/admin/PaqueteEditPage';
 import EtiquetasPage from './pages/admin/EtiquetasPage';
 import DestinosPage from './pages/admin/DestinosPage';
+import HotelesPage from './pages/admin/HotelesPage';
+import OperadoresPage from './pages/admin/OperadoresPage';
 import TestimoniosPage from './pages/admin/TestimoniosPage';
 import ConfiguracionPage from './pages/admin/ConfiguracionPage';
 import UsuariosPage from './pages/admin/UsuariosPage';
+import CotizadorPage from './pages/admin/CotizadorPage';
+import CotizacionFormPage from './pages/admin/CotizacionFormPage';
+import CotizacionPublicPage from './pages/public/CotizacionPublicPage';
 
 function RutaProtegida({ rolMinimo }) {
   const { usuario, cargando } = useContext(AuthContext);
@@ -44,6 +49,9 @@ export default function AppRouter() {
           <Route path="/contacto" element={<ContactoPage />} />
         </Route>
 
+        {/* Public cotización — no layout */}
+        <Route path="/cotizacion/:token" element={<CotizacionPublicPage />} />
+
         {/* Admin login — no layout */}
         <Route path="/admin/login" element={<LoginPage />} />
 
@@ -57,6 +65,11 @@ export default function AppRouter() {
               <Route path="/admin/paquetes/:id" element={<PaqueteEditPage />} />
               <Route path="/admin/etiquetas" element={<EtiquetasPage />} />
               <Route path="/admin/destinos" element={<DestinosPage />} />
+              <Route path="/admin/hoteles" element={<HotelesPage />} />
+              <Route path="/admin/operadores" element={<OperadoresPage />} />
+              <Route path="/admin/cotizador" element={<CotizadorPage />} />
+              <Route path="/admin/cotizador/nuevo" element={<CotizacionFormPage />} />
+              <Route path="/admin/cotizador/:id/editar" element={<CotizacionFormPage />} />
               <Route path="/admin/testimonios" element={<TestimoniosPage />} />
             </Route>
             <Route element={<RutaProtegida rolMinimo="admin" />}>

@@ -12,6 +12,9 @@ import {
   FiMenu,
   FiX,
   FiChevronDown,
+  FiBriefcase,
+  FiHome,
+  FiFileText,
 } from 'react-icons/fi';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './AdminLayout.module.css';
@@ -22,7 +25,10 @@ const NAV_ITEMS = [
   { to: '/admin/paquetes',   label: 'Paquetes',     icon: FiPackage,       rolMinimo: 'visor'  },
   { to: '/admin/etiquetas',  label: 'Etiquetas',    icon: FiTag,           rolMinimo: 'editor' },
   { to: '/admin/destinos',   label: 'Destinos',     icon: FiMapPin,        rolMinimo: 'editor' },
+  { to: '/admin/hoteles',    label: 'Hoteles',      icon: FiHome,          rolMinimo: 'editor' },
   { to: '/admin/testimonios',label: 'Testimonios',  icon: FiMessageSquare, rolMinimo: 'editor' },
+  { to: '/admin/operadores', label: 'Operadores',   icon: FiBriefcase,     rolMinimo: 'editor' },
+  { to: '/admin/cotizador', label: 'Cotizador',    icon: FiFileText,      rolMinimo: 'editor' },
   { to: '/admin/configuracion', label: 'Configuración', icon: FiSettings,  rolMinimo: 'admin'  },
   { to: '/admin/usuarios',   label: 'Usuarios',     icon: FiUsers,         rolMinimo: 'admin'  },
 ];

@@ -1,0 +1,6 @@
+.numero {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-gris);
+}

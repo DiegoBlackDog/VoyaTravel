@@ -2,14 +2,14 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--color-blanco);
+  background-color: var(--color-verde);
   border-bottom: 1px solid transparent;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   height: var(--navbar-altura);
 }
 
 .navbar.scrolled {
-  border-color: var(--color-borde);
+  border-color: rgba(0,0,0,0.15);
   box-shadow: var(--sombra-sm);
 }
 
@@ -28,14 +28,21 @@
   font-family: var(--font-titulares);
   font-size: 1.75rem;
   font-weight: 300;
-  color: var(--color-verde);
+  color: var(--color-blanco);
   letter-spacing: -0.02em;
   flex-shrink: 0;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .logo:hover {
-  color: var(--color-verde-oscuro);
+  opacity: 0.85;
+}
+
+.logoA {
+  background: linear-gradient(to bottom, var(--color-salmon) 35%, #ffffff 35%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Desktop links */
@@ -48,7 +55,7 @@
 
 .link {
   font-size: 0.9rem;
-  color: var(--color-gris);
+  color: rgba(255,255,255,0.85);
   font-weight: 400;
   letter-spacing: 0.02em;
   padding: var(--espaciado-xs) 0;
@@ -63,14 +70,14 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-verde);
+  background-color: var(--color-blanco);
   transform: scaleX(0);
   transition: transform 0.25s ease;
   border-radius: 1px;
 }
 
 .link:hover {
-  color: var(--color-negro);
+  color: var(--color-blanco);
 }
 
 .link:hover::after,
@@ -79,7 +86,7 @@
 }
 
 .linkActivo {
-  color: var(--color-negro);
+  color: var(--color-blanco);
 }
 
 /* Desktop WhatsApp CTA */
@@ -108,14 +115,14 @@
   display: none;
   align-items: center;
   justify-content: center;
-  color: var(--color-negro);
+  color: var(--color-blanco);
   padding: var(--espaciado-xs);
   margin-left: auto;
-  transition: color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .hamburger:hover {
-  color: var(--color-verde);
+  opacity: 0.75;
 }
 
 /* Mobile menu */
@@ -124,8 +131,8 @@
   overflow: hidden;
   max-height: 0;
   transition: max-height 0.35s ease;
-  background-color: var(--color-blanco);
-  border-top: 1px solid var(--color-borde);
+  background-color: var(--color-verde);
+  border-top: 1px solid rgba(255,255,255,0.15);
 }
 
 .menuAbierto {
@@ -143,20 +150,20 @@
   display: block;
   padding: var(--espaciado-sm) var(--espaciado-md);
   font-size: 1rem;
-  color: var(--color-gris);
+  color: rgba(255,255,255,0.85);
   border-radius: var(--radio-sm);
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .linkMovil:hover {
-  background-color: var(--color-crema);
-  color: var(--color-negro);
+  background-color: rgba(255,255,255,0.1);
+  color: var(--color-blanco);
 }
 
 .linkMovilActivo {
-  color: var(--color-verde);
+  color: var(--color-blanco);
   font-weight: 500;
-  background-color: rgba(55, 137, 102, 0.08);
+  background-color: rgba(255,255,255,0.15);
 }
 
 .ctaMovil {

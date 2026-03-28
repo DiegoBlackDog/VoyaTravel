@@ -230,6 +230,12 @@
   margin: 0 0 var(--espaciado-lg);
 }
 
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaciado-md);
+}
+
 .formGroup {
   margin-bottom: var(--espaciado-md);
 }

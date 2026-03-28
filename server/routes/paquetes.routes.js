@@ -28,8 +28,8 @@ router.post(
   [
     body('titulo').notEmpty().withMessage('El titulo es requerido'),
     body('slug').notEmpty().withMessage('El slug es requerido'),
-    body('duracion_dias').isInt({ min: 1 }).withMessage('La duracion en dias debe ser un entero positivo'),
-    body('precio_adulto').isFloat({ min: 0 }).withMessage('El precio adulto debe ser un numero positivo'),
+    body('duracion_dias').if(body('duracion_dias').notEmpty()).isInt({ min: 1 }).withMessage('La duracion en dias debe ser un entero positivo'),
+    body('precio_adulto').if(body('precio_adulto').notEmpty()).isFloat({ min: 0 }).withMessage('El precio adulto debe ser un numero positivo'),
   ],
   validar,
   crear

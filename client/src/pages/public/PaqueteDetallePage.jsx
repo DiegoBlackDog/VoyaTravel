@@ -16,6 +16,58 @@ import FormularioConsulta from '../../components/paquetes/FormularioConsulta';
 import styles from './PaqueteDetallePage.module.css';
 
 /* ------------------------------------------------------------------ */
+/* Alojamientos table                                                    */
+/* ------------------------------------------------------------------ */
+
+const PRECIO_COLS = [
+  { key: 'precio_single',    label: 'Single' },
+  { key: 'precio_doble',     label: 'Doble' },
+  { key: 'precio_triple',    label: 'Triple' },
+  { key: 'precio_cuadruple', label: 'Cuádruple' },
+  { key: 'precio_menor',     label: 'Menor' },
+  { key: 'precio_infante',   label: 'Infante' },
+];
+
+function AlojamientosTabla({ alojamientos }) {
+  const colsVisibles = PRECIO_COLS.filter((col) =>
+    alojamientos.some((a) => a[col.key] != null && Number(a[col.key]) > 0)
+  );
+
+  return (
+    <div className={styles.alojTablaWrap}>
+      <table className={styles.alojTabla}>
+        <thead>
+          <tr>
+            <th>Hotel</th>
+            <th>Régimen</th>
+            {colsVisibles.map((c) => <th key={c.key}>{c.label}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {alojamientos.map((a, i) => (
+            <tr key={i}>
+              <td className={styles.alojHotelCell}>
+                {a.hotel?.web_url
+                  ? <a href={a.hotel.web_url} target="_blank" rel="noopener noreferrer" className={styles.alojHotelLink}>{a.hotel.nombre}</a>
+                  : (a.hotel?.nombre || '—')}
+              </td>
+              <td>{a.regimen || '—'}</td>
+              {colsVisibles.map((c) => (
+                <td key={c.key} className={styles.alojPrecioCell}>
+                  {a[c.key] != null && Number(a[c.key]) > 0
+                    ? `USD ${Number(a[c.key]).toLocaleString('es-UY')}`
+                    : '—'}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Skeleton                                                              */
 /* ------------------------------------------------------------------ */
 
@@ -88,6 +140,7 @@ export default function PaqueteDetallePage() {
     resumen,
     descripcion,
     precio_adulto,
+    precio_desde,
     precio_nino,
     precio_infante,
     duracion_dias,
@@ -98,7 +151,10 @@ export default function PaqueteDetallePage() {
     incluye = [],
     no_incluye = [],
     condiciones,
+    alojamientos = [],
   } = paquete;
+
+  const precioMostrar = precio_desde ?? precio_adulto;
 
   // Parse incluye/no_incluye if they come as JSON string
   const incluyeArr = Array.isArray(incluye)
@@ -215,6 +271,16 @@ export default function PaqueteDetallePage() {
                 >
                   ¿Qué incluye?
                 </button>
+                {alojamientos.length > 0 && (
+                  <button
+                    role="tab"
+                    aria-selected={tabActiva === 'alojamientos'}
+                    className={`${styles.tabBtn} ${tabActiva === 'alojamientos' ? styles.tabBtnActivo : ''}`}
+                    onClick={() => setTabActiva('alojamientos')}
+                  >
+                    Alojamientos
+                  </button>
+                )}
                 {itinerarios.length > 0 && (
                   <button
                     role="tab"
@@ -283,6 +349,13 @@ export default function PaqueteDetallePage() {
                 <div className={tabActiva === 'condiciones' ? styles.tabPanelActivo : styles.tabPanel}>
                   {condiciones && <p className={styles.condiciones}>{condiciones}</p>}
                 </div>
+
+                {/* Panel: Alojamientos */}
+                {alojamientos.length > 0 && (
+                  <div className={tabActiva === 'alojamientos' ? styles.tabPanelActivo : styles.tabPanel}>
+                    <AlojamientosTabla alojamientos={alojamientos} />
+                  </div>
+                )}
               </div>
             </div>
           </main>
@@ -293,34 +366,30 @@ export default function PaqueteDetallePage() {
             <div className={styles.precioCard}>
               <p className={styles.precioDesde}>Precio desde</p>
               <p className={styles.precioMonto}>
-                USD {Number(precio_adulto).toLocaleString('es-UY')}
+                USD {Number(precioMostrar).toLocaleString('es-UY')}
               </p>
               <p className={styles.precioPorPersona}>por persona</p>
 
-              <div className={styles.precioDetalle}>
-                <div className={styles.precioFila}>
-                  <span className={styles.precioLabel}>Adulto</span>
-                  <span className={styles.precioValor}>
-                    USD {Number(precio_adulto).toLocaleString('es-UY')}
-                  </span>
+              {alojamientos.length === 0 && (precio_nino != null && Number(precio_nino) > 0 || precio_infante != null && Number(precio_infante) > 0) && (
+                <div className={styles.precioDetalle}>
+                  {precio_nino != null && Number(precio_nino) > 0 && (
+                    <div className={styles.precioFila}>
+                      <span className={styles.precioLabel}>Niño</span>
+                      <span className={styles.precioValor}>
+                        USD {Number(precio_nino).toLocaleString('es-UY')}
+                      </span>
+                    </div>
+                  )}
+                  {precio_infante != null && Number(precio_infante) > 0 && (
+                    <div className={styles.precioFila}>
+                      <span className={styles.precioLabel}>Infante</span>
+                      <span className={styles.precioValor}>
+                        USD {Number(precio_infante).toLocaleString('es-UY')}
+                      </span>
+                    </div>
+                  )}
                 </div>
-                {precio_nino != null && Number(precio_nino) > 0 && (
-                  <div className={styles.precioFila}>
-                    <span className={styles.precioLabel}>Niño</span>
-                    <span className={styles.precioValor}>
-                      USD {Number(precio_nino).toLocaleString('es-UY')}
-                    </span>
-                  </div>
-                )}
-                {precio_infante != null && Number(precio_infante) > 0 && (
-                  <div className={styles.precioFila}>
-                    <span className={styles.precioLabel}>Infante</span>
-                    <span className={styles.precioValor}>
-                      USD {Number(precio_infante).toLocaleString('es-UY')}
-                    </span>
-                  </div>
-                )}
-              </div>
+              )}
 
               <div className={styles.precioDivisor} />
 

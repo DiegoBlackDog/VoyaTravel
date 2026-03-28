@@ -1,0 +1,252 @@
+.pagina {
+  min-height: 100vh;
+  background: var(--color-crema);
+  font-family: var(--font-cuerpo);
+}
+
+/* ── Header ── */
+.header {
+  position: relative;
+  height: 320px;
+  background: var(--color-verde);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.headerImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.headerOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+}
+
+.headerInner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 0 32px 32px;
+}
+
+.headerBrand {
+  font-family: var(--font-titulares);
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.85);
+  display: block;
+  margin-bottom: 8px;
+  letter-spacing: 0.04em;
+}
+
+.headerNumero {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+}
+
+.headerTitulo {
+  font-family: var(--font-titulares);
+  font-size: 2rem;
+  color: #fff;
+  margin: 0 0 10px;
+  line-height: 1.15;
+}
+
+.headerMeta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.headerMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.85);
+}
+
+/* ── Body ── */
+.body {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ── Section card ── */
+.card {
+  background: #fff;
+  border-radius: var(--radio-lg);
+  padding: 28px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.cardTitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-verde);
+  margin: 0 0 18px;
+}
+
+/* ── Info row ── */
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.infoItem label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gris);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.infoItem span {
+  font-size: 0.95rem;
+  color: var(--color-negro);
+  font-weight: 500;
+}
+
+/* ── Incluye / No incluye ── */
+.incluyeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.incluyeSubtitulo {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-negro);
+  margin: 0 0 10px;
+}
+
+.incluyeLista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.incluyeItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-negro);
+}
+
+.iconoIncluye  { color: #16a34a; flex-shrink: 0; margin-top: 2px; }
+.iconoNoIncluye { color: #dc2626; flex-shrink: 0; margin-top: 2px; }
+
+/* ── Alojamientos table ── */
+.alojTablaWrap {
+  overflow-x: auto;
+  border-radius: var(--radio-sm);
+  border: 1.5px solid var(--color-borde);
+}
+
+.alojTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.alojTabla th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gris);
+  background: var(--color-crema);
+  border-bottom: 1.5px solid var(--color-borde);
+}
+
+.alojTabla td {
+  padding: 10px 14px;
+  color: var(--color-negro);
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.alojTabla tbody tr:last-child td { border-bottom: none; }
+
+.alojHotelNombre { font-weight: 600; }
+
+.alojHotelLink {
+  font-weight: 600;
+  color: var(--color-verde);
+  text-decoration: none;
+}
+
+.alojHotelLink:hover { text-decoration: underline; }
+
+.alojPrecio {
+  font-weight: 500;
+  color: var(--color-verde-oscuro);
+  white-space: nowrap;
+}
+
+/* ── Condiciones ── */
+.condiciones {
+  font-size: 0.9rem;
+  color: var(--color-gris);
+  line-height: 1.7;
+  white-space: pre-line;
+  margin: 0;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 24px 32px 40px;
+  font-size: 0.82rem;
+  color: var(--color-gris);
+}
+
+.footerBrand {
+  font-family: var(--font-titulares);
+  color: var(--color-verde);
+  font-size: 1rem;
+}
+
+/* ── Error / loading ── */
+.centro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  font-family: var(--font-cuerpo);
+  color: var(--color-gris);
+}
+
+@media (max-width: 640px) {
+  .header { height: 260px; }
+  .headerTitulo { font-size: 1.5rem; }
+  .body { padding: 24px 16px; }
+  .card { padding: 20px; }
+  .incluyeGrid { grid-template-columns: 1fr; }
+}

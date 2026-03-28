@@ -10,7 +10,7 @@ const esc = (str) =>
 // ── enviarConsulta ──
 const enviarConsulta = async (req, res, next) => {
   try {
-    const { nombre, email, celular, mensaje, paquete_titulo, adultos, ninos, infantes } = req.body;
+    const { nombre, email, celular, mensaje, paquete_titulo, paquete_url, adultos, ninos, infantes } = req.body;
 
     const html = `
       <h2>Nueva consulta desde el sitio web</h2>
@@ -19,6 +19,7 @@ const enviarConsulta = async (req, res, next) => {
         <tr><td><strong>Email:</strong></td><td>${esc(email)}</td></tr>
         <tr><td><strong>Celular:</strong></td><td>${esc(celular)}</td></tr>
         ${paquete_titulo ? `<tr><td><strong>Paquete:</strong></td><td>${esc(paquete_titulo)}</td></tr>` : ''}
+        ${paquete_url ? `<tr><td><strong>Link:</strong></td><td><a href="${esc(paquete_url)}">${esc(paquete_url)}</a></td></tr>` : ''}
         ${adultos ? `<tr><td><strong>Adultos:</strong></td><td>${esc(adultos)}</td></tr>` : ''}
         ${ninos ? `<tr><td><strong>Niños:</strong></td><td>${esc(ninos)}</td></tr>` : ''}
         ${infantes ? `<tr><td><strong>Infantes:</strong></td><td>${esc(infantes)}</td></tr>` : ''}

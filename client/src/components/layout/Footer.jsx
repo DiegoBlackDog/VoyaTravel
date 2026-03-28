@@ -38,7 +38,7 @@ export default function Footer() {
         <div className={styles.contenedor}>
           {/* Column 1: Brand */}
           <div className={styles.columna}>
-            <Link to="/" className={styles.logoFooter}>voyâ</Link>
+            <Link to="/" className={styles.logoFooter}>voy<span className={styles.logoAcento}>â</span></Link>
             <p className={styles.descripcion}>
               Tu agencia de viajes de confianza en Uruguay. Exploramos el mundo juntos con destinos únicos y experiencias inolvidables.
             </p>

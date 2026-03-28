@@ -45,7 +45,7 @@ export default function Navbar() {
       <div className={styles.contenedor}>
         {/* Logo */}
         <NavLink to="/" className={styles.logo} onClick={cerrarMenu}>
-          voyâ
+          voy<span className={styles.logoA}>â</span>
         </NavLink>
 
         {/* Desktop nav links */}

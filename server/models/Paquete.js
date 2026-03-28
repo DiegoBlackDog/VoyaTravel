@@ -60,17 +60,15 @@ const Paquete = sequelize.define('Paquete', {
   },
   duracion_dias: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 1,
+    allowNull: true,
   },
   duracion_noches: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 0,
+    allowNull: true,
   },
   precio_adulto: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false,
+    allowNull: true,
   },
   precio_nino: {
     type: DataTypes.DECIMAL(10, 2),

@@ -28,6 +28,10 @@ export default function FormularioConsulta({ paquete }) {
     },
   });
 
+  const paqueteUrl = paquete?.slug
+    ? `${window.location.origin}/paquetes/${paquete.slug}`
+    : window.location.href;
+
   async function onSubmit(datos) {
     setErrorEnvio('');
     try {
@@ -37,6 +41,7 @@ export default function FormularioConsulta({ paquete }) {
         celular: datos.celular,
         mensaje: datos.mensaje,
         paquete_titulo: paquete?.titulo || '',
+        paquete_url: paqueteUrl,
         adultos: datos.adultos,
         ninos: datos.ninos,
         infantes: datos.infantes,
@@ -48,11 +53,22 @@ export default function FormularioConsulta({ paquete }) {
     }
   }
 
+  function normalizarWhatsapp(raw) {
+    // Strip everything except digits
+    let n = (raw || '').replace(/\D/g, '');
+    // If local Uruguayan format (starts with 0, 8-9 digits), convert to international
+    if (n.startsWith('0') && n.length <= 9) n = '598' + n.slice(1);
+    // If bare local number without leading 0 (8 digits), prepend country code
+    if (n.length === 8) n = '598' + n;
+    return n;
+  }
+
   function handleWhatsApp() {
-    const numero = configuracion?.whatsapp || '';
+    const numero = normalizarWhatsapp(configuracion?.whatsapp);
+    if (!numero) return;
     const nombre = paquete?.titulo || 'un paquete';
     const texto = encodeURIComponent(
-      `Hola! Me interesa consultar sobre el paquete "${nombre}". ¿Podrían darme más información?`
+      `Hola! Me interesa consultar sobre el paquete "${nombre}". ¿Podrían darme más información?\n\n${paqueteUrl}`
     );
     window.open(`https://wa.me/${numero}?text=${texto}`, '_blank', 'noopener,noreferrer');
   }

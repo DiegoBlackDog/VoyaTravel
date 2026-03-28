@@ -59,12 +59,15 @@ export default function PaqueteCard({ paquete }) {
     titulo,
     resumen,
     precio_adulto,
+    precio_desde,
     duracion_dias,
     duracion_noches,
     imagenes = [],
     etiquetas = [],
     destinos = [],
   } = paquete;
+
+  const precioMostrar = precio_desde ?? precio_adulto;
 
   const portada = imagenes.find((i) => i.es_portada) || imagenes[0];
   const imagen_portada = portada?.ruta_imagen || portada?.url || null;
@@ -119,7 +122,7 @@ export default function PaqueteCard({ paquete }) {
           <div className={styles.precio}>
             <span className={styles.desde}>desde</span>
             <span className={styles.monto}>
-              USD {Number(precio_adulto).toLocaleString('es-UY')}
+              USD {Number(precioMostrar).toLocaleString('es-UY')}
             </span>
             <span className={styles.porPersona}>/ persona</span>
           </div>

@@ -451,6 +451,75 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Alojamientos tabla                                                   */
+/* ------------------------------------------------------------------ */
+
+.alojTablaWrap {
+  overflow-x: auto;
+  border-radius: var(--radio-lg);
+  border: 1.5px solid var(--color-borde);
+}
+
+.alojTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-cuerpo);
+  font-size: 0.88rem;
+}
+
+.alojTabla thead tr {
+  background: var(--color-crema);
+  border-bottom: 1.5px solid var(--color-borde);
+}
+
+.alojTabla th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-gris);
+  white-space: nowrap;
+}
+
+.alojTabla td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-borde);
+  color: var(--color-negro);
+  vertical-align: middle;
+}
+
+.alojTabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.alojTabla tbody tr:hover {
+  background: rgba(55, 137, 102, 0.03);
+}
+
+.alojHotelCell {
+  font-weight: 600;
+  color: var(--color-negro);
+}
+
+.alojHotelLink {
+  font-weight: 600;
+  color: var(--color-verde);
+  text-decoration: none;
+}
+
+.alojHotelLink:hover {
+  text-decoration: underline;
+}
+
+.alojPrecioCell {
+  font-weight: 500;
+  color: var(--color-verde-oscuro);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ */
 /* Error page                                                           */
 /* ------------------------------------------------------------------ */
 

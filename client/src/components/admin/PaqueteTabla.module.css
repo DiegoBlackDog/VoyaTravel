@@ -273,3 +273,171 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* ── Modal costos ── */
+.modalCostos {
+  max-width: 780px;
+  width: 95vw;
+}
+
+.modalCostosHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaciado-md);
+}
+
+.modalCerrar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gris);
+  padding: 4px;
+  border-radius: var(--radio-sm);
+  transition: color 0.15s, background 0.15s;
+}
+
+.modalCerrar:hover {
+  color: var(--color-negro);
+  background: var(--color-crema);
+}
+
+.costosSinDatos {
+  font-size: 0.875rem;
+  color: var(--color-gris);
+  margin-bottom: var(--espaciado-md);
+}
+
+.costosTablaWrap {
+  overflow-x: auto;
+  margin-bottom: var(--espaciado-md);
+}
+
+.costosTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.costosTabla th {
+  text-align: left;
+  padding: 7px 10px;
+  background: var(--color-crema);
+  color: var(--color-gris);
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1.5px solid var(--color-borde);
+}
+
+.costosTabla td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-borde);
+  color: var(--color-negro);
+}
+
+.costosTabla tr:last-child td {
+  border-bottom: none;
+}
+
+.costosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--espaciado-md);
+}
+
+.costoItem {
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.costoItemResumen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-crema);
+  font-size: 0.82rem;
+}
+
+.costoChip {
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: var(--color-gris);
+  white-space: nowrap;
+}
+
+.costoNetoVal {
+  font-weight: 600;
+  color: var(--color-negro);
+  font-size: 0.85rem;
+  margin-left: auto;
+}
+
+.costoVerBtn {
+  font-size: 0.75rem;
+  color: var(--color-verde);
+  font-weight: 500;
+  padding: 3px 8px;
+  border: 1px solid var(--color-verde);
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.costoVerBtn:hover { background: rgba(55,137,102,0.08); }
+
+.costoDetalle {
+  padding: 12px 14px;
+  background: #fff;
+  border-top: 1px solid var(--color-borde);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.costoDetalleGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  font-size: 0.82rem;
+}
+
+.costoDetalleGrid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.costoDetalleLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gris);
+  display: block;
+}
+
+.costoNotas {
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.costoNotas p {
+  color: var(--color-negro);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  background: var(--color-crema);
+  border-radius: var(--radio-sm);
+  padding: 8px 10px;
+  margin: 0;
+}

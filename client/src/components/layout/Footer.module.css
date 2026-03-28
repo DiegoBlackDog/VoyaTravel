@@ -36,7 +36,14 @@
 }
 
 .logoFooter:hover {
-  color: var(--color-verde-claro);
+  opacity: 0.85;
+}
+
+.logoAcento {
+  background: linear-gradient(to bottom, var(--color-salmon) 35%, #ffffff 35%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .descripcion {

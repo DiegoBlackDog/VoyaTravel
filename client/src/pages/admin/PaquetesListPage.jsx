@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiPlus, FiSearch, FiRefreshCw, FiAlertCircle } from 'react-icons/fi';
 import api from '../../services/api';
@@ -23,6 +23,7 @@ export default function PaquetesListPage() {
   const [error, setError]             = useState('');
   const [busqueda, setBusqueda]       = useState('');
   const [inputBusqueda, setInputBusqueda] = useState('');
+  const debounceRef = useRef(null);
   const [tabActiva, setTabActiva]     = useState('todos');
 
   const cargar = useCallback(async () => {
@@ -30,7 +31,7 @@ export default function PaquetesListPage() {
     setError('');
     try {
       const params = { page: pagina, limit: LIMIT };
-      if (busqueda) params.search = busqueda;
+      if (busqueda) params.busqueda = busqueda;
       if (tabActiva === 'disponibles') params.disponible = true;
       if (tabActiva === 'ocultos')     params.disponible = false;
       if (tabActiva === 'destacados')  params.destacado = true;
@@ -54,9 +55,21 @@ export default function PaquetesListPage() {
     cargar();
   }, [cargar]);
 
+  /* ── Buscar al escribir (debounce 350ms) ── */
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    setInputBusqueda(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setBusqueda(val.trim());
+      setPagina(1);
+    }, 350);
+  };
+
   /* ── Buscar al pulsar Enter o botón ── */
   const handleBuscar = (e) => {
     e.preventDefault();
+    clearTimeout(debounceRef.current);
     setBusqueda(inputBusqueda.trim());
     setPagina(1);
   };
@@ -142,7 +155,7 @@ export default function PaquetesListPage() {
               className={styles.buscadorInput}
               placeholder="Buscar por título, destino…"
               value={inputBusqueda}
-              onChange={(e) => setInputBusqueda(e.target.value)}
+              onChange={handleInputChange}
             />
           </div>
           <button type="submit" className={styles.botonBuscar}>Buscar</button>

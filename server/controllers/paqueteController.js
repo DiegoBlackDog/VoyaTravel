@@ -7,6 +7,9 @@ const {
   CategoriaEtiqueta,
   Destino,
   Usuario,
+  CostoPaquete,
+  AlojamientoPaquete,
+  Hotel,
 } = require('../models');
 
 // ── Helpers ──
@@ -15,6 +18,7 @@ const includeBase = [
   { model: ImagenPaquete, as: 'imagenes' },
   { model: Etiqueta, as: 'etiquetas', include: [{ model: CategoriaEtiqueta, as: 'categoria' }] },
   { model: Destino, as: 'destinos' },
+  { model: AlojamientoPaquete, as: 'alojamientos', separate: true },
 ];
 
 const includeCompleto = [
@@ -23,7 +27,19 @@ const includeCompleto = [
   { model: Etiqueta, as: 'etiquetas', include: [{ model: CategoriaEtiqueta, as: 'categoria' }] },
   { model: Destino, as: 'destinos' },
   { model: Usuario, as: 'creador', attributes: ['nombre'] },
+  { model: CostoPaquete, as: 'costos', separate: true, order: [['id', 'ASC']] },
+  { model: AlojamientoPaquete, as: 'alojamientos', separate: true, include: [{ model: Hotel, as: 'hotel' }] },
 ];
+
+function calcPrecioDesde(paquete) {
+  const aloj = paquete.alojamientos || [];
+  const precios = aloj.flatMap((a) =>
+    ['precio_single','precio_doble','precio_triple','precio_cuadruple','precio_menor','precio_infante']
+      .map((k) => a[k])
+      .filter((v) => v != null && Number(v) > 0)
+  );
+  return precios.length > 0 ? Math.min(...precios.map(Number)) : null;
+}
 
 function buildOrden(orden) {
   switch (orden) {
@@ -166,8 +182,13 @@ const listar = async (req, res, next) => {
       distinct: true,
     });
 
+    const paquetesConPrecio = paquetes.map((p) => {
+      const pj = p.toJSON();
+      const desde = calcPrecioDesde(pj);
+      return { ...pj, precio_desde: desde ?? pj.precio_adulto };
+    });
     res.json({
-      paquetes,
+      paquetes: paquetesConPrecio,
       total,
       pagina: pag,
       totalPaginas: Math.ceil(total / lim),
@@ -181,11 +202,16 @@ const listar = async (req, res, next) => {
 
 const destacados = async (req, res, next) => {
   try {
-    const paquetes = await Paquete.findAll({
+    const paquetesRaw = await Paquete.findAll({
       where: { destacado: true, disponible: true },
       include: includeBase,
       limit: 10,
       order: [['creado_en', 'DESC']],
+    });
+    const paquetes = paquetesRaw.map((p) => {
+      const pj = p.toJSON();
+      const desde = calcPrecioDesde(pj);
+      return { ...pj, precio_desde: desde ?? pj.precio_adulto };
     });
     res.json({ paquetes });
   } catch (err) {
@@ -197,8 +223,11 @@ const destacados = async (req, res, next) => {
 
 const obtenerPorId = async (req, res, next) => {
   try {
-    const paquete = await Paquete.findByPk(req.params.id, { include: includeCompleto });
-    if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+    const paqueteRaw = await Paquete.findByPk(req.params.id, { include: includeCompleto });
+    if (!paqueteRaw) return res.status(404).json({ error: 'Paquete no encontrado' });
+    const pj = paqueteRaw.toJSON();
+    const desde = calcPrecioDesde(pj);
+    const paquete = { ...pj, precio_desde: desde ?? pj.precio_adulto };
     res.json({ paquete });
   } catch (err) {
     next(err);
@@ -209,12 +238,15 @@ const obtenerPorId = async (req, res, next) => {
 
 const obtenerPorSlug = async (req, res, next) => {
   try {
-    const paquete = await Paquete.findOne({
+    const paqueteRaw = await Paquete.findOne({
       where: { slug: req.params.slug },
       include: includeCompleto,
     });
 
-    if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
+    if (!paqueteRaw) return res.status(404).json({ error: 'Paquete no encontrado' });
+    const pj = paqueteRaw.toJSON();
+    const desde = calcPrecioDesde(pj);
+    const paquete = { ...pj, precio_desde: desde ?? pj.precio_adulto };
     res.json({ paquete });
   } catch (err) {
     next(err);
@@ -225,7 +257,7 @@ const obtenerPorSlug = async (req, res, next) => {
 
 const crear = async (req, res, next) => {
   try {
-    const { etiquetas_ids, destinos_ids, itinerario: itinerarioData, ...datos } = req.body;
+    const { etiquetas_ids, destinos_ids, itinerario: itinerarioData, costos: costosData, alojamientos: alojamientosData, ...datos } = req.body;
     datos.creado_por = req.session.usuario.id;
 
     const paquete = await Paquete.create(datos);
@@ -244,6 +276,19 @@ const crear = async (req, res, next) => {
       );
     }
 
+    if (costosData && costosData.length > 0) {
+      const hoy = new Date().toISOString().slice(0, 10);
+      await CostoPaquete.bulkCreate(
+        costosData.map((c) => ({ ...c, fecha_cotizacion: c.fecha_cotizacion || hoy, paquete_id: paquete.id }))
+      );
+    }
+
+    if (alojamientosData && alojamientosData.length > 0) {
+      await AlojamientoPaquete.bulkCreate(
+        alojamientosData.map((a) => ({ ...a, paquete_id: paquete.id }))
+      );
+    }
+
     const completo = await Paquete.findByPk(paquete.id, { include: includeCompleto });
     res.status(201).json({ paquete: completo });
   } catch (err) {
@@ -258,7 +303,7 @@ const actualizar = async (req, res, next) => {
     const paquete = await Paquete.findByPk(req.params.id);
     if (!paquete) return res.status(404).json({ error: 'Paquete no encontrado' });
 
-    const { etiquetas_ids, destinos_ids, itinerario: itinerarioData, ...datos } = req.body;
+    const { etiquetas_ids, destinos_ids, itinerario: itinerarioData, costos: costosData, alojamientos: alojamientosData, ...datos } = req.body;
     await paquete.update(datos);
 
     if (etiquetas_ids !== undefined) {
@@ -274,6 +319,25 @@ const actualizar = async (req, res, next) => {
       if (itinerarioData.length > 0) {
         await Itinerario.bulkCreate(
           itinerarioData.map((item) => ({ ...item, paquete_id: paquete.id }))
+        );
+      }
+    }
+
+    if (costosData !== undefined) {
+      await CostoPaquete.destroy({ where: { paquete_id: paquete.id } });
+      if (costosData.length > 0) {
+        const hoy = new Date().toISOString().slice(0, 10);
+        await CostoPaquete.bulkCreate(
+          costosData.map((c) => ({ ...c, fecha_cotizacion: c.fecha_cotizacion || hoy, paquete_id: paquete.id }))
+        );
+      }
+    }
+
+    if (alojamientosData !== undefined) {
+      await AlojamientoPaquete.destroy({ where: { paquete_id: paquete.id } });
+      if (alojamientosData.length > 0) {
+        await AlojamientoPaquete.bulkCreate(
+          alojamientosData.map((a) => ({ ...a, paquete_id: paquete.id }))
         );
       }
     }
