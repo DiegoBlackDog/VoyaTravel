@@ -45,6 +45,16 @@ export default function CotizacionPublicPage() {
     );
   }
 
+  const API_BASE = import.meta.env.DEV ? 'http://localhost:4000' : '';
+
+  // Supports both old string[] format and new {tipo, detalle}[] format
+  const renderItemLabel = (item) => {
+    if (typeof item === 'string') return item;
+    const { tipo, detalle } = item;
+    if (tipo === 'Personalizado') return detalle || tipo;
+    return detalle ? `${tipo} — ${detalle}` : tipo;
+  };
+
   const incluyeArr = Array.isArray(cot.incluye) ? cot.incluye.filter(Boolean) : [];
   const noIncluyeArr = Array.isArray(cot.no_incluye) ? cot.no_incluye.filter(Boolean) : [];
   const alojamientos = cot.alojamientos || [];
@@ -113,7 +123,7 @@ export default function CotizacionPublicPage() {
                     {incluyeArr.map((item, i) => (
                       <li key={i} className={styles.incluyeItem}>
                         <FaCheckCircle size={14} className={styles.iconoIncluye} />
-                        <span>{item}</span>
+                        <span>{renderItemLabel(item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -126,7 +136,7 @@ export default function CotizacionPublicPage() {
                     {noIncluyeArr.map((item, i) => (
                       <li key={i} className={styles.incluyeItem}>
                         <FaTimesCircle size={14} className={styles.iconoNoIncluye} />
-                        <span>{item}</span>
+                        <span>{renderItemLabel(item)}</span>
                       </li>
                     ))}
                   </ul>
@@ -179,6 +189,24 @@ export default function CotizacionPublicPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
+
+        {/* Itinerario */}
+        {cot.itinerario_tipo === 'pnr' && cot.itinerario_pnr && (
+          <div className={styles.card}>
+            <p className={styles.cardTitulo}>Itinerario</p>
+            <pre className={styles.pnrText}>{cot.itinerario_pnr}</pre>
+          </div>
+        )}
+        {cot.itinerario_tipo === 'imagen' && cot.itinerario_imagen && (
+          <div className={styles.card}>
+            <p className={styles.cardTitulo}>Itinerario</p>
+            <img
+              src={`${API_BASE}${cot.itinerario_imagen}`}
+              alt="Itinerario"
+              className={styles.itinerarioImg}
+            />
           </div>
         )}
 

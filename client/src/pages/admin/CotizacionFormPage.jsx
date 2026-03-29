@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   FiArrowLeft, FiPlus, FiX, FiEdit2, FiTrash2,
-  FiAlertCircle, FiCopy, FiExternalLink, FiSave, FiSearch,
+  FiAlertCircle, FiCopy, FiExternalLink, FiSave, FiSearch, FiUploadCloud,
 } from 'react-icons/fi';
 import api from '../../services/api';
 import styles from './CotizacionFormPage.module.css';
@@ -19,37 +19,23 @@ Cancelaciones con más de 30 días de anticipación: reembolso del 80% de la se�
 
 Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).`;
 
-const OPCIONES_INCLUYE = [
-  'Vuelo de ida y vuelta',
-  'Hotel (habitación doble)',
-  'Traslados aeropuerto - hotel',
-  'Desayuno incluido',
-  'Media pensión (desayuno + cena)',
-  'Pensión completa',
-  'All Inclusive',
-  'Guía de turismo en español',
-  'Seguro de viaje básico',
-  'Asistencia al viajero 24hs',
-  'Visitas y excursiones indicadas',
-  'Transfers incluidos',
-  'Impuestos y tasas incluidas',
-];
+const OPCIONES_COMBO     = ['Billete aéreo según itinerario', 'Alojamiento', 'Traslados', 'Seguro de Viaje', 'Visitas y excursiones no indicadas', 'Todas las tasas e impuestos', 'Personalizado'];
+const OPCIONES_BILLETE   = ['Equipaje de mano (Carry on)', 'Equipaje en bodega', 'Artículo Personal'];
+const OPCIONES_TRASLADOS = ['Traslados Aeropuerto - Hotel - Aeropuerto', 'Traslados Aeropuerto - Hotel', 'Traslados Hotel - Aeropuerto'];
+const OPCIONES_SEGURO    = ['Urban', 'Tarjeta Celeste 40k'];
 
-const OPCIONES_NO_INCLUYE = [
-  'Vuelos internacionales',
-  'Visa y trámites consulares',
-  'Gastos personales',
-  'Propinas',
-  'Seguro de viaje premium',
-  'Comidas no mencionadas',
-  'Actividades opcionales',
-  'Bebidas en restaurantes',
-  'Equipaje adicional',
-  'Recargo por habitación individual',
-  'Traslados no indicados',
-];
+const getSecondaryType = (tipo) => {
+  switch (tipo) {
+    case 'Billete aéreo según itinerario': return 'combo-billete';
+    case 'Alojamiento':                    return 'number';
+    case 'Traslados':                      return 'combo-traslados';
+    case 'Seguro de Viaje':                return 'combo-seguro';
+    case 'Personalizado':                  return 'text';
+    default:                               return null;
+  }
+};
 
-const REGIMENES = ['S/Desayuno', 'Desayuno', 'Media Pensión', 'Pensión Completa', 'All Inclusive'];
+const REGIMENES        = ['S/Desayuno', 'Desayuno', 'Media Pensión', 'Pensión Completa', 'All Inclusive'];
 const METODOS_CONTACTO = ['Whatsapp', 'Email', 'Teléfono'];
 
 const PRECIO_COLS = [
@@ -61,26 +47,142 @@ const PRECIO_COLS = [
   { key: 'precio_infante',   label: 'Infante' },
 ];
 
-const ALOJ_VACIO = {
-  hotel_id: null, hotel_nombre: '', regimen: '',
+const API_BASE = import.meta.env.DEV ? 'http://localhost:4000' : '';
+
+const PRECIOS_VACIO = {
   precio_single: '', precio_doble: '', precio_triple: '',
   precio_cuadruple: '', precio_menor: '', precio_infante: '',
 };
 
+/* An alojamiento "group" = N hotel rows (one per destination) + shared prices */
+const nuevoGrupo = (destinos) => ({
+  items: destinos.length > 0
+    ? destinos.map((d) => ({ destino_id: d.id, destino_nombre: d.nombre, hotel_id: null, hotel_nombre: '', regimen: '' }))
+    : [{ destino_id: null, destino_nombre: '', hotel_id: null, hotel_nombre: '', regimen: '' }],
+  ...PRECIOS_VACIO,
+});
+
+const normalizeItems = (arr) => {
+  if (!Array.isArray(arr)) return [];
+  return arr.map((item) =>
+    typeof item === 'string'
+      ? { tipo: item, detalle: '', destino: '' }
+      : { tipo: item.tipo || '', detalle: item.detalle || '', destino: item.destino || '' }
+  );
+};
+
 /* ────────────────────────────────────────────────── */
-/* Destino single autocomplete                        */
+/* Combobox — searchable + free-text                  */
 /* ────────────────────────────────────────────────── */
-function DestinoAutocomplete({ destinos, selectedId, onChange }) {
-  const [query, setQuery] = useState('');
-  const [abierto, setAbierto] = useState(false);
+function Combobox({ value, onChange, opciones, placeholder, className }) {
+  const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
-  const normalizar = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const filtered = useMemo(() => {
+    if (!value.trim()) return opciones.slice(0, 10);
+    const q = value.toLowerCase();
+    return opciones.filter((o) => o.toLowerCase().includes(q)).slice(0, 8);
+  }, [value, opciones]);
 
   useEffect(() => {
-    const handler = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false);
-    };
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  return (
+    <div ref={wrapRef} className={`${styles.comboWrap} ${className || ''}`}>
+      <input
+        type="text"
+        className={styles.comboInput}
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        placeholder={placeholder}
+        autoComplete="off"
+      />
+      {open && filtered.length > 0 && (
+        <ul className={styles.comboDropdown}>
+          {filtered.map((o) => (
+            <li key={o}>
+              <button type="button" className={styles.comboOpcion} onMouseDown={(e) => { e.preventDefault(); onChange(o); setOpen(false); }}>
+                {o}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────── */
+/* ItemRow — incluye / no incluye                     */
+/* ────────────────────────────────────────────────── */
+function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados }) {
+  const secType   = getSecondaryType(item.tipo);
+  const multiDest = destinosSeleccionados && destinosSeleccionados.length > 1;
+
+  const handleTipoChange = (v) => onChange({ tipo: v, detalle: '', destino: '' });
+
+  return (
+    <div className={`${styles.itemRow} ${esRojo ? styles.itemRowRojo : ''}`}>
+      <Combobox
+        value={item.tipo}
+        onChange={handleTipoChange}
+        opciones={OPCIONES_COMBO}
+        placeholder="Seleccioná o escribí..."
+        className={styles.comboPrimario}
+      />
+
+      {secType === 'number' && (
+        <>
+          <input
+            type="number"
+            className={`${styles.comboInput} ${styles.comboInputAngosto}`}
+            value={item.detalle}
+            onChange={(e) => onChange({ ...item, detalle: e.target.value })}
+            placeholder="Noches"
+            min="0"
+          />
+          {multiDest && (
+            <Combobox
+              value={item.destino || ''}
+              onChange={(v) => onChange({ ...item, destino: v })}
+              opciones={destinosSeleccionados.map((d) => d.nombre)}
+              placeholder="Destino..."
+            />
+          )}
+        </>
+      )}
+      {secType === 'text' && (
+        <div className={styles.comboWrap}>
+          <input type="text" className={styles.comboInput} value={item.detalle} onChange={(e) => onChange({ ...item, detalle: e.target.value })} placeholder="Escribí el detalle..." />
+        </div>
+      )}
+      {secType === 'combo-billete'   && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_BILLETE}   placeholder="Tipo de equipaje..."  />}
+      {secType === 'combo-traslados' && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_TRASLADOS} placeholder="Tipo de traslado..." />}
+      {secType === 'combo-seguro'    && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_SEGURO}    placeholder="Tipo de seguro..."   />}
+
+      <button type="button" className={styles.itemRemove} onClick={onRemove}><FiX size={12} /></button>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────── */
+/* DestinoMultiSelect                                 */
+/* ────────────────────────────────────────────────── */
+function DestinoMultiSelect({ destinos, seleccionados, onChange }) {
+  const [query,   setQuery]   = useState('');
+  const [abierto, setAbierto] = useState(false);
+  const wrapRef  = useRef(null);
+  const inputRef = useRef(null);
+
+  const normalizar = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const selIds     = useMemo(() => new Set(seleccionados.map((d) => d.id)), [seleccionados]);
+
+  useEffect(() => {
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
@@ -89,94 +191,76 @@ function DestinoAutocomplete({ destinos, selectedId, onChange }) {
     const q = normalizar(query.trim());
     if (!q) return [];
     return destinos
-      .filter((d) => (normalizar(d.nombre).includes(q) || normalizar(d.pais).includes(q)) && d.id !== selectedId)
+      .filter((d) => !selIds.has(d.id) && (normalizar(d.nombre).includes(q) || normalizar(d.pais || '').includes(q)))
       .slice(0, 8);
-  }, [query, destinos, selectedId]);
+  }, [query, destinos, selIds]);
 
-  const seleccionado = destinos.find((d) => d.id === Number(selectedId));
-
-  const seleccionar = (d) => {
-    onChange(d.id);
-    setQuery('');
-    setAbierto(false);
-  };
-
-  const deseleccionar = () => {
-    onChange('');
-    setQuery('');
-  };
+  const agregar = (d) => { onChange([...seleccionados, d]); setQuery(''); setAbierto(false); inputRef.current?.focus(); };
+  const quitar  = (id) => onChange(seleccionados.filter((d) => d.id !== id));
 
   return (
-    <div ref={wrapRef} className={styles.destinoBuscador}>
-      {seleccionado ? (
-        <div className={styles.destinoChips}>
-          <span className={styles.destinoChip}>
-            <span>{seleccionado.nombre}</span>
-            {seleccionado.pais && <span className={styles.destinoChipPais}>, {seleccionado.pais}</span>}
-            <button type="button" className={styles.destinoChipX} onClick={deseleccionar}>
+    <div ref={wrapRef} className={styles.multiSelectWrap}>
+      <div className={styles.multiSelectBox} onClick={() => inputRef.current?.focus()}>
+        {seleccionados.map((d) => (
+          <span key={d.id} className={styles.destinoChip}>
+            {d.nombre}{d.pais ? `, ${d.pais}` : ''}
+            <button type="button" className={styles.destinoChipX} onClick={(e) => { e.stopPropagation(); quitar(d.id); }}>
               <FiX size={10} />
             </button>
           </span>
+        ))}
+        <div className={styles.multiSelectInputWrap}>
+          <FiSearch size={13} className={styles.multiSelectIcono} />
+          <input
+            ref={inputRef}
+            type="text"
+            className={styles.multiSelectInput}
+            placeholder={seleccionados.length > 0 ? 'Agregar destino...' : 'Buscar ciudad o país...'}
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setAbierto(true); }}
+            onFocus={() => setAbierto(true)}
+            autoComplete="off"
+          />
+          {query && (
+            <button type="button" className={styles.destinoLimpiar} onClick={() => { setQuery(''); setAbierto(false); }}>
+              <FiX size={11} />
+            </button>
+          )}
         </div>
-      ) : (
-        <>
-          <div className={styles.destinoInputWrap}>
-            <FiSearch size={13} className={styles.destinoIcono} />
-            <input
-              type="text"
-              className={styles.destinoInput}
-              placeholder="Buscar ciudad o país..."
-              value={query}
-              onChange={(e) => { setQuery(e.target.value); setAbierto(true); }}
-              onFocus={() => setAbierto(true)}
-            />
-            {query && (
-              <button type="button" className={styles.destinoLimpiar} onClick={() => { setQuery(''); setAbierto(false); }}>
-                <FiX size={11} />
+      </div>
+      {abierto && sugerencias.length > 0 && (
+        <ul className={styles.destinoDropdown}>
+          {sugerencias.map((d) => (
+            <li key={d.id}>
+              <button type="button" className={styles.destinoOpcion} onMouseDown={(e) => { e.preventDefault(); agregar(d); }}>
+                <span className={styles.destinoOpcionNombre}>{d.nombre}</span>
+                {d.pais && <span className={styles.destinoOpcionPais}>{d.pais}</span>}
               </button>
-            )}
-          </div>
-          {abierto && sugerencias.length > 0 && (
-            <ul className={styles.destinoDropdown}>
-              {sugerencias.map((d) => (
-                <li key={d.id}>
-                  <button
-                    type="button"
-                    className={styles.destinoOpcion}
-                    onMouseDown={(e) => { e.preventDefault(); seleccionar(d); }}
-                  >
-                    <span className={styles.destinoOpcionNombre}>{d.nombre}</span>
-                    {d.pais && <span className={styles.destinoOpcionPais}>{d.pais}</span>}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-          {abierto && query.trim() && sugerencias.length === 0 && (
-            <div className={styles.destinoSinResultados}>Sin resultados</div>
-          )}
-        </>
+            </li>
+          ))}
+        </ul>
+      )}
+      {abierto && query.trim() && sugerencias.length === 0 && (
+        <div className={styles.destinoSinResultados}>Sin resultados</div>
       )}
     </div>
   );
 }
 
 /* ────────────────────────────────────────────────── */
-/* Hotel autocomplete (debounced, filtered by destino)*/
+/* HotelAutocomplete                                  */
 /* ────────────────────────────────────────────────── */
 function HotelAutocomplete({ destinoId, value, onChange }) {
-  const [query, setQuery] = useState(value || '');
+  const [query,      setQuery]      = useState(value || '');
   const [sugerencias, setSugerencias] = useState([]);
-  const [abierto, setAbierto] = useState(false);
-  const wrapRef = useRef(null);
+  const [abierto,    setAbierto]    = useState(false);
+  const wrapRef  = useRef(null);
   const timerRef = useRef(null);
 
   useEffect(() => { setQuery(value || ''); }, [value]);
 
   useEffect(() => {
-    const handler = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false);
-    };
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false); };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
@@ -204,12 +288,7 @@ function HotelAutocomplete({ destinoId, value, onChange }) {
           className={styles.destinoInput}
           placeholder="Buscar hotel..."
           value={query}
-          onChange={(e) => {
-            const v = e.target.value;
-            setQuery(v);
-            onChange({ hotel_id: null, hotel_nombre: v });
-            buscar(v);
-          }}
+          onChange={(e) => { const v = e.target.value; setQuery(v); onChange({ hotel_id: null, hotel_nombre: v }); buscar(v); }}
           autoComplete="off"
         />
         {query && (
@@ -222,15 +301,8 @@ function HotelAutocomplete({ destinoId, value, onChange }) {
         <ul className={styles.destinoDropdown}>
           {sugerencias.map((h) => (
             <li key={h.id}>
-              <button
-                type="button"
-                className={styles.destinoOpcion}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  setQuery(h.nombre);
-                  onChange({ hotel_id: h.id, hotel_nombre: h.nombre });
-                  setAbierto(false);
-                }}
+              <button type="button" className={styles.destinoOpcion}
+                onMouseDown={(e) => { e.preventDefault(); setQuery(h.nombre); onChange({ hotel_id: h.id, hotel_nombre: h.nombre }); setAbierto(false); }}
               >
                 <span className={styles.destinoOpcionNombre}>{h.nombre}</span>
                 {h.ciudad && <span className={styles.destinoOpcionPais}>{h.ciudad}</span>}
@@ -247,158 +319,205 @@ function HotelAutocomplete({ destinoId, value, onChange }) {
 /* Main component                                     */
 /* ────────────────────────────────────────────────── */
 export default function CotizacionFormPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { id }    = useParams();
+  const navigate  = useNavigate();
   const esEdicion = Boolean(id);
 
-  const [cargando, setCargando] = useState(esEdicion);
+  const [cargando,  setCargando]  = useState(esEdicion);
   const [guardando, setGuardando] = useState(false);
-  const [error, setError] = useState('');
-  const [exito, setExito] = useState('');
-  const [token, setToken] = useState(null);
+  const [error,     setError]     = useState('');
+  const [exito,     setExito]     = useState('');
+  const [token,     setToken]     = useState(null);
 
-  // Scalar fields
   const [form, setForm] = useState({
     nombre_pasajero: '',
-    destino_id: '',
-    duracion_dias: '',
+    duracion_dias:   '',
     duracion_noches: '',
-    condiciones: CONDICIONES_DEFAULT,
+    condiciones:     CONDICIONES_DEFAULT,
     contacto_metodo: '',
-    contacto_dato: '',
+    contacto_dato:   '',
   });
 
-  // Lists
-  const [incluye, setIncluye] = useState([]);
+  const [destinosSeleccionados, setDestinosSeleccionados] = useState([]);
+  const [todosDestinos, setTodosDestinos]                 = useState([]);
+  const [incluye,   setIncluye]   = useState([]);
   const [noIncluye, setNoIncluye] = useState([]);
-  const [nuevoIncluye, setNuevoIncluye] = useState('');
-  const [nuevoNoIncluye, setNuevoNoIncluye] = useState('');
 
-  // Accommodations
+  const [itinerarioTipo,        setItinerarioTipo]        = useState('');
+  const [itinerarioPnr,         setItinerarioPnr]         = useState('');
+  const [itinerarioImagen,      setItinerarioImagen]      = useState('');
+  const [itinerarioImgSubiendo, setItinerarioImgSubiendo] = useState(false);
+  const [dropDragging,          setDropDragging]          = useState(false);
+  const fileInputRef = useRef(null);
+
+  /* alojamientos is now an array of GROUPS:
+     { items: [{destino_id, destino_nombre, hotel_id, hotel_nombre, regimen}], precio_single, ... } */
   const [alojamientos, setAlojamientos] = useState([]);
-  const [modalAloj, setModalAloj] = useState(null);
-  const [alojForm, setAlojForm] = useState(ALOJ_VACIO);
+  const [modalAloj,    setModalAloj]    = useState(null);   // null | { index: number|null }
+  const [grupoForm,    setGrupoForm]    = useState(null);   // current group being edited
 
-  // Auxiliary
-  const [destinos, setDestinos] = useState([]);
-
+  /* ── Init ── */
   useEffect(() => {
-    api.get('/destinos').then(({ data }) => setDestinos(data.destinos || []));
-  }, []);
+    const init = async () => {
+      const { data: dData } = await api.get('/destinos');
+      const allD = dData.destinos || [];
+      setTodosDestinos(allD);
 
-  useEffect(() => {
-    if (!esEdicion) return;
-    api.get(`/cotizaciones/${id}`)
-      .then(({ data }) => {
-        const c = data.cotizacion;
-        setToken(c.token);
-        setForm({
-          nombre_pasajero: c.nombre_pasajero || '',
-          destino_id: c.destino_id || '',
-          duracion_dias: c.duracion_dias ?? '',
-          duracion_noches: c.duracion_noches ?? '',
-          condiciones: c.condiciones || CONDICIONES_DEFAULT,
-          contacto_metodo: c.contacto_metodo || '',
-          contacto_dato: c.contacto_dato || '',
-        });
-        setIncluye(Array.isArray(c.incluye) ? c.incluye : []);
-        setNoIncluye(Array.isArray(c.no_incluye) ? c.no_incluye : []);
-        setAlojamientos(
-          (c.alojamientos || []).map((a) => ({
-            hotel_id: a.hotel_id,
-            hotel_nombre: a.hotel?.nombre || '',
-            regimen: a.regimen || '',
-            precio_single:    a.precio_single    ?? '',
-            precio_doble:     a.precio_doble     ?? '',
-            precio_triple:    a.precio_triple    ?? '',
-            precio_cuadruple: a.precio_cuadruple ?? '',
-            precio_menor:     a.precio_menor     ?? '',
-            precio_infante:   a.precio_infante   ?? '',
-          }))
-        );
-      })
-      .catch(() => setError('No se pudo cargar la cotización.'))
-      .finally(() => setCargando(false));
+      if (!esEdicion) { setCargando(false); return; }
+
+      const { data } = await api.get(`/cotizaciones/${id}`);
+      const c = data.cotizacion;
+      setToken(c.token);
+      setForm({
+        nombre_pasajero: c.nombre_pasajero || '',
+        duracion_dias:   c.duracion_dias   ?? '',
+        duracion_noches: c.duracion_noches ?? '',
+        condiciones:     c.condiciones     || CONDICIONES_DEFAULT,
+        contacto_metodo: c.contacto_metodo || '',
+        contacto_dato:   c.contacto_dato   || '',
+      });
+
+      const ids = Array.isArray(c.destinos_ids) && c.destinos_ids.length > 0
+        ? c.destinos_ids : (c.destino_id ? [c.destino_id] : []);
+      setDestinosSeleccionados(ids.map((iid) => allD.find((d) => d.id === iid)).filter(Boolean));
+
+      setIncluye(normalizeItems(c.incluye));
+      setNoIncluye(normalizeItems(c.no_incluye));
+      setItinerarioTipo(c.itinerario_tipo    || '');
+      setItinerarioPnr(c.itinerario_pnr      || '');
+      setItinerarioImagen(c.itinerario_imagen || '');
+
+      /* Load: each saved hotel becomes its own single-item group (backward compat) */
+      setAlojamientos(
+        (c.alojamientos || []).map((a) => ({
+          items: [{ destino_id: null, destino_nombre: '', hotel_id: a.hotel_id, hotel_nombre: a.hotel?.nombre || '', regimen: a.regimen || '' }],
+          precio_single:    a.precio_single    ?? '',
+          precio_doble:     a.precio_doble     ?? '',
+          precio_triple:    a.precio_triple    ?? '',
+          precio_cuadruple: a.precio_cuadruple ?? '',
+          precio_menor:     a.precio_menor     ?? '',
+          precio_infante:   a.precio_infante   ?? '',
+        }))
+      );
+      setCargando(false);
+    };
+    init().catch(() => { setError('No se pudo cargar.'); setCargando(false); });
   }, [id, esEdicion]);
+
+  /* Paste listener for itinerario imagen */
+  useEffect(() => {
+    if (itinerarioTipo !== 'imagen') return;
+    const handler = (e) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.type.startsWith('image/')) { uploadItinerarioImagen(item.getAsFile()); break; }
+      }
+    };
+    document.addEventListener('paste', handler);
+    return () => document.removeEventListener('paste', handler);
+  }, [itinerarioTipo]);
 
   const setField = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
-  // ── Incluye helpers ──
-  const agregarIncluye = useCallback(() => {
-    const t = nuevoIncluye.trim();
-    if (!t || incluye.includes(t)) return;
-    setIncluye((p) => [...p, t]);
-    setNuevoIncluye('');
-  }, [nuevoIncluye, incluye]);
+  const uploadItinerarioImagen = async (file) => {
+    if (!file) return;
+    setItinerarioImgSubiendo(true);
+    try {
+      const fd = new FormData();
+      fd.append('imagen', file);
+      const { data } = await api.post('/cotizaciones/upload-imagen', fd);
+      setItinerarioImagen(data.url);
+    } catch { setError('Error al subir la imagen.'); }
+    finally { setItinerarioImgSubiendo(false); }
+  };
 
-  const agregarNoIncluye = useCallback(() => {
-    const t = nuevoNoIncluye.trim();
-    if (!t || noIncluye.includes(t)) return;
-    setNoIncluye((p) => [...p, t]);
-    setNuevoNoIncluye('');
-  }, [nuevoNoIncluye, noIncluye]);
+  const addItem    = useCallback((setter) => setter((p) => [...p, { tipo: '', detalle: '', destino: '' }]), []);
+  const updateItem = useCallback((setter, i, v) => setter((p) => { const n = [...p]; n[i] = v; return n; }), []);
+  const removeItem = useCallback((setter, i) => setter((p) => p.filter((_, j) => j !== i)), []);
 
-  const handleKey = (e, fn) => { if (e.key === 'Enter') { e.preventDefault(); fn(); } };
-
-  // ── Alojamiento modal ──
+  /* ── Alojamiento modal ── */
   const abrirAloj = (index = null) => {
-    setAlojForm(index !== null ? { ...alojamientos[index] } : { ...ALOJ_VACIO });
+    if (index !== null) {
+      setGrupoForm({ ...alojamientos[index], items: alojamientos[index].items.map((it) => ({ ...it })) });
+    } else {
+      setGrupoForm(nuevoGrupo(destinosSeleccionados));
+    }
     setModalAloj({ index });
   };
 
+  const updateGrupoItem = (i, field, value) => {
+    setGrupoForm((g) => {
+      const items = g.items.map((it, idx) => idx === i ? { ...it, [field]: value } : it);
+      return { ...g, items };
+    });
+  };
+
   const guardarAloj = async () => {
-    if (!alojForm.hotel_id && !alojForm.hotel_nombre.trim()) return;
+    /* Auto-create hotels that were typed freely */
+    const itemsResueltos = await Promise.all(
+      grupoForm.items.map(async (it) => {
+        if (!it.hotel_id && it.hotel_nombre.trim()) {
+          try {
+            const { data } = await api.post('/hoteles', { nombre: it.hotel_nombre.trim(), destino_id: it.destino_id || null });
+            return { ...it, hotel_id: data.hotel?.id ?? data.id };
+          } catch { return it; }
+        }
+        return it;
+      })
+    );
 
-    let { hotel_id, hotel_nombre } = alojForm;
-    // If typed freely without selecting from dropdown, try to create the hotel
-    if (!hotel_id && hotel_nombre.trim()) {
-      try {
-        const { data } = await api.post('/hoteles', {
-          nombre: hotel_nombre.trim(),
-          destino_id: form.destino_id || null,
-        });
-        hotel_id = data.hotel?.id ?? data.id;
-      } catch { /* keep null */ }
-    }
+    const grupo = { ...grupoForm, items: itemsResueltos };
 
-    const entry = { ...alojForm, hotel_id, hotel_nombre };
     if (modalAloj.index !== null) {
-      setAlojamientos((p) => p.map((a, i) => i === modalAloj.index ? entry : a));
+      setAlojamientos((p) => p.map((a, i) => i === modalAloj.index ? grupo : a));
     } else {
-      setAlojamientos((p) => [...p, entry]);
+      setAlojamientos((p) => [...p, grupo]);
     }
     setModalAloj(null);
+    setGrupoForm(null);
   };
 
   const eliminarAloj = (i) => setAlojamientos((p) => p.filter((_, idx) => idx !== i));
 
-  // ── Submit ──
+  /* ── Submit ── */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.nombre_pasajero.trim()) { setError('El nombre del pasajero es obligatorio.'); return; }
     setGuardando(true);
     setError('');
 
+    const destino_id   = destinosSeleccionados[0]?.id || null;
+    const destinos_ids = destinosSeleccionados.map((d) => d.id);
+
+    /* Flatten groups into individual alojamiento records */
+    const alojamientosFlat = alojamientos.flatMap((g) =>
+      g.items.map((it) => ({
+        hotel_id:         it.hotel_id,
+        regimen:          it.regimen  || null,
+        precio_single:    g.precio_single    ? Number(g.precio_single)    : null,
+        precio_doble:     g.precio_doble     ? Number(g.precio_doble)     : null,
+        precio_triple:    g.precio_triple    ? Number(g.precio_triple)    : null,
+        precio_cuadruple: g.precio_cuadruple ? Number(g.precio_cuadruple) : null,
+        precio_menor:     g.precio_menor     ? Number(g.precio_menor)     : null,
+        precio_infante:   g.precio_infante   ? Number(g.precio_infante)   : null,
+      }))
+    );
+
     const payload = {
-      nombre_pasajero: form.nombre_pasajero.trim(),
-      destino_id:      form.destino_id || null,
-      duracion_dias:   form.duracion_dias || null,
+      nombre_pasajero: form.nombre_pasajero.trim() || null,
+      destino_id,
+      destinos_ids,
+      duracion_dias:   form.duracion_dias   || null,
       duracion_noches: form.duracion_noches || null,
-      incluye,
-      no_incluye:      noIncluye,
+      incluye:         incluye.filter((i) => i.tipo.trim()),
+      no_incluye:      noIncluye.filter((i) => i.tipo.trim()),
       condiciones:     form.condiciones.trim() || null,
-      contacto_metodo: form.contacto_metodo || null,
+      contacto_metodo: form.contacto_metodo   || null,
       contacto_dato:   form.contacto_dato.trim() || null,
-      alojamientos:    alojamientos.map((a) => ({
-        hotel_id:         a.hotel_id,
-        regimen:          a.regimen || null,
-        precio_single:    a.precio_single    ? Number(a.precio_single)    : null,
-        precio_doble:     a.precio_doble     ? Number(a.precio_doble)     : null,
-        precio_triple:    a.precio_triple    ? Number(a.precio_triple)    : null,
-        precio_cuadruple: a.precio_cuadruple ? Number(a.precio_cuadruple) : null,
-        precio_menor:     a.precio_menor     ? Number(a.precio_menor)     : null,
-        precio_infante:   a.precio_infante   ? Number(a.precio_infante)   : null,
-      })),
+      itinerario_tipo:   itinerarioTipo || null,
+      itinerario_pnr:    itinerarioTipo === 'pnr'   ? (itinerarioPnr.trim() || null)  : null,
+      itinerario_imagen: itinerarioTipo === 'imagen' ? (itinerarioImagen || null)      : null,
+      alojamientos: alojamientosFlat,
     };
 
     try {
@@ -428,16 +547,16 @@ export default function CotizacionFormPage() {
 
   const linkUrl = token ? `${window.location.origin}/cotizacion/${token}` : null;
 
+  /* Can save the group only if at least one hotel row has a name */
+  const grupoValido = grupoForm?.items.some((it) => it.hotel_nombre.trim());
+
   return (
     <div className={styles.pagina}>
-      {/* Header */}
       <div className={styles.encabezado}>
         <Link to="/admin/cotizador" className={styles.botonVolver}>
           <FiArrowLeft size={15} /> Cotizaciones
         </Link>
-        <h1 className={styles.titulo}>
-          {esEdicion ? `Cotización #${id}` : 'Nueva cotización'}
-        </h1>
+        <h1 className={styles.titulo}>{esEdicion ? `Cotización #${id}` : 'Nueva cotización'}</h1>
       </div>
 
       {error && (
@@ -446,9 +565,7 @@ export default function CotizacionFormPage() {
           <button className={styles.alertaCerrar} onClick={() => setError('')}>×</button>
         </div>
       )}
-      {exito && (
-        <div className={styles.alertaExito}>{exito}</div>
-      )}
+      {exito && <div className={styles.alertaExito}>{exito}</div>}
 
       <form onSubmit={handleSubmit}>
 
@@ -457,7 +574,7 @@ export default function CotizacionFormPage() {
           <p className={styles.seccionTitulo}>Datos del pasajero</p>
           <div className={styles.fila}>
             <div className={styles.grupo}>
-              <label>Nombre del pasajero *</label>
+              <label>Nombre del pasajero</label>
               <input
                 className={styles.input}
                 type="text"
@@ -468,59 +585,35 @@ export default function CotizacionFormPage() {
               />
             </div>
             <div className={styles.grupo}>
-              <label>Destino</label>
-              <DestinoAutocomplete
-                destinos={destinos}
-                selectedId={form.destino_id}
-                onChange={(v) => setField('destino_id', v)}
+              <label>Destinos</label>
+              <DestinoMultiSelect
+                destinos={todosDestinos}
+                seleccionados={destinosSeleccionados}
+                onChange={setDestinosSeleccionados}
               />
             </div>
           </div>
           <div className={styles.fila}>
             <div className={styles.grupo}>
               <label>Duración (días)</label>
-              <input
-                className={styles.input}
-                type="number"
-                min="1"
-                value={form.duracion_dias}
-                onChange={(e) => setField('duracion_dias', e.target.value)}
-                placeholder="Ej: 7"
-              />
+              <input className={styles.input} type="number" min="1" value={form.duracion_dias} onChange={(e) => setField('duracion_dias', e.target.value)} placeholder="Ej: 7" />
             </div>
             <div className={styles.grupo}>
               <label>Duración (noches)</label>
-              <input
-                className={styles.input}
-                type="number"
-                min="0"
-                value={form.duracion_noches}
-                onChange={(e) => setField('duracion_noches', e.target.value)}
-                placeholder="Ej: 6"
-              />
+              <input className={styles.input} type="number" min="0" value={form.duracion_noches} onChange={(e) => setField('duracion_noches', e.target.value)} placeholder="Ej: 6" />
             </div>
           </div>
           <div className={styles.fila}>
             <div className={styles.grupo}>
               <label>Método de contacto</label>
-              <select
-                className={styles.select}
-                value={form.contacto_metodo}
-                onChange={(e) => setField('contacto_metodo', e.target.value)}
-              >
+              <select className={styles.select} value={form.contacto_metodo} onChange={(e) => setField('contacto_metodo', e.target.value)}>
                 <option value="">— Sin especificar —</option>
                 {METODOS_CONTACTO.map((m) => <option key={m} value={m}>{m}</option>)}
               </select>
             </div>
             <div className={styles.grupo}>
               <label>Dato de contacto</label>
-              <input
-                className={styles.input}
-                type="text"
-                value={form.contacto_dato}
-                onChange={(e) => setField('contacto_dato', e.target.value)}
-                placeholder="Ej: +598 99 123 456"
-              />
+              <input className={styles.input} type="text" value={form.contacto_dato} onChange={(e) => setField('contacto_dato', e.target.value)} placeholder="Ej: +598 99 123 456" />
             </div>
           </div>
         </div>
@@ -528,121 +621,101 @@ export default function CotizacionFormPage() {
         {/* ── Incluye / No incluye ── */}
         <div className={styles.seccion}>
           <p className={styles.seccionTitulo}>¿Qué incluye / No incluye?</p>
-          <div className={styles.fila}>
-            {/* Incluye */}
-            <div className={styles.grupo}>
-              <label>Incluye</label>
-              <select
-                className={styles.select}
-                value=""
-                onChange={(e) => {
-                  if (e.target.value && !incluye.includes(e.target.value)) {
-                    setIncluye((p) => [...p, e.target.value]);
-                  }
-                }}
-              >
-                <option value="">+ Opción predefinida...</option>
-                {OPCIONES_INCLUYE.filter((o) => !incluye.includes(o)).map((o) => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-              <div className={styles.agregarWrap}>
-                <input
-                  type="text"
-                  className={styles.input}
-                  value={nuevoIncluye}
-                  onChange={(e) => setNuevoIncluye(e.target.value)}
-                  onKeyDown={(e) => handleKey(e, agregarIncluye)}
-                  placeholder="O escribí uno personalizado..."
-                />
-                <button type="button" className={styles.botonAgregarItem} onClick={agregarIncluye}>
-                  <FiPlus size={14} />
-                </button>
-              </div>
-              <div className={styles.listaItems}>
-                {incluye.map((item, i) => (
-                  <div key={i} className={styles.itemChip}>
-                    <span className={styles.itemTexto}>{item}</span>
-                    <button type="button" className={styles.itemEliminar} onClick={() => setIncluye((p) => p.filter((_, j) => j !== i))}>
-                      <FiX size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
 
-            {/* No incluye */}
-            <div className={styles.grupo}>
-              <label>No incluye</label>
-              <select
-                className={styles.select}
-                value=""
-                onChange={(e) => {
-                  if (e.target.value && !noIncluye.includes(e.target.value)) {
-                    setNoIncluye((p) => [...p, e.target.value]);
-                  }
-                }}
-              >
-                <option value="">+ Opción predefinida...</option>
-                {OPCIONES_NO_INCLUYE.filter((o) => !noIncluye.includes(o)).map((o) => (
-                  <option key={o} value={o}>{o}</option>
-                ))}
-              </select>
-              <div className={styles.agregarWrap}>
-                <input
-                  type="text"
-                  className={styles.input}
-                  value={nuevoNoIncluye}
-                  onChange={(e) => setNuevoNoIncluye(e.target.value)}
-                  onKeyDown={(e) => handleKey(e, agregarNoIncluye)}
-                  placeholder="O escribí uno personalizado..."
-                />
-                <button type="button" className={styles.botonAgregarItem} onClick={agregarNoIncluye}>
-                  <FiPlus size={14} />
-                </button>
-              </div>
-              <div className={styles.listaItems}>
-                {noIncluye.map((item, i) => (
-                  <div key={i} className={`${styles.itemChip} ${styles.itemChipRojo}`}>
-                    <span className={styles.itemTexto}>{item}</span>
-                    <button type="button" className={styles.itemEliminar} onClick={() => setNoIncluye((p) => p.filter((_, j) => j !== i))}>
-                      <FiX size={12} />
-                    </button>
-                  </div>
-                ))}
-              </div>
+          <div className={styles.incluyeBloque}>
+            <p className={styles.incluyeBloqueTitulo}>Incluye</p>
+            <div className={styles.itemList}>
+              {incluye.map((item, i) => (
+                <ItemRow key={i} item={item} onChange={(v) => updateItem(setIncluye, i, v)} onRemove={() => removeItem(setIncluye, i)} esRojo={false} destinosSeleccionados={destinosSeleccionados} />
+              ))}
             </div>
+            <button type="button" className={styles.botonAgregarItem} onClick={() => addItem(setIncluye)}>
+              <FiPlus size={13} /> Agregar
+            </button>
           </div>
+
+          <div className={styles.incluyeLinea} />
+
+          <div className={styles.incluyeBloque}>
+            <p className={`${styles.incluyeBloqueTitulo} ${styles.incluyeBloqueTituloRojo}`}>No incluye</p>
+            <div className={styles.itemList}>
+              {noIncluye.map((item, i) => (
+                <ItemRow key={i} item={item} onChange={(v) => updateItem(setNoIncluye, i, v)} onRemove={() => removeItem(setNoIncluye, i)} esRojo destinosSeleccionados={destinosSeleccionados} />
+              ))}
+            </div>
+            <button type="button" className={`${styles.botonAgregarItem} ${styles.botonAgregarItemRojo}`} onClick={() => addItem(setNoIncluye)}>
+              <FiPlus size={13} /> Agregar
+            </button>
+          </div>
+        </div>
+
+        {/* ── Itinerario ── */}
+        <div className={styles.seccion}>
+          <p className={styles.seccionTitulo}>Itinerario</p>
+          <div className={styles.itinerarioToggle}>
+            {['', 'pnr', 'imagen'].map((t) => (
+              <button key={t} type="button" className={`${styles.itinerarioBtn} ${itinerarioTipo === t ? styles.itinerarioBtnActivo : ''}`} onClick={() => setItinerarioTipo(t)}>
+                {t === '' ? 'Sin itinerario' : t === 'pnr' ? 'PNR / Texto' : 'Imagen'}
+              </button>
+            ))}
+          </div>
+
+          {itinerarioTipo === 'pnr' && (
+            <div className={styles.grupo} style={{ marginTop: 14 }}>
+              <label>Texto del itinerario / PNR</label>
+              <textarea className={styles.textarea} value={itinerarioPnr} onChange={(e) => setItinerarioPnr(e.target.value)} rows={10} placeholder="Pegá aquí el itinerario o texto del PNR..." />
+            </div>
+          )}
+
+          {itinerarioTipo === 'imagen' && (
+            <div className={styles.grupo} style={{ marginTop: 14 }}>
+              {itinerarioImagen ? (
+                <div className={styles.itinerarioImgPreview}>
+                  <img src={`${API_BASE}${itinerarioImagen}`} alt="Itinerario" />
+                  <button type="button" className={styles.botonSecundario} style={{ marginTop: 8 }} onClick={() => setItinerarioImagen('')}>
+                    <FiX size={13} /> Quitar imagen
+                  </button>
+                </div>
+              ) : (
+                <div className={`${styles.dropZone} ${dropDragging ? styles.dropZoneDragging : ''}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => { e.preventDefault(); setDropDragging(true); }}
+                  onDragLeave={() => setDropDragging(false)}
+                  onDrop={(e) => { e.preventDefault(); setDropDragging(false); const f = e.dataTransfer.files[0]; if (f?.type.startsWith('image/')) uploadItinerarioImagen(f); }}
+                >
+                  <FiUploadCloud size={28} />
+                  <p>{itinerarioImgSubiendo ? 'Subiendo...' : 'Arrastrá, pegá (Ctrl+V) o hacé clic para seleccionar'}</p>
+                  <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }}
+                    onChange={(e) => { const f = e.target.files[0]; if (f) uploadItinerarioImagen(f); e.target.value = ''; }} />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Alojamientos ── */}
         <div className={styles.seccion}>
           <p className={styles.seccionTitulo}>Alojamientos</p>
+
           {alojamientos.length > 0 && (
-            <table className={styles.alojTabla}>
-              <thead>
-                <tr>
-                  <th>Hotel</th><th>Régimen</th><th>Doble</th><th>Single</th><th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {alojamientos.map((a, i) => (
-                  <tr key={i}>
-                    <td>{a.hotel_nombre || '—'}</td>
-                    <td>{a.regimen || '—'}</td>
-                    <td>{a.precio_doble  ? `USD ${Number(a.precio_doble).toLocaleString('es-UY')}`  : '—'}</td>
-                    <td>{a.precio_single ? `USD ${Number(a.precio_single).toLocaleString('es-UY')}` : '—'}</td>
-                    <td>
-                      <div className={styles.alojAcciones}>
-                        <button type="button" className={styles.botonIcono} onClick={() => abrirAloj(i)} title="Editar"><FiEdit2 size={13} /></button>
-                        <button type="button" className={`${styles.botonIcono} ${styles.botonIconoPeligro}`} onClick={() => eliminarAloj(i)} title="Eliminar"><FiTrash2 size={13} /></button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className={styles.alojLista}>
+              {alojamientos.map((g, i) => {
+                const nombres = g.items.map((it) => it.hotel_nombre || '—').join(' / ');
+                const precio  = g.precio_doble ? `USD ${Number(g.precio_doble).toLocaleString('es-UY')} doble` : g.precio_single ? `USD ${Number(g.precio_single).toLocaleString('es-UY')} single` : '';
+                return (
+                  <div key={i} className={styles.alojFila}>
+                    <span className={styles.alojNombres}>{nombres}</span>
+                    {precio && <span className={styles.alojPrecioChip}>{precio}</span>}
+                    <div className={styles.alojAcciones}>
+                      <button type="button" className={styles.botonIcono} onClick={() => abrirAloj(i)} title="Editar"><FiEdit2 size={13} /></button>
+                      <button type="button" className={`${styles.botonIcono} ${styles.botonIconoPeligro}`} onClick={() => eliminarAloj(i)} title="Eliminar"><FiTrash2 size={13} /></button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
+
           <button type="button" className={styles.botonAgregarAloj} onClick={() => abrirAloj(null)}>
             <FiPlus size={14} /> Agregar alojamiento
           </button>
@@ -652,32 +725,22 @@ export default function CotizacionFormPage() {
         <div className={styles.seccion}>
           <p className={styles.seccionTitulo}>Condiciones</p>
           <div className={styles.grupo}>
-            <textarea
-              className={styles.textarea}
-              value={form.condiciones}
-              onChange={(e) => setField('condiciones', e.target.value)}
-              rows={6}
-            />
+            <textarea className={styles.textarea} value={form.condiciones} onChange={(e) => setField('condiciones', e.target.value)} rows={6} />
           </div>
         </div>
 
-        {/* ── Link generado ── */}
+        {/* ── Link ── */}
         {linkUrl && (
           <div className={styles.seccion}>
             <p className={styles.seccionTitulo}>Link para el cliente</p>
             <div className={styles.linkBox}>
               <span className={styles.linkUrl}>{linkUrl}</span>
-              <button type="button" className={styles.botonCopiar} onClick={copiarLink} title="Copiar link">
-                <FiCopy size={15} />
-              </button>
-              <a href={linkUrl} target="_blank" rel="noopener noreferrer" className={styles.botonCopiar} title="Ver cotización">
-                <FiExternalLink size={15} />
-              </a>
+              <button type="button" className={styles.botonCopiar} onClick={copiarLink} title="Copiar link"><FiCopy size={15} /></button>
+              <a href={linkUrl} target="_blank" rel="noopener noreferrer" className={styles.botonCopiar} title="Ver cotización"><FiExternalLink size={15} /></a>
             </div>
           </div>
         )}
 
-        {/* ── Footer ── */}
         <div className={styles.footer}>
           <Link to="/admin/cotizador" className={styles.botonSecundario}>Cancelar</Link>
           <button type="submit" className={styles.botonPrimario} disabled={guardando}>
@@ -687,40 +750,44 @@ export default function CotizacionFormPage() {
       </form>
 
       {/* ── Modal alojamiento ── */}
-      {modalAloj && (
+      {modalAloj && grupoForm && (
         <div className={styles.alojModalOverlay} onClick={() => setModalAloj(null)}>
           <div className={styles.alojModal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.alojModalTop}>
               <h3 className={styles.alojModalTitulo}>
                 {modalAloj.index !== null ? 'Editar alojamiento' : 'Agregar alojamiento'}
               </h3>
-              <button type="button" className={styles.botonIcono} onClick={() => setModalAloj(null)}>
-                <FiX size={16} />
-              </button>
+              <button type="button" className={styles.botonIcono} onClick={() => setModalAloj(null)}><FiX size={16} /></button>
             </div>
 
-            <div className={styles.fila}>
-              <div className={styles.grupo}>
-                <label>Hotel *</label>
-                <HotelAutocomplete
-                  destinoId={form.destino_id || null}
-                  value={alojForm.hotel_nombre}
-                  onChange={(h) => setAlojForm((p) => ({ ...p, hotel_id: h.hotel_id, hotel_nombre: h.hotel_nombre }))}
-                />
+            {/* One hotel row per destination */}
+            {grupoForm.items.map((it, i) => (
+              <div key={i} className={styles.alojHotelRow}>
+                {(it.destino_nombre || grupoForm.items.length > 1) && (
+                  <p className={styles.alojHotelDestino}>{it.destino_nombre || `Opción ${i + 1}`}</p>
+                )}
+                <div className={styles.fila}>
+                  <div className={styles.grupo}>
+                    <label>Hotel</label>
+                    <HotelAutocomplete
+                      destinoId={it.destino_id}
+                      value={it.hotel_nombre}
+                      onChange={(h) => updateGrupoItem(i, 'hotel_id', h.hotel_id) || updateGrupoItem(i, 'hotel_nombre', h.hotel_nombre)}
+                    />
+                  </div>
+                  <div className={styles.grupo}>
+                    <label>Régimen</label>
+                    <select className={styles.select} value={it.regimen} onChange={(e) => updateGrupoItem(i, 'regimen', e.target.value)}>
+                      <option value="">— Seleccionar —</option>
+                      {REGIMENES.map((r) => <option key={r} value={r}>{r}</option>)}
+                    </select>
+                  </div>
+                </div>
               </div>
-              <div className={styles.grupo}>
-                <label>Régimen</label>
-                <select
-                  className={styles.select}
-                  value={alojForm.regimen}
-                  onChange={(e) => setAlojForm((p) => ({ ...p, regimen: e.target.value }))}
-                >
-                  <option value="">— Seleccionar —</option>
-                  {REGIMENES.map((r) => <option key={r} value={r}>{r}</option>)}
-                </select>
-              </div>
-            </div>
+            ))}
 
+            {/* Shared price grid */}
+            <p className={styles.alojPreciosTitulo}>Precios por persona</p>
             <div className={styles.alojPreciosGrid}>
               {PRECIO_COLS.map((col) => (
                 <div key={col.key} className={styles.grupo}>
@@ -730,8 +797,8 @@ export default function CotizacionFormPage() {
                     type="number"
                     min="0"
                     step="0.01"
-                    value={alojForm[col.key]}
-                    onChange={(e) => setAlojForm((p) => ({ ...p, [col.key]: e.target.value }))}
+                    value={grupoForm[col.key]}
+                    onChange={(e) => setGrupoForm((g) => ({ ...g, [col.key]: e.target.value }))}
                     placeholder="USD"
                   />
                 </div>
@@ -740,12 +807,7 @@ export default function CotizacionFormPage() {
 
             <div className={styles.footer} style={{ paddingTop: 16 }}>
               <button type="button" className={styles.botonSecundario} onClick={() => setModalAloj(null)}>Cancelar</button>
-              <button
-                type="button"
-                className={styles.botonPrimario}
-                onClick={guardarAloj}
-                disabled={!alojForm.hotel_nombre.trim()}
-              >
+              <button type="button" className={styles.botonPrimario} onClick={guardarAloj} disabled={!grupoValido}>
                 {modalAloj.index !== null ? 'Guardar cambios' : 'Agregar'}
               </button>
             </div>
