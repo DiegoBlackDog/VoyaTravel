@@ -42,6 +42,8 @@ app.use('/api/configuracion', require('./routes/configuracion.routes'));
 app.use('/api/hoteles', require('./routes/hoteles.routes'));
 app.use('/api/operadores', require('./routes/operadores.routes'));
 app.use('/api/cotizaciones', require('./routes/cotizaciones.routes'));
+app.use('/api/aeropuertos', require('./routes/aeropuertos.routes'));
+app.use('/api/aerolineas',  require('./routes/aerolineas.routes'));
 
 // ── Production: serve client build ──
 if (process.env.NODE_ENV === 'production') {

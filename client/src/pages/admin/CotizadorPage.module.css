@@ -4,3 +4,9 @@
   font-weight: 700;
   color: var(--color-gris);
 }
+
+.tablaHeader th {
+  background: var(--color-salmon) !important;
+  color: #fff !important;
+  border-bottom-color: var(--color-salmon) !important;
+}

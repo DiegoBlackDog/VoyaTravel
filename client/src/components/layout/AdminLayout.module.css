@@ -93,6 +93,36 @@
   opacity: 0.8;
 }
 
+/* ── Grupo colapsable (Información) ── */
+.navLinkGrupo {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.navChevron {
+  margin-left: auto;
+  transition: transform 0.2s;
+  opacity: 0.5;
+}
+
+.navLinkGrupoAbierto .navChevron {
+  transform: rotate(180deg);
+}
+
+.navSubList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navSubLink {
+  padding-left: calc(var(--espaciado-lg) + 26px);
+  font-size: 0.85rem;
+}
+
 .navLinkActivo .navIcon {
   opacity: 1;
 }

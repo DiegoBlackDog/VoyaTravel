@@ -15,6 +15,8 @@ const AlojamientoPaquete = require('./AlojamientoPaquete');
 const Operador = require('./Operador');
 const Cotizacion = require('./Cotizacion');
 const CotizacionAlojamiento = require('./CotizacionAlojamiento');
+const Aeropuerto = require('./Aeropuerto');
+const Aerolinea = require('./Aerolinea');
 
 // ── Associations ──
 
@@ -87,4 +89,6 @@ module.exports = {
   Operador,
   Cotizacion,
   CotizacionAlojamiento,
+  Aeropuerto,
+  Aerolinea,
 };

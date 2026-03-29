@@ -54,17 +54,19 @@ exports.obtenerPorToken = async (req, res) => {
 
 exports.crear = async (req, res) => {
   try {
-    const { nombre_pasajero, destino_id, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, alojamientos } = req.body;
+    const { nombre_pasajero, destino_id, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, alojamientos } = req.body;
     const token = crypto.randomUUID().replace(/-/g, '');
 
     const cot = await Cotizacion.create({
       nombre_pasajero,
-      destino_id:      destino_id || null,
-      duracion_dias:   duracion_dias || null,
-      duracion_noches: duracion_noches || null,
-      incluye:         incluye    || [],
-      no_incluye:      no_incluye || [],
-      condiciones:     condiciones || null,
+      destino_id:       destino_id || null,
+      duracion_dias:    duracion_dias || null,
+      duracion_noches:  duracion_noches || null,
+      incluye:          incluye    || [],
+      no_incluye:       no_incluye || [],
+      condiciones:      condiciones || null,
+      contacto_metodo:  contacto_metodo || null,
+      contacto_dato:    contacto_dato || null,
       token,
       usuario_id: req.session.usuario.id,
     });
@@ -87,16 +89,18 @@ exports.actualizar = async (req, res) => {
     const esAdmin = req.session.usuario.rol === 'admin';
     if (!esAdmin && cot.usuario_id !== req.session.usuario.id) return res.status(403).json({ error: 'Sin permiso' });
 
-    const { nombre_pasajero, destino_id, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, alojamientos } = req.body;
+    const { nombre_pasajero, destino_id, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, alojamientos } = req.body;
 
     await cot.update({
       nombre_pasajero,
-      destino_id:      destino_id || null,
-      duracion_dias:   duracion_dias || null,
-      duracion_noches: duracion_noches || null,
-      incluye:         incluye    || [],
-      no_incluye:      no_incluye || [],
-      condiciones:     condiciones || null,
+      destino_id:       destino_id || null,
+      duracion_dias:    duracion_dias || null,
+      duracion_noches:  duracion_noches || null,
+      incluye:          incluye    || [],
+      no_incluye:       no_incluye || [],
+      condiciones:      condiciones || null,
+      contacto_metodo:  contacto_metodo || null,
+      contacto_dato:    contacto_dato || null,
     });
 
     if (Array.isArray(alojamientos)) {
@@ -126,9 +130,11 @@ exports.duplicar = async (req, res) => {
       destino_id:      original.destino_id,
       duracion_dias:   original.duracion_dias,
       duracion_noches: original.duracion_noches,
-      incluye:         original.incluye,
-      no_incluye:      original.no_incluye,
-      condiciones:     original.condiciones,
+      incluye:          original.incluye,
+      no_incluye:       original.no_incluye,
+      condiciones:      original.condiciones,
+      contacto_metodo:  original.contacto_metodo,
+      contacto_dato:    original.contacto_dato,
       token,
       usuario_id: req.session.usuario.id,
     });

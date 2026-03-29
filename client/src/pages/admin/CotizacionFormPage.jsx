@@ -50,6 +50,7 @@ const OPCIONES_NO_INCLUYE = [
 ];
 
 const REGIMENES = ['S/Desayuno', 'Desayuno', 'Media Pensión', 'Pensión Completa', 'All Inclusive'];
+const METODOS_CONTACTO = ['Whatsapp', 'Email', 'Teléfono'];
 
 const PRECIO_COLS = [
   { key: 'precio_single',    label: 'Single' },
@@ -263,6 +264,8 @@ export default function CotizacionFormPage() {
     duracion_dias: '',
     duracion_noches: '',
     condiciones: CONDICIONES_DEFAULT,
+    contacto_metodo: '',
+    contacto_dato: '',
   });
 
   // Lists
@@ -295,6 +298,8 @@ export default function CotizacionFormPage() {
           duracion_dias: c.duracion_dias ?? '',
           duracion_noches: c.duracion_noches ?? '',
           condiciones: c.condiciones || CONDICIONES_DEFAULT,
+          contacto_metodo: c.contacto_metodo || '',
+          contacto_dato: c.contacto_dato || '',
         });
         setIncluye(Array.isArray(c.incluye) ? c.incluye : []);
         setNoIncluye(Array.isArray(c.no_incluye) ? c.no_incluye : []);
@@ -382,6 +387,8 @@ export default function CotizacionFormPage() {
       incluye,
       no_incluye:      noIncluye,
       condiciones:     form.condiciones.trim() || null,
+      contacto_metodo: form.contacto_metodo || null,
+      contacto_dato:   form.contacto_dato.trim() || null,
       alojamientos:    alojamientos.map((a) => ({
         hotel_id:         a.hotel_id,
         regimen:          a.regimen || null,
@@ -490,6 +497,29 @@ export default function CotizacionFormPage() {
                 value={form.duracion_noches}
                 onChange={(e) => setField('duracion_noches', e.target.value)}
                 placeholder="Ej: 6"
+              />
+            </div>
+          </div>
+          <div className={styles.fila}>
+            <div className={styles.grupo}>
+              <label>Método de contacto</label>
+              <select
+                className={styles.select}
+                value={form.contacto_metodo}
+                onChange={(e) => setField('contacto_metodo', e.target.value)}
+              >
+                <option value="">— Sin especificar —</option>
+                {METODOS_CONTACTO.map((m) => <option key={m} value={m}>{m}</option>)}
+              </select>
+            </div>
+            <div className={styles.grupo}>
+              <label>Dato de contacto</label>
+              <input
+                className={styles.input}
+                type="text"
+                value={form.contacto_dato}
+                onChange={(e) => setField('contacto_dato', e.target.value)}
+                placeholder="Ej: +598 99 123 456"
               />
             </div>
           </div>

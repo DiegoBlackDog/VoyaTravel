@@ -193,8 +193,12 @@
   vertical-align: middle;
 }
 
+.tabla tbody tr:nth-child(even) {
+  background: #faf9f7;
+}
+
 .tabla tbody tr:hover {
-  background: rgba(55, 137, 102, 0.02);
+  background: rgba(55, 137, 102, 0.05);
 }
 
 .tablaAcciones {
@@ -307,6 +311,88 @@
   justify-content: flex-end;
   gap: var(--espaciado-sm);
 }
+
+/* ── Modal structured ── */
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espaciado-lg);
+}
+
+.modalTitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.modalCerrar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-gris);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: var(--radio-sm);
+  transition: color 0.15s;
+}
+.modalCerrar:hover { color: var(--color-negro); }
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-md);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--espaciado-sm);
+  margin-top: var(--espaciado-lg);
+}
+
+/* ── Form group / input ── */
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.grupo label {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-negro);
+}
+
+.input {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-negro);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  padding: 9px 12px;
+  outline: none;
+  background: #fff;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.input:focus { border-color: var(--color-verde); }
+
+/* ── Table wrap / acciones columns ── */
+.tablaWrap {
+  overflow-x: auto;
+  border-radius: var(--radio-lg);
+  border: 1.5px solid var(--color-borde);
+  background: #fff;
+}
+
+.thAcciones { text-align: left; }
+.tdAcciones { text-align: left; }
 
 /* ── Loading / Empty ── */
 .cargando {

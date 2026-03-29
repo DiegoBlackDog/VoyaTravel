@@ -58,15 +58,20 @@ export default function CotizadorPage() {
     } catch (err) { setError(err.response?.data?.error || 'Error al duplicar.'); }
   };
 
-  const filtradas = cotizaciones.filter((c) =>
-    !busqueda || (c.nombre_pasajero || '').toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const filtradas = cotizaciones.filter((c) => {
+    if (!busqueda) return true;
+    const q = busqueda.toLowerCase();
+    return (
+      (c.nombre_pasajero || '').toLowerCase().includes(q) ||
+      (c.contacto_dato   || '').toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className={styles.pagina}>
       <div className={styles.encabezado}>
         <div>
-          <h1 className={styles.titulo}>Cotizador</h1>
+          <h1 className={styles.titulo}>Cotizaciones</h1>
           <p className={styles.subtitulo}>{cotizaciones.length} cotización{cotizaciones.length !== 1 ? 'es' : ''}</p>
         </div>
         <div className={styles.headerAcciones}>
@@ -97,7 +102,7 @@ export default function CotizadorPage() {
         <input
           className={styles.buscadorInput}
           type="text"
-          placeholder="Buscar por pasajero..."
+          placeholder="Buscar por pasajero o contacto..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
@@ -117,12 +122,13 @@ export default function CotizadorPage() {
       ) : (
         <div className={styles.tablaWrap}>
           <table className={styles.tabla}>
-            <thead>
+            <thead className={cotStyles.tablaHeader}>
               <tr>
                 <th>N°</th>
                 <th>Pasajero</th>
                 <th>Destino</th>
                 <th>Duración</th>
+                <th>Contacto</th>
                 <th>Fecha</th>
                 {esAdmin && <th>Creado por</th>}
                 <th className={styles.thAcciones}>Acciones</th>
@@ -141,6 +147,11 @@ export default function CotizadorPage() {
                   <td>
                     {c.duracion_dias
                       ? `${c.duracion_dias} día${c.duracion_dias !== 1 ? 's' : ''}${c.duracion_noches ? ` / ${c.duracion_noches} noche${c.duracion_noches !== 1 ? 's' : ''}` : ''}`
+                      : '—'}
+                  </td>
+                  <td>
+                    {c.contacto_metodo
+                      ? <span title={c.contacto_dato || ''}>{c.contacto_metodo}{c.contacto_dato ? ` · ${c.contacto_dato}` : ''}</span>
                       : '—'}
                   </td>
                   <td>{new Date(c.creado_en).toLocaleDateString('es-UY')}</td>

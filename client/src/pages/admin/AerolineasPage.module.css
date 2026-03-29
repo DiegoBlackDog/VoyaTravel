@@ -1,0 +1,45 @@
+.logo {
+  width: 40px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
+.sinLogo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 28px;
+  background: var(--color-crema);
+  border: 1px solid var(--color-borde);
+  border-radius: 3px;
+  color: var(--color-gris);
+}
+
+.imgWrap {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-md);
+}
+
+.imgPreview {
+  width: 80px;
+  height: 56px;
+  object-fit: contain;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+}
+
+.imgPlaceholder {
+  width: 80px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-crema);
+  border: 1.5px dashed var(--color-borde);
+  border-radius: var(--radio-sm);
+  color: var(--color-gris);
+}

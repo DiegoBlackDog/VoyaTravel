@@ -22,6 +22,8 @@ import UsuariosPage from './pages/admin/UsuariosPage';
 import CotizadorPage from './pages/admin/CotizadorPage';
 import CotizacionFormPage from './pages/admin/CotizacionFormPage';
 import CotizacionPublicPage from './pages/public/CotizacionPublicPage';
+import AeropuertosPage from './pages/admin/AeropuertosPage';
+import AerolineasPage from './pages/admin/AerolineasPage';
 
 function RutaProtegida({ rolMinimo }) {
   const { usuario, cargando } = useContext(AuthContext);
@@ -70,6 +72,8 @@ export default function AppRouter() {
               <Route path="/admin/cotizador" element={<CotizadorPage />} />
               <Route path="/admin/cotizador/nuevo" element={<CotizacionFormPage />} />
               <Route path="/admin/cotizador/:id/editar" element={<CotizacionFormPage />} />
+              <Route path="/admin/aeropuertos" element={<AeropuertosPage />} />
+              <Route path="/admin/aerolineas" element={<AerolineasPage />} />
               <Route path="/admin/testimonios" element={<TestimoniosPage />} />
             </Route>
             <Route element={<RutaProtegida rolMinimo="admin" />}>
