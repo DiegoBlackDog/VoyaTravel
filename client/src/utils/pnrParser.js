@@ -75,26 +75,20 @@ function getAirportName(code) {
 }
 
 function parseSegmentLine(line) {
-  const isAmadeus = /^[0-9]{1,2}\s\s/.test(line);
 
   const timeMatch = line.match(/[0-9]{4}[\s]{1,2}[0-9]{4}/);
   if (!timeMatch) return null;
   const [departureTime, arrivalTime] = timeMatch[0].split(/\s{1,2}/);
 
+  // Extract airline code and flight number from beginning of line after segment number.
+  // Handles: "UX 046  16MAR" (no class), "LA 763 N 01AUG" (with class),
+  //          "UX7701  17MAR" (no space), "LA8076 N" (no space + class).
   let airlineCode, flightNo;
-  if (isAmadeus) {
-    const m = line.match(/[A-Z0-9]{2}\s?[A-Z0-9]{3,4}\s[A-Z]/);
-    if (!m) return null;
-    airlineCode = m[0].slice(0, 2).trim();
-    flightNo = m[0].slice(0, 6).trim().replace(/\s+/, '');
-  } else {
-    const m = line.trim().match(/^[0-9]{1,2}\s[A-Z0-9]{2}\s?[A-Z0-9]{4,5}\s/);
-    if (!m) return null;
-    const [, ...parts] = m[0].trim().split(' ');
-    const fn = parts.join(' ');
-    airlineCode = fn.slice(0, 2);
-    flightNo = fn.slice(0, -1).trim();
-  }
+  const fromStart = line.trim().replace(/^\d{1,2}\s+/, '');
+  const flightMatch = fromStart.match(/^([A-Z]{2})\s?(\d{1,4})/);
+  if (!flightMatch) return null;
+  airlineCode = flightMatch[1];
+  flightNo = flightMatch[2];
 
   const dateAirportMatch = line.match(/[0-9]{2}[A-Z]{3}\s\d[\s\*][A-Z]{6}/);
   if (!dateAirportMatch) return null;
@@ -102,14 +96,11 @@ function parseSegmentLine(line) {
   const departureAirport = airportsPair.slice(0, 3);
   const arrivalAirport = airportsPair.slice(3);
 
+  // Arrival date: appears after the two times, separated by 2+ spaces.
+  // Works for both formats: "1315 0505  17MAR" and "1655 1935  01AUG"
   let arrivalDate;
-  if (isAmadeus) {
-    const m = line.match(/\d{4}\s\d{4}\s{2}\d{2}[A-Z]{3}/);
-    arrivalDate = m ? m[0].split(/\s\s/).pop() : departureDate;
-  } else {
-    const m = line.match(/\d{4}\s\s\d{4}\s{3}\d{2}[A-Z]{3}/);
-    arrivalDate = m ? m[0].split(/\s{3}/).pop() : departureDate;
-  }
+  const arrivalDateMatch = line.match(/\d{4}\s{1,2}\d{4}\s{2,}(\d{2}[A-Z]{3})/);
+  arrivalDate = arrivalDateMatch ? arrivalDateMatch[1] : departureDate;
 
   return {
     airline: airlineCode,
@@ -142,6 +133,8 @@ export function parsePnr(pnrText) {
 }
 
 export function formatSegment(seg) {
+  const desdeParts = getAirportName(seg.depart_airport).split(' - ');
+  const hastaParts = getAirportName(seg.arrive_airport).split(' - ');
   return {
     airline: getAirlineName(seg.airline),
     airlineCode: seg.airline,
@@ -150,5 +143,13 @@ export function formatSegment(seg) {
     llegada: `${formatPnrDate(seg.arrive_date)} · ${formatTime(seg.arrive_time)}`,
     desde: getAirportName(seg.depart_airport),
     hasta: getAirportName(seg.arrive_airport),
+    // raw fields for mobile card
+    desdeCodigo: seg.depart_airport?.toUpperCase() || '',
+    desdeNombre: desdeParts[0] || seg.depart_airport,
+    hastaCodigo: seg.arrive_airport?.toUpperCase() || '',
+    hastaNombre: hastaParts[0] || seg.arrive_airport,
+    fecha: formatPnrDate(seg.depart_date),
+    horaSalida: formatTime(seg.depart_time),
+    horaLlegada: formatTime(seg.arrive_time),
   };
 }

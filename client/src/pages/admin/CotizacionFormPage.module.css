@@ -1,6 +1,6 @@
 .pagina {
   padding: var(--espaciado-xl);
-  max-width: 900px;
+  max-width: 1100px;
 }
 
 /* ── Header ── */
@@ -81,6 +81,17 @@
   margin-bottom: var(--espaciado-lg);
 }
 
+.seccionTituloFila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.seccionTituloFila .seccionTitulo {
+  margin-bottom: 0;
+}
+
 .seccionTitulo {
   font-family: var(--font-cuerpo);
   font-size: 0.72rem;
@@ -94,6 +105,20 @@
 .fila {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: var(--espaciado-md);
+  margin-bottom: var(--espaciado-md);
+}
+
+.filaTres {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--espaciado-md);
+  margin-bottom: var(--espaciado-md);
+}
+
+.filaCuatro {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   gap: var(--espaciado-md);
   margin-bottom: var(--espaciado-md);
 }
@@ -264,6 +289,34 @@
   height: 1px;
   background: var(--color-borde);
   margin: 4px 0 16px;
+}
+
+.incluyeBloqueHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.incluyeBloqueHeader .incluyeBloqueTitulo {
+  margin-bottom: 0;
+}
+
+.botonStandard {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-verde);
+  background: transparent;
+  border: 1.5px solid var(--color-verde);
+  border-radius: 20px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.botonStandard:hover {
+  background: var(--color-verde);
+  color: #fff;
 }
 
 .incluyeBloqueTitulo {
@@ -540,7 +593,7 @@
   font-size: 0.875rem;
 }
 
-.comboPrimario { flex: 1.5; }
+.comboPrimario { flex: none; width: 400px; }
 .alojPreciosGrid {
   display: grid; grid-template-columns: 1fr 1fr 1fr;
   gap: var(--espaciado-sm); margin-top: var(--espaciado-md);

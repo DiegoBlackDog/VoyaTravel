@@ -193,21 +193,81 @@ export default function CotizacionPublicPage() {
           </div>
         )}
 
-        {/* No Incluye */}
-        {noIncluyeArr.length > 0 && (
+        {/* Itinerario PNR — moved up */}
+        {cot.itinerario_tipo === 'pnr' && cot.itinerario_pnr && (() => {
+          const segments = parsePnr(cot.itinerario_pnr).map(formatSegment);
+          return (
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>Itinerario de vuelo</div>
+              {segments.length > 0 ? (<>
+                {/* Desktop: tabla */}
+                <div className={styles.pnrTablaWrap}>
+                  <table className={styles.pnrTabla}>
+                    <thead>
+                      <tr>
+                        <th>Aerolínea</th>
+                        <th>Vuelo</th>
+                        <th>Salida</th>
+                        <th>De</th>
+                        <th>Llegada</th>
+                        <th>A</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {segments.map((s, i) => (
+                        <tr key={i}>
+                          <td>{s.airline}</td>
+                          <td className={styles.pnrVuelo}>{s.flightNo}</td>
+                          <td><strong>{s.salida.split(' · ')[0]}</strong>{s.salida.split(' · ')[1] ? ` - ${s.salida.split(' · ')[1]}` : ''}</td>
+                          <td className={styles.pnrAeropuerto}>{s.desde}</td>
+                          <td><strong>{s.llegada.split(' · ')[0]}</strong>{s.llegada.split(' · ')[1] ? ` - ${s.llegada.split(' · ')[1]}` : ''}</td>
+                          <td className={styles.pnrAeropuerto}>{s.hasta}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile: cards */}
+                <div className={styles.pnrCards}>
+                  {segments.map((s, i) => (
+                    <div key={i} className={styles.pnrCard}>
+                      <div className={styles.pnrCardHeader}>
+                        <div className={styles.pnrCardAerolinea}>
+                          <div className={styles.pnrLogoPlaceholder} />
+                          <span>{s.airline}</span>
+                        </div>
+                        <span className={styles.pnrCardFecha}>{s.fecha}</span>
+                      </div>
+                      <div className={styles.pnrCardRuta}>
+                        <div className={styles.pnrCardAeropuerto}>
+                          <span className={styles.pnrCardCodigo}>{s.desdeCodigo}</span>
+                          <span className={styles.pnrCardCiudad}>{s.desdeNombre}</span>
+                          <span className={styles.pnrCardHora}>{s.horaSalida}</span>
+                        </div>
+                        <div className={styles.pnrCardLinea}>
+                          <div className={styles.pnrCardLineaBar} />
+                          <FaPlane size={28} className={styles.pnrCardAvion} />
+                        </div>
+                        <div className={`${styles.pnrCardAeropuerto} ${styles.pnrCardAeropuertoRight}`}>
+                          <span className={styles.pnrCardCodigo}>{s.hastaCodigo}</span>
+                          <span className={styles.pnrCardCiudad}>{s.hastaNombre}</span>
+                          <span className={styles.pnrCardHora}>{s.horaLlegada}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>) : (
+                <pre className={styles.pnrText}>{cot.itinerario_pnr}</pre>
+              )}
+            </div>
+          );
+        })()}
+        {/* Itinerario Imagen — moved up */}
+        {cot.itinerario_tipo === 'imagen' && cot.itinerario_imagen && (
           <div className={styles.card}>
-            <div className={styles.cardHeader}>No Incluye</div>
-            <ul className={styles.itemLista}>
-              {noIncluyeArr.map((item, i) => {
-                const Icon = getItemIcon(typeof item === 'string' ? item : item.tipo);
-                return (
-                  <li key={i} className={styles.itemFila}>
-                    <Icon size={15} className={styles.iconoNoIncluye} />
-                    <span>{renderItemLabel(item, cot)}</span>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className={styles.cardHeader}>Itinerario de vuelo</div>
+            <img src={`${API_BASE}${cot.itinerario_imagen}`} alt="Itinerario" className={styles.itinerarioImg} />
           </div>
         )}
 
@@ -269,50 +329,21 @@ export default function CotizacionPublicPage() {
           );
         })()}
 
-        {/* Itinerario PNR */}
-        {cot.itinerario_tipo === 'pnr' && cot.itinerario_pnr && (() => {
-          const segments = parsePnr(cot.itinerario_pnr).map(formatSegment);
-          return (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>Itinerario de vuelo</div>
-              {segments.length > 0 ? (
-                <div className={styles.pnrTablaWrap}>
-                  <table className={styles.pnrTabla}>
-                    <thead>
-                      <tr>
-                        <th>Aerolínea</th>
-                        <th>Vuelo</th>
-                        <th>Salida</th>
-                        <th>De</th>
-                        <th>Llegada</th>
-                        <th>A</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {segments.map((s, i) => (
-                        <tr key={i}>
-                          <td>{s.airline}</td>
-                          <td className={styles.pnrVuelo}>{s.flightNo}</td>
-                          <td><strong>{s.salida.split(' · ')[0]}</strong>{s.salida.split(' · ')[1] ? ` - ${s.salida.split(' · ')[1]}` : ''}</td>
-                          <td className={styles.pnrAeropuerto}>{s.desde}</td>
-                          <td><strong>{s.llegada.split(' · ')[0]}</strong>{s.llegada.split(' · ')[1] ? ` - ${s.llegada.split(' · ')[1]}` : ''}</td>
-                          <td className={styles.pnrAeropuerto}>{s.hasta}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <pre className={styles.pnrText}>{cot.itinerario_pnr}</pre>
-              )}
-            </div>
-          );
-        })()}
-        {/* Itinerario Imagen */}
-        {cot.itinerario_tipo === 'imagen' && cot.itinerario_imagen && (
+        {/* No Incluye */}
+        {noIncluyeArr.length > 0 && (
           <div className={styles.card}>
-            <div className={styles.cardHeader}>Itinerario de vuelo</div>
-            <img src={`${API_BASE}${cot.itinerario_imagen}`} alt="Itinerario" className={styles.itinerarioImg} />
+            <div className={styles.cardHeader}>No Incluye</div>
+            <ul className={styles.itemLista}>
+              {noIncluyeArr.map((item, i) => {
+                const Icon = getItemIcon(typeof item === 'string' ? item : item.tipo);
+                return (
+                  <li key={i} className={styles.itemFila}>
+                    <Icon size={15} className={styles.iconoNoIncluye} />
+                    <span>{renderItemLabel(item, cot)}</span>
+                  </li>
+                );
+              })}
+            </ul>
           </div>
         )}
 

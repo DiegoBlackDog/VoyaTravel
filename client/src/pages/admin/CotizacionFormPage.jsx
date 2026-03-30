@@ -23,6 +23,17 @@ Consulte con su asesor las fechas y condiciones de pago, tanto de la seña como 
 Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).`;
 
 const OPCIONES_COMBO     = ['Billete aéreo según itinerario', 'Alojamiento', 'Traslados', 'Seguro de Viaje', 'Visitas y excursiones no indicadas', 'Todas las tasas e impuestos', 'Personalizado'];
+
+const INCLUYE_STANDARD = [
+  { tipo: 'Billete aéreo según itinerario', detalle: 'Equipaje de mano (Carry on)', destino: '' },
+  { tipo: 'Alojamiento',                   detalle: '',                            destino: '' },
+  { tipo: 'Traslados',                     detalle: 'Traslados Aeropuerto - Hotel - Aeropuerto', destino: '' },
+  { tipo: 'Todas las tasas e impuestos',   detalle: '',                            destino: '' },
+];
+
+const NO_INCLUYE_STANDARD = [
+  { tipo: 'Seguro de Viaje', detalle: '', destino: '' },
+];
 const OPCIONES_BILLETE   = ['Equipaje de mano (Carry on)', 'Equipaje en bodega', 'Artículo Personal'];
 const OPCIONES_TRASLADOS = ['Traslados Aeropuerto - Hotel - Aeropuerto', 'Traslados Aeropuerto - Hotel', 'Traslados Hotel - Aeropuerto'];
 const OPCIONES_SEGURO    = ['Urban', 'Tarjeta Celeste 40k'];
@@ -607,7 +618,7 @@ export default function CotizacionFormPage() {
         {/* ── Datos del pasajero ── */}
         <div className={styles.seccion}>
           <p className={styles.seccionTitulo}>Datos del pasajero</p>
-          <div className={styles.fila}>
+          <div className={styles.filaTres}>
             <div className={styles.grupo}>
               <label>Nombre del pasajero</label>
               <input
@@ -619,26 +630,6 @@ export default function CotizacionFormPage() {
                 autoFocus
               />
             </div>
-            <div className={styles.grupo}>
-              <label>Destinos</label>
-              <DestinoMultiSelect
-                destinos={todosDestinos}
-                seleccionados={destinosSeleccionados}
-                onChange={setDestinosSeleccionados}
-              />
-            </div>
-          </div>
-          <div className={styles.fila}>
-            <div className={styles.grupo}>
-              <label>Duración (días)</label>
-              <input className={styles.input} type="number" min="1" value={form.duracion_dias} onChange={(e) => setField('duracion_dias', e.target.value)} placeholder="Ej: 7" />
-            </div>
-            <div className={styles.grupo}>
-              <label>Duración (noches)</label>
-              <input className={styles.input} type="number" min="0" value={form.duracion_noches} onChange={(e) => setField('duracion_noches', e.target.value)} placeholder="Ej: 6" />
-            </div>
-          </div>
-          <div className={styles.fila}>
             <div className={styles.grupo}>
               <label>Método de contacto</label>
               <select className={styles.select} value={form.contacto_metodo} onChange={(e) => setField('contacto_metodo', e.target.value)}>
@@ -653,12 +644,47 @@ export default function CotizacionFormPage() {
           </div>
         </div>
 
+        {/* ── Viaje ── */}
+        <div className={styles.seccion}>
+          <div className={styles.seccionTituloFila}>
+            <p className={styles.seccionTitulo}>Viaje</p>
+            <button type="button" className={styles.botonStandard} onClick={() => { setField('duracion_dias', 8); setField('duracion_noches', 7); }}>
+              Estándar
+            </button>
+          </div>
+          <div className={styles.fila}>
+            <div className={styles.grupo}>
+              <label>Destinos</label>
+              <DestinoMultiSelect
+                destinos={todosDestinos}
+                seleccionados={destinosSeleccionados}
+                onChange={setDestinosSeleccionados}
+              />
+            </div>
+            <div className={styles.fila} style={{ margin: 0 }}>
+              <div className={styles.grupo}>
+                <label>Duración (días)</label>
+                <input className={styles.input} type="number" min="1" value={form.duracion_dias} onChange={(e) => setField('duracion_dias', e.target.value)} placeholder="Ej: 7" />
+              </div>
+              <div className={styles.grupo}>
+                <label>Duración (noches)</label>
+                <input className={styles.input} type="number" min="0" value={form.duracion_noches} onChange={(e) => setField('duracion_noches', e.target.value)} placeholder="Ej: 6" />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* ── Incluye / No incluye ── */}
         <div className={styles.seccion}>
           <p className={styles.seccionTitulo}>¿Qué incluye / No incluye?</p>
 
           <div className={styles.incluyeBloque}>
-            <p className={styles.incluyeBloqueTitulo}>Incluye</p>
+            <div className={styles.incluyeBloqueHeader}>
+              <p className={styles.incluyeBloqueTitulo}>Incluye</p>
+              <button type="button" className={styles.botonStandard} onClick={() => { setIncluye(INCLUYE_STANDARD.map((i) => ({ ...i }))); setNoIncluye(NO_INCLUYE_STANDARD.map((i) => ({ ...i }))); }}>
+                Estándar
+              </button>
+            </div>
             <div className={styles.itemList}>
               {incluye.map((item, i) => (
                 <ItemRow key={i} item={item} onChange={(v) => updateItem(setIncluye, i, v)} onRemove={() => removeItem(setIncluye, i)} esRojo={false} destinosSeleccionados={destinosSeleccionados} />

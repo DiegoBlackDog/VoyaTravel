@@ -274,6 +274,113 @@
   color: var(--color-negro);
 }
 
+/* ── PNR MOBILE CARDS ── */
+.pnrCards {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+}
+
+.pnrCard {
+  padding: 16px 18px;
+  border-bottom: 1px solid #ebe8e4;
+}
+.pnrCard:last-child { border-bottom: none; }
+
+.pnrCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.pnrCardAerolinea {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-negro);
+}
+
+.pnrLogoPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: #e8e4e0;
+  flex-shrink: 0;
+}
+
+.pnrCardFecha {
+  font-size: 0.82rem;
+  color: var(--color-gris);
+  font-weight: 500;
+}
+
+.pnrCardRuta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pnrCardAeropuerto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 72px;
+}
+
+.pnrCardAeropuertoRight {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.pnrCardCodigo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-verde);
+  line-height: 1;
+}
+
+.pnrCardCiudad {
+  font-size: 0.75rem;
+  color: var(--color-gris);
+  line-height: 1.2;
+}
+
+.pnrCardHora {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-negro);
+  margin-top: 4px;
+  line-height: 1;
+}
+
+.pnrCardLinea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 2px;
+}
+
+.pnrCardLineaBar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-verde);
+  opacity: 0.4;
+}
+
+.pnrCardAvion {
+  position: relative;
+  color: var(--color-verde);
+  background: #fff;
+  padding: 0 4px;
+  margin: 0 auto;
+}
+
 .itinerarioImg {
   max-width: 100%;
   height: auto;
@@ -492,10 +599,14 @@
   .body          { padding: 24px 16px 40px; gap: 20px; }
   .pagosGrid     { grid-template-columns: 1fr 1fr; }
 
-  .itemLista  { padding: 20px 18px; gap: 14px; }
+  .itemLista    { padding: 20px 18px; gap: 14px; }
   .alojOpciones { padding: 20px 18px; }
   .condiciones  { padding: 20px 18px; }
   .pagosGrid    { padding: 20px 18px; }
+
+  /* PNR: hide table, show cards */
+  .pnrTablaWrap { display: none; }
+  .pnrCards     { display: flex; }
 
   .footerGrid {
     grid-template-columns: 1fr;
