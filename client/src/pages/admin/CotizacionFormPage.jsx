@@ -12,23 +12,19 @@ import styles from './CotizacionFormPage.module.css';
 /* Constants                                          */
 /* ────────────────────────────────────────────────── */
 
-const CONDICIONES_DEFAULT = `Los precios indicados pueden variar sin previo aviso en función de la disponibilidad de vuelos y alojamientos.
+const CONDICIONES_DEFAULT = `• Los precios indicados pueden variar sin previo aviso en función de la disponibilidad de vuelos y alojamientos.
+• Para confirmar la reserva y proceder con la emisión de tickets, hoteles u otros servicios, necesitamos sus datos personales tal como aparecen en el documento de viaje que utilizará.
+• La gestión de toda la documentación necesaria para viajar —pasaporte vigente, visados, permisos de menores, partidas de nacimiento, entre otros— es responsabilidad exclusiva del pasajero, quien deberá tramitarla ante las autoridades correspondientes.
+• Consulte con su asesor las fechas y condiciones de pago, tanto de la seña como del monto total.
+• Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).`;
 
-Para confirmar la reserva y proceder con la emisión de tickets, hoteles u otros servicios, necesitamos sus datos personales tal como aparecen en el documento de viaje que utilizará.
-
-La gestión de toda la documentación necesaria para viajar —pasaporte vigente, visados, permisos de menores, partidas de nacimiento, entre otros— es responsabilidad exclusiva del pasajero, quien deberá tramitarla ante las autoridades correspondientes.
-
-Consulte con su asesor las fechas y condiciones de pago, tanto de la seña como del monto total.
-
-Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).`;
-
-const OPCIONES_COMBO     = ['Billete aéreo según itinerario', 'Alojamiento', 'Traslados', 'Seguro de Viaje', 'Visitas y excursiones no indicadas', 'Todas las tasas e impuestos', 'Personalizado'];
+const OPCIONES_COMBO     = ['Billete aéreo según itinerario', 'Alojamiento', 'Traslados', 'Seguro de Viaje', 'Visitas y excursiones no indicadas', 'Tasas e impuestos aéreos incluidos', 'Personalizado'];
 
 const INCLUYE_STANDARD = [
   { tipo: 'Billete aéreo según itinerario', detalle: 'Equipaje de mano (Carry on)', destino: '' },
   { tipo: 'Alojamiento',                   detalle: '',                            destino: '' },
   { tipo: 'Traslados',                     detalle: 'Traslados Aeropuerto - Hotel - Aeropuerto', destino: '' },
-  { tipo: 'Todas las tasas e impuestos',   detalle: '',                            destino: '' },
+  { tipo: 'Tasas e impuestos aéreos incluidos',   detalle: '',                            destino: '' },
 ];
 
 const NO_INCLUYE_STANDARD = [
@@ -432,6 +428,11 @@ export default function CotizacionFormPage() {
     init().catch(() => { setError('No se pudo cargar.'); setCargando(false); });
   }, [id, esEdicion]);
 
+  /* Scroll to top on error or success */
+  useEffect(() => {
+    if (error || exito) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [error, exito]);
+
   /* Paste listener for itinerario imagen */
   useEffect(() => {
     if (itinerarioTipo !== 'imagen') return;
@@ -516,6 +517,20 @@ export default function CotizacionFormPage() {
     e.preventDefault();
     setGuardando(true);
     setError('');
+
+    /* Validate: at least 1 destination */
+    if (destinosSeleccionados.length === 0) {
+      setError('Debés seleccionar al menos 1 destino.');
+      setGuardando(false);
+      return;
+    }
+
+    /* Validate: at least 1 alojamiento */
+    if (alojamientos.length === 0) {
+      setError('Debés agregar al menos 1 alojamiento.');
+      setGuardando(false);
+      return;
+    }
 
     /* Validate: sum of noches in incluye "Alojamiento" items <= duracion_noches */
     if (form.duracion_noches) {

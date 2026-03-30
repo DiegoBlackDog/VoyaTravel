@@ -74,6 +74,15 @@
   line-height: 1.1;
 }
 
+.bannerPais {
+  font-size: 1.9rem;
+  font-weight: 300;
+}
+
+.bannerSep {
+  opacity: 0.6;
+}
+
 .bannerPasajero {
   font-family: var(--font-cuerpo);
   font-size: 1rem;
@@ -596,6 +605,7 @@
   .banner        { height: 280px; }
   .bannerContent { padding: 0 20px 24px; }
   .bannerDestino { font-size: 1.9rem; }
+  .bannerPais    { font-size: 1.3rem; }
   .body          { padding: 24px 16px 40px; gap: 20px; }
   .pagosGrid     { grid-template-columns: 1fr 1fr; }
 

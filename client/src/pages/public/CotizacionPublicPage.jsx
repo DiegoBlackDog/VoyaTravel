@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import {
-  FaPlane, FaBed, FaBus, FaShieldAlt, FaCamera, FaPercent,
+  FaPlane, FaBed, FaBus, FaShieldAlt, FaCamera, FaDollarSign,
   FaCheck, FaCheckCircle, FaMapMarkerAlt,
   FaCreditCard, FaUniversity, FaStore, FaMoneyBillWave,
   FaInstagram, FaFacebook, FaWhatsapp, FaPhone, FaEnvelope,
@@ -43,7 +43,7 @@ const TIPO_ICON_MAP = {
   'Traslados':                            FaBus,
   'Seguro de Viaje':                      FaShieldAlt,
   'Visitas y excursiones no indicadas':   FaCamera,
-  'Todas las tasas e impuestos':          FaPercent,
+  'Tasas e impuestos aéreos incluidos':          FaDollarSign,
 };
 
 function getItemIcon(tipo) {
@@ -119,11 +119,11 @@ export default function CotizacionPublicPage() {
     cot.destino ||
     (cot.destinos_extra?.length > 0 ? cot.destinos_extra[0] : null);
 
-  const destinosTexto = cot.destinos_extra?.length > 0
-    ? cot.destinos_extra.map((d) => d.nombre + (d.pais ? `, ${d.pais}` : '')).join(' · ')
+  const destinos = cot.destinos_extra?.length > 0
+    ? cot.destinos_extra.map((d) => ({ nombre: d.nombre, pais: d.pais }))
     : destinoPrincipal
-      ? destinoPrincipal.nombre + (destinoPrincipal.pais ? `, ${destinoPrincipal.pais}` : '')
-      : null;
+      ? [{ nombre: destinoPrincipal.nombre, pais: destinoPrincipal.pais }]
+      : [];
 
   const instagram  = config['instagram']  || null;
   const facebook   = config['facebook']   || null;
@@ -158,7 +158,17 @@ export default function CotizacionPublicPage() {
         <div className={styles.bannerOverlay} />
         <div className={styles.bannerContent}>
           {fechaCreacion && <p className={styles.bannerFecha}>{fechaCreacion}</p>}
-          {destinosTexto && <h1 className={styles.bannerDestino}>{destinosTexto}</h1>}
+          {destinos.length > 0 && (
+            <h1 className={styles.bannerDestino}>
+              {destinos.map((d, i) => (
+                <span key={i}>
+                  {i > 0 && <span className={styles.bannerSep}> · </span>}
+                  {d.nombre}
+                  {d.pais && <span className={styles.bannerPais}>, {d.pais}</span>}
+                </span>
+              ))}
+            </h1>
+          )}
           {cot.nombre_pasajero && (
             <p className={styles.bannerPasajero}>Para {cot.nombre_pasajero}</p>
           )}
