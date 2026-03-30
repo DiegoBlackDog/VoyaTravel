@@ -2,7 +2,7 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Cotizacion = sequelize.define('Cotizacion', {
-  nombre_pasajero: { type: DataTypes.STRING(200), allowNull: false },
+  nombre_pasajero: { type: DataTypes.STRING(200), allowNull: true },
   destino_id:      { type: DataTypes.INTEGER },
   usuario_id:      { type: DataTypes.INTEGER },
   duracion_dias:   { type: DataTypes.INTEGER },

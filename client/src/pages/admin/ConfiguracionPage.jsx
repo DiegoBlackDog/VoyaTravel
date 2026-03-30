@@ -5,13 +5,32 @@ import styles from './ConfiguracionPage.module.css';
 
 const GRUPOS = [
   {
+    key: 'empresa',
+    titulo: 'Empresa',
+    descripcion: 'Información general de la agencia.',
+    campos: [
+      { clave: 'sitio_web',  label: 'Sitio web',   placeholder: 'https://www.voya.travel', hint: 'URL completa incluyendo https://' },
+      { clave: 'direccion',  label: 'Dirección',   placeholder: 'Av. 18 de Julio 1234, Montevideo', hint: '' },
+    ],
+  },
+  {
     key: 'contacto',
     titulo: 'Contacto',
     descripcion: 'Información de contacto visible en el sitio web.',
     campos: [
-      { clave: 'whatsapp_numero', label: 'WhatsApp', placeholder: '+598 99 123 456', hint: 'Número con código de país' },
-      { clave: 'email_contacto', label: 'Email de contacto', placeholder: 'hola@voya.travel', hint: '' },
-      { clave: 'telefono_contacto', label: 'Teléfono', placeholder: '+598 2 123 4567', hint: '' },
+      { clave: 'whatsapp_numero',  label: 'WhatsApp',           placeholder: '+598 99 123 456', hint: 'Número con código de país' },
+      { clave: 'telefono_contacto', label: 'Teléfono empresa',   placeholder: '+598 2 123 4567', hint: '' },
+      { clave: 'email_contacto',   label: 'Email de contacto',  placeholder: 'hola@voya.travel', hint: '' },
+    ],
+  },
+  {
+    key: 'redes',
+    titulo: 'Redes sociales',
+    descripcion: 'URLs de los perfiles sociales de la agencia.',
+    campos: [
+      { clave: 'instagram', label: 'Instagram', placeholder: 'https://www.instagram.com/voya', hint: 'URL completa del perfil' },
+      { clave: 'facebook',  label: 'Facebook',  placeholder: 'https://www.facebook.com/voya', hint: 'URL completa de la página' },
+      { clave: 'linkedin',  label: 'LinkedIn',  placeholder: 'https://www.linkedin.com/company/voya-uy/', hint: 'URL completa de la empresa' },
     ],
   },
   {
@@ -19,10 +38,10 @@ const GRUPOS = [
     titulo: 'Estadísticas',
     descripcion: 'Números destacados que se muestran en la página de inicio.',
     campos: [
-      { clave: 'estadistica_paquetes', label: 'Paquetes', placeholder: 'Ej: 120+', hint: '' },
-      { clave: 'estadistica_paises', label: 'Países', placeholder: 'Ej: 30+', hint: '' },
-      { clave: 'estadistica_actividades', label: 'Actividades', placeholder: 'Ej: 50+', hint: '' },
-      { clave: 'estadistica_viajeros', label: 'Viajeros felices', placeholder: 'Ej: 10K+', hint: '' },
+      { clave: 'estadistica_paquetes',   label: 'Paquetes',        placeholder: 'Ej: 120+', hint: '' },
+      { clave: 'estadistica_paises',     label: 'Países',          placeholder: 'Ej: 30+',  hint: '' },
+      { clave: 'estadistica_actividades', label: 'Actividades',    placeholder: 'Ej: 50+',  hint: '' },
+      { clave: 'estadistica_viajeros',   label: 'Viajeros felices', placeholder: 'Ej: 10K+', hint: '' },
     ],
   },
 ];

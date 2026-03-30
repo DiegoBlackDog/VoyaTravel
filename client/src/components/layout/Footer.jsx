@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaFacebook, FaWhatsapp, FaEnvelope, FaPhone } from 'react-icons/fa';
+import { FaInstagram, FaFacebook, FaWhatsapp, FaEnvelope, FaPhone, FaLinkedin } from 'react-icons/fa';
 import { useConfiguracion } from '../../hooks/useConfiguracion';
 import styles from './Footer.module.css';
 
@@ -26,6 +26,7 @@ export default function Footer() {
   const telefono = configuracion?.telefono_contacto || '';
   const instagram = configuracion?.instagram || '';
   const facebook = configuracion?.facebook || '';
+  const linkedin = configuracion?.linkedin || 'https://www.linkedin.com/company/voya-uy/';
   const whatsappUrl = whatsapp
     ? `https://wa.me/${whatsapp.replace(/\D/g, '')}`
     : null;
@@ -76,6 +77,15 @@ export default function Footer() {
                   <FaWhatsapp size={18} />
                 </a>
               )}
+              <a
+                href={linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.redSocial}
+                aria-label="LinkedIn"
+              >
+                <FaLinkedin size={18} />
+              </a>
             </div>
           </div>
 

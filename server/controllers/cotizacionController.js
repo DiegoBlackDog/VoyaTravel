@@ -17,6 +17,7 @@ const INCLUDE_FULL = [
     as: 'alojamientos',
     include: [{ model: Hotel, as: 'hotel' }],
   },
+  { model: Usuario, as: 'usuario', attributes: ['id', 'nombre', 'email', 'telefono'] },
 ];
 
 exports.listar = async (req, res) => {
@@ -169,8 +170,11 @@ exports.duplicar = async (req, res) => {
       await CotizacionAlojamiento.bulkCreate(
         original.alojamientos.map((a) => ({
           cotizacion_id:    nueva.id,
+          grupo:            a.grupo,
+          destino_id:       a.destino_id,
           hotel_id:         a.hotel_id,
           regimen:          a.regimen,
+          noches:           a.noches,
           precio_single:    a.precio_single,
           precio_doble:     a.precio_doble,
           precio_triple:    a.precio_triple,

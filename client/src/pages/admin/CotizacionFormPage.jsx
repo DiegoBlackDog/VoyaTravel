@@ -5,17 +5,20 @@ import {
   FiAlertCircle, FiCopy, FiExternalLink, FiSave, FiSearch, FiUploadCloud,
 } from 'react-icons/fi';
 import api from '../../services/api';
+import { parsePnr, formatSegment } from '../../utils/pnrParser';
 import styles from './CotizacionFormPage.module.css';
 
 /* ────────────────────────────────────────────────── */
 /* Constants                                          */
 /* ────────────────────────────────────────────────── */
 
-const CONDICIONES_DEFAULT = `Los precios están expresados en USD por persona y sujetos a disponibilidad al momento de la reserva.
+const CONDICIONES_DEFAULT = `Los precios indicados pueden variar sin previo aviso en función de la disponibilidad de vuelos y alojamientos.
 
-Se requiere el 30% de seña para confirmar la reserva. El saldo restante debe abonarse 30 días antes de la fecha de salida.
+Para confirmar la reserva y proceder con la emisión de tickets, hoteles u otros servicios, necesitamos sus datos personales tal como aparecen en el documento de viaje que utilizará.
 
-Cancelaciones con más de 30 días de anticipación: reembolso del 80% de la seña. Con menos de 30 días: sin reembolso.
+La gestión de toda la documentación necesaria para viajar —pasaporte vigente, visados, permisos de menores, partidas de nacimiento, entre otros— es responsabilidad exclusiva del pasajero, quien deberá tramitarla ante las autoridades correspondientes.
+
+Consulte con su asesor las fechas y condiciones de pago, tanto de la seña como del monto total.
 
 Voyâ no se responsabiliza por cambios en itinerarios originados por causas de fuerza mayor (condiciones climáticas, huelgas, pandemias u otras circunstancias ajenas a nuestra voluntad).`;
 
@@ -55,10 +58,10 @@ const PRECIOS_VACIO = {
 };
 
 /* An alojamiento "group" = N hotel rows (one per destination) + shared prices */
-const nuevoGrupo = (destinos) => ({
+const nuevoGrupo = (destinos, nochesDefault = '') => ({
   items: destinos.length > 0
-    ? destinos.map((d) => ({ destino_id: d.id, destino_nombre: d.nombre, hotel_id: null, hotel_nombre: '', regimen: '' }))
-    : [{ destino_id: null, destino_nombre: '', hotel_id: null, hotel_nombre: '', regimen: '' }],
+    ? destinos.map((d) => ({ destino_id: d.id, destino_nombre: d.nombre, hotel_id: null, hotel_nombre: '', regimen: '', noches: nochesDefault }))
+    : [{ destino_id: null, destino_nombre: '', hotel_id: null, hotel_nombre: '', regimen: '', noches: nochesDefault }],
   ...PRECIOS_VACIO,
 });
 
@@ -135,7 +138,7 @@ function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados }) {
         className={styles.comboPrimario}
       />
 
-      {secType === 'number' && (
+      {secType === 'number' && multiDest && (
         <>
           <input
             type="number"
@@ -145,14 +148,12 @@ function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados }) {
             placeholder="Noches"
             min="0"
           />
-          {multiDest && (
-            <Combobox
-              value={item.destino || ''}
-              onChange={(v) => onChange({ ...item, destino: v })}
-              opciones={destinosSeleccionados.map((d) => d.nombre)}
-              placeholder="Destino..."
-            />
-          )}
+          <Combobox
+            value={item.destino || ''}
+            onChange={(v) => onChange({ ...item, destino: v })}
+            opciones={destinosSeleccionados.map((d) => d.nombre)}
+            placeholder="Destino..."
+          />
         </>
       )}
       {secType === 'text' && (
@@ -387,18 +388,34 @@ export default function CotizacionFormPage() {
       setItinerarioPnr(c.itinerario_pnr      || '');
       setItinerarioImagen(c.itinerario_imagen || '');
 
-      /* Load: each saved hotel becomes its own single-item group (backward compat) */
-      setAlojamientos(
-        (c.alojamientos || []).map((a) => ({
-          items: [{ destino_id: null, destino_nombre: '', hotel_id: a.hotel_id, hotel_nombre: a.hotel?.nombre || '', regimen: a.regimen || '' }],
-          precio_single:    a.precio_single    ?? '',
-          precio_doble:     a.precio_doble     ?? '',
-          precio_triple:    a.precio_triple    ?? '',
-          precio_cuadruple: a.precio_cuadruple ?? '',
-          precio_menor:     a.precio_menor     ?? '',
-          precio_infante:   a.precio_infante   ?? '',
-        }))
-      );
+      /* Load: reconstruct groups using the `grupo` field (fallback: each record = own group) */
+      const grupoMap = new Map();
+      (c.alojamientos || [])
+        .slice()
+        .sort((a, b) => (a.grupo ?? a.id) - (b.grupo ?? b.id))
+        .forEach((a) => {
+          const gKey = a.grupo != null ? `g${a.grupo}` : `id${a.id}`;
+          if (!grupoMap.has(gKey)) {
+            grupoMap.set(gKey, {
+              items: [],
+              precio_single:    a.precio_single    ?? '',
+              precio_doble:     a.precio_doble     ?? '',
+              precio_triple:    a.precio_triple    ?? '',
+              precio_cuadruple: a.precio_cuadruple ?? '',
+              precio_menor:     a.precio_menor     ?? '',
+              precio_infante:   a.precio_infante   ?? '',
+            });
+          }
+          grupoMap.get(gKey).items.push({
+            destino_id:     a.destino_id || null,
+            destino_nombre: allD.find((d) => d.id === a.destino_id)?.nombre || '',
+            hotel_id:       a.hotel_id,
+            hotel_nombre:   a.hotel?.nombre || '',
+            regimen:        a.regimen || '',
+            noches:         a.noches ?? '',
+          });
+        });
+      setAlojamientos([...grupoMap.values()]);
       setCargando(false);
     };
     init().catch(() => { setError('No se pudo cargar.'); setCargando(false); });
@@ -441,7 +458,10 @@ export default function CotizacionFormPage() {
     if (index !== null) {
       setGrupoForm({ ...alojamientos[index], items: alojamientos[index].items.map((it) => ({ ...it })) });
     } else {
-      setGrupoForm(nuevoGrupo(destinosSeleccionados));
+      /* Auto-fill noches when there is exactly one destination */
+      const nochesDefault = destinosSeleccionados.length === 1 && form.duracion_noches
+        ? String(form.duracion_noches) : '';
+      setGrupoForm(nuevoGrupo(destinosSeleccionados, nochesDefault));
     }
     setModalAloj({ index });
   };
@@ -486,14 +506,29 @@ export default function CotizacionFormPage() {
     setGuardando(true);
     setError('');
 
+    /* Validate: sum of noches in incluye "Alojamiento" items <= duracion_noches */
+    if (form.duracion_noches) {
+      const totalNochesIncluye = incluye
+        .filter((it) => it.tipo === 'Alojamiento' && Number(it.detalle) > 0)
+        .reduce((s, it) => s + Number(it.detalle), 0);
+      if (totalNochesIncluye > Number(form.duracion_noches)) {
+        setError(`La suma de noches en Alojamiento (${totalNochesIncluye}) supera la duración total (${form.duracion_noches} noches).`);
+        setGuardando(false);
+        return;
+      }
+    }
+
     const destino_id   = destinosSeleccionados[0]?.id || null;
     const destinos_ids = destinosSeleccionados.map((d) => d.id);
 
     /* Flatten groups into individual alojamiento records */
-    const alojamientosFlat = alojamientos.flatMap((g) =>
+    const alojamientosFlat = alojamientos.flatMap((g, gi) =>
       g.items.map((it) => ({
+        grupo:            gi,
+        destino_id:       it.destino_id  || null,
         hotel_id:         it.hotel_id,
-        regimen:          it.regimen  || null,
+        regimen:          it.regimen     || null,
+        noches:           it.noches      ? Number(it.noches)           : null,
         precio_single:    g.precio_single    ? Number(g.precio_single)    : null,
         precio_doble:     g.precio_doble     ? Number(g.precio_doble)     : null,
         precio_triple:    g.precio_triple    ? Number(g.precio_triple)    : null,
@@ -664,6 +699,39 @@ export default function CotizacionFormPage() {
             <div className={styles.grupo} style={{ marginTop: 14 }}>
               <label>Texto del itinerario / PNR</label>
               <textarea className={styles.textarea} value={itinerarioPnr} onChange={(e) => setItinerarioPnr(e.target.value)} rows={10} placeholder="Pegá aquí el itinerario o texto del PNR..." />
+              {(() => {
+                const segments = parsePnr(itinerarioPnr).map(formatSegment);
+                if (!segments.length) return null;
+                return (
+                  <div className={styles.pnrTablaWrap}>
+                    <p className={styles.pnrTablaLabel}>Vista previa del itinerario</p>
+                    <table className={styles.pnrTabla}>
+                      <thead>
+                        <tr>
+                          <th>Aerolínea</th>
+                          <th>Vuelo</th>
+                          <th>Salida</th>
+                          <th>De</th>
+                          <th>Llegada</th>
+                          <th>A</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {segments.map((s, i) => (
+                          <tr key={i}>
+                            <td>{s.airline}</td>
+                            <td className={styles.pnrVuelo}>{s.flightNo}</td>
+                            <td><strong>{s.salida.split(' · ')[0]}</strong> · {s.salida.split(' · ')[1]}</td>
+                            <td className={styles.pnrAeropuerto}>{s.desde}</td>
+                            <td><strong>{s.llegada.split(' · ')[0]}</strong> · {s.llegada.split(' · ')[1]}</td>
+                            <td className={styles.pnrAeropuerto}>{s.hasta}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -772,7 +840,10 @@ export default function CotizacionFormPage() {
                     <HotelAutocomplete
                       destinoId={it.destino_id}
                       value={it.hotel_nombre}
-                      onChange={(h) => updateGrupoItem(i, 'hotel_id', h.hotel_id) || updateGrupoItem(i, 'hotel_nombre', h.hotel_nombre)}
+                      onChange={(h) => setGrupoForm((g) => {
+                        const items = g.items.map((it2, idx) => idx === i ? { ...it2, hotel_id: h.hotel_id, hotel_nombre: h.hotel_nombre } : it2);
+                        return { ...g, items };
+                      })}
                     />
                   </div>
                   <div className={styles.grupo}>

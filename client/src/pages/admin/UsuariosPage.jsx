@@ -7,6 +7,7 @@ import styles from './UsuariosPage.module.css';
 const EMPTY_FORM = {
   nombre: '',
   email: '',
+  telefono: '',
   contrasena: '',
   rol: 'editor',
   activo: true,
@@ -75,6 +76,7 @@ export default function UsuariosPage() {
     setForm({
       nombre: u.nombre || '',
       email: u.email || '',
+      telefono: u.telefono || '',
       contrasena: '',
       rol: u.rol || 'editor',
       activo: u.activo !== undefined ? u.activo : true,
@@ -106,6 +108,7 @@ export default function UsuariosPage() {
       const body = {
         nombre: form.nombre.trim(),
         email: form.email.trim(),
+        telefono: form.telefono.trim() || null,
         rol: form.rol,
         activo: form.activo,
       };
@@ -199,6 +202,7 @@ export default function UsuariosPage() {
             <tr>
               <th>Nombre</th>
               <th>Email</th>
+              <th>Celular</th>
               <th>Rol</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -212,6 +216,7 @@ export default function UsuariosPage() {
                   {u.id === usuarioActual?.id && <span className={styles.esTu}>(tú)</span>}
                 </td>
                 <td>{u.email}</td>
+                <td>{u.telefono || <span style={{ color: '#aaa' }}>—</span>}</td>
                 <td>
                   <span className={`${styles.badge} ${styles[rolBadgeClass[u.rol]] || styles.badgeVisor}`}>
                     {u.rol}
@@ -277,6 +282,16 @@ export default function UsuariosPage() {
                   value={form.email}
                   onChange={(e) => handleChange('email', e.target.value)}
                   placeholder="correo@ejemplo.com"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Celular</label>
+                <input
+                  className={styles.formInput}
+                  type="tel"
+                  value={form.telefono}
+                  onChange={(e) => handleChange('telefono', e.target.value)}
+                  placeholder="+598 99 123 456"
                 />
               </div>
               <div className={styles.formGroup}>

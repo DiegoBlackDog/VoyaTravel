@@ -650,3 +650,65 @@
   padding-top: 12px;
   border-top: 1px solid var(--color-borde);
 }
+
+/* ── PNR Table Preview ── */
+.pnrTablaWrap {
+  margin-top: 16px;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  overflow: hidden;
+}
+
+.pnrTablaLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-gris);
+  background: #f7f5f2;
+  padding: 8px 14px;
+  margin: 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pnrTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.pnrTabla th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gris);
+  background: #f7f5f2;
+  border-bottom: 1.5px solid var(--color-borde);
+  white-space: nowrap;
+}
+
+.pnrTabla td {
+  padding: 10px 14px;
+  color: var(--color-negro);
+  border-bottom: 1px solid var(--color-borde);
+  vertical-align: middle;
+}
+
+.pnrTabla tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pnrVuelo {
+  font-weight: 700;
+  color: var(--color-verde);
+  white-space: nowrap;
+}
+
+.pnrAeropuerto {
+  color: var(--color-verde);
+  white-space: nowrap;
+}
+

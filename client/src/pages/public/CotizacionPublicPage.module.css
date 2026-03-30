@@ -1,169 +1,146 @@
 .pagina {
   min-height: 100vh;
-  background: var(--color-crema);
+  background: #f4f1ee;
   font-family: var(--font-cuerpo);
 }
 
-/* ── Header ── */
-.header {
+/* ── NAV BAR ── */
+.navBar {
+  background: var(--color-verde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+}
+
+.navLogo {
+  font-family: var(--font-titulares);
+  font-size: 1.7rem;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.acento {
+  background: linear-gradient(to bottom, var(--color-salmon) 35%, #ffffff 35%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── BANNER (foto) ── */
+.banner {
   position: relative;
-  height: 320px;
+  height: 340px;
   background: var(--color-verde);
   display: flex;
   align-items: flex-end;
   overflow: hidden;
 }
 
-.headerImg {
+.bannerImg {
   position: absolute;
   inset: 0;
   background-size: cover;
   background-position: center;
 }
 
-.headerOverlay {
+.bannerOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.2) 55%, transparent 100%);
 }
 
-.headerInner {
+.bannerContent {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 820px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 0 32px 32px;
 }
 
-.headerBrand {
-  font-family: var(--font-titulares);
-  font-size: 1.1rem;
-  color: rgba(255,255,255,0.85);
-  display: block;
-  margin-bottom: 8px;
-  letter-spacing: 0.04em;
-}
-
-.headerNumero {
+.bannerFecha {
   font-family: var(--font-cuerpo);
   font-size: 0.82rem;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 6px;
+  color: rgba(255,255,255,0.72);
+  margin: 0 0 8px;
 }
 
-.headerTitulo {
+.bannerDestino {
   font-family: var(--font-titulares);
-  font-size: 2rem;
+  font-size: 2.6rem;
   color: #fff;
-  margin: 0 0 10px;
-  line-height: 1.15;
+  margin: 0 0 8px;
+  line-height: 1.1;
 }
 
-.headerMeta {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.headerMetaItem {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
+.bannerPasajero {
+  font-family: var(--font-cuerpo);
+  font-size: 1rem;
   color: rgba(255,255,255,0.85);
+  margin: 0 0 4px;
 }
 
-/* ── Body ── */
+.bannerDuracion {
+  font-family: var(--font-cuerpo);
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.75);
+  margin: 0;
+}
+
+/* ── BODY ── */
 .body {
-  max-width: 820px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 40px 32px;
+  padding: 36px 32px 48px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
-}
-
-/* ── Section card ── */
-.card {
-  background: #fff;
-  border-radius: var(--radio-lg);
-  padding: 28px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.cardTitulo {
-  font-family: var(--font-cuerpo);
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-verde);
-  margin: 0 0 18px;
-}
-
-/* ── Info row ── */
-.infoGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.infoItem label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--color-gris);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-bottom: 4px;
-}
-
-.infoItem span {
-  font-size: 0.95rem;
-  color: var(--color-negro);
-  font-weight: 500;
-}
-
-/* ── Incluye / No incluye ── */
-.incluyeGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 24px;
 }
 
-.incluyeSubtitulo {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-negro);
-  margin: 0 0 10px;
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.07);
 }
 
-.incluyeLista {
+.cardHeader {
+  background: var(--color-verde);
+  color: #fff;
+  font-family: var(--font-cuerpo);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  padding: 13px 22px;
+}
+
+/* ── ITEM LIST (incluye / no incluye / servicios) ── */
+.itemLista {
   list-style: none;
-  padding: 0;
+  padding: 18px 22px;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 11px;
 }
 
-.incluyeItem {
+.itemFila {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 10px;
+  font-size: 0.92rem;
   color: var(--color-negro);
+  line-height: 1.45;
 }
 
-.iconoIncluye  { color: #16a34a; flex-shrink: 0; margin-top: 2px; }
+.iconoIncluye  { color: var(--color-verde); flex-shrink: 0; margin-top: 2px; }
 .iconoNoIncluye { color: #dc2626; flex-shrink: 0; margin-top: 2px; }
 
-/* ── Alojamientos table ── */
+/* ── ALOJAMIENTOS TABLE ── */
 .alojTablaWrap {
   overflow-x: auto;
-  border-radius: var(--radio-sm);
-  border: 1.5px solid var(--color-borde);
 }
 
 .alojTabla {
@@ -174,20 +151,20 @@
 
 .alojTabla th {
   text-align: left;
-  padding: 10px 14px;
-  font-size: 0.72rem;
+  padding: 10px 18px;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gris);
-  background: var(--color-crema);
-  border-bottom: 1.5px solid var(--color-borde);
+  background: #f9f7f5;
+  border-bottom: 1.5px solid #ebe8e4;
 }
 
 .alojTabla td {
-  padding: 10px 14px;
+  padding: 11px 18px;
   color: var(--color-negro);
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid #f0ede9;
 }
 
 .alojTabla tbody tr:last-child td { border-bottom: none; }
@@ -198,40 +175,38 @@
   font-weight: 600;
   color: var(--color-verde);
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
-
 .alojHotelLink:hover { text-decoration: underline; }
 
 .alojPrecio {
-  font-weight: 500;
-  color: var(--color-verde-oscuro);
+  font-weight: 600;
+  color: var(--color-verde);
   white-space: nowrap;
 }
 
-/* ── Condiciones ── */
-.condiciones {
-  font-size: 0.9rem;
-  color: var(--color-gris);
-  line-height: 1.7;
-  white-space: pre-line;
-  margin: 0;
+/* ── MEDIOS DE PAGO ── */
+.pagosGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  padding: 20px 22px;
 }
 
-/* ── Footer ── */
-.footer {
-  text-align: center;
-  padding: 24px 32px 40px;
-  font-size: 0.82rem;
-  color: var(--color-gris);
+.pagoItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: var(--color-negro);
+  font-weight: 500;
 }
 
-.footerBrand {
-  font-family: var(--font-titulares);
-  color: var(--color-verde);
-  font-size: 1rem;
-}
+.pagoIcono { color: var(--color-verde); flex-shrink: 0; }
 
-/* ── Itinerario ── */
+/* ── ITINERARIO ── */
 .pnrText {
   font-family: monospace;
   font-size: 0.82rem;
@@ -240,20 +215,264 @@
   white-space: pre-wrap;
   word-break: break-word;
   margin: 0;
-  background: var(--color-crema);
-  border-radius: var(--radio-sm);
-  padding: 14px 16px;
-  border: 1px solid var(--color-borde);
+  background: #f9f7f5;
+  padding: 16px 22px;
+}
+
+.pnrTablaWrap {
+  overflow-x: auto;
+}
+
+.pnrTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pnrTabla th {
+  text-align: center;
+  padding: 11px 18px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-negro);
+  background: #eceae7;
+  border-bottom: 2px solid #d5d0ca;
+  border-right: 1px solid #d5d0ca;
+  white-space: nowrap;
+}
+.pnrTabla th:last-child { border-right: none; }
+
+.pnrTabla td {
+  padding: 13px 18px;
+  color: var(--color-negro);
+  border-right: 1px solid #ebe8e4;
+  border-bottom: 1px solid #ebe8e4;
+  vertical-align: middle;
+  text-align: center;
+}
+.pnrTabla td:last-child { border-right: none; }
+
+.pnrTabla tbody tr:last-child td { border-bottom: none; }
+
+.pnrTabla tbody tr:nth-child(even) td { background: #f7f5f2; }
+
+.pnrVuelo {
+  font-weight: 700;
+  color: var(--color-verde);
+  white-space: nowrap;
+}
+
+.pnrAeropuerto {
+  color: var(--color-verde);
+  font-weight: 500;
+}
+
+.pnrHora {
+  font-size: 0.875rem;
+  color: var(--color-negro);
 }
 
 .itinerarioImg {
   max-width: 100%;
   height: auto;
-  border-radius: var(--radio-sm);
   display: block;
+  padding: 16px 22px;
+  box-sizing: border-box;
 }
 
-/* ── Error / loading ── */
+/* ── CONDICIONES ── */
+.condiciones {
+  font-size: 0.88rem;
+  color: var(--color-gris);
+  line-height: 1.75;
+  white-space: pre-line;
+  margin: 0;
+  padding: 18px 22px;
+}
+
+/* ── OPCIONES DE ALOJAMIENTO ── */
+.alojOpciones {
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.alojOpcion {
+  border: 1px solid #ebe8e4;
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.alojOpcionTitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--color-verde);
+  margin: 0 0 10px;
+}
+
+.alojHoteles {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.alojHotelFila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-negro);
+}
+
+.alojPrecios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.alojPrecioChip {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-verde);
+  background: rgba(55,137,102,0.1);
+  border: 1px solid rgba(55,137,102,0.25);
+  border-radius: 20px;
+  padding: 3px 10px;
+}
+
+.alojRegimen {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: var(--color-gris);
+  margin-left: 4px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: var(--color-verde);
+  padding: 0;
+}
+
+.footerGrid {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 32px 36px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Col 1: Logo + redes */
+.footerCol1 {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.footerLogo {
+  font-family: var(--font-titulares);
+  font-size: 2.8rem;
+  color: #fff;
+  letter-spacing: 0.02em;
+  font-weight: 300;
+}
+
+.footerSocial {
+  display: flex;
+  gap: 14px;
+}
+
+/* Col 2: Empresa */
+.footerCol2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+.footerInfoLista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.footerInfoItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.85);
+}
+
+/* Col 3: Asesor */
+.footerCol3 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.footerAsesorNombre {
+  font-family: var(--font-cuerpo);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px;
+  line-height: 1.2;
+}
+
+.footerContactItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.875rem;
+  color: rgba(255,255,255,0.85);
+}
+
+.footerLink {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.footerLink:hover { color: #fff; text-decoration: underline; }
+
+.socialLink {
+  color: rgba(255,255,255,0.7);
+  transition: color 0.15s;
+}
+.socialLink:hover { color: #fff; }
+
+.footerFecha {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  padding: 0 32px 20px;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  text-align: center;
+}
+
+/* ── ERROR / LOADING ── */
 .centro {
   display: flex;
   flex-direction: column;
@@ -265,10 +484,24 @@
   color: var(--color-gris);
 }
 
+/* ── RESPONSIVE ── */
 @media (max-width: 640px) {
-  .header { height: 260px; }
-  .headerTitulo { font-size: 1.5rem; }
-  .body { padding: 24px 16px; }
-  .card { padding: 20px; }
-  .incluyeGrid { grid-template-columns: 1fr; }
+  .banner        { height: 280px; }
+  .bannerContent { padding: 0 20px 24px; }
+  .bannerDestino { font-size: 1.9rem; }
+  .body          { padding: 24px 16px 40px; gap: 20px; }
+  .pagosGrid     { grid-template-columns: 1fr 1fr; }
+
+  .itemLista  { padding: 20px 18px; gap: 14px; }
+  .alojOpciones { padding: 20px 18px; }
+  .condiciones  { padding: 20px 18px; }
+  .pagosGrid    { padding: 20px 18px; }
+
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 32px 20px 28px;
+  }
+  .footerCol3 { align-items: flex-start; text-align: left; }
+  .footerFecha { padding: 0 20px 20px; }
 }

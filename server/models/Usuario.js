@@ -28,6 +28,10 @@ const Usuario = sequelize.define('Usuario', {
     allowNull: false,
     defaultValue: 'visor',
   },
+  telefono: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+  },
   activo: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
