@@ -45,6 +45,22 @@
   min-width: 0;
 }
 
+.diaBody {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.diaImagen {
+  width: 150px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: var(--radio-md, 8px);
+  flex-shrink: 0;
+  display: block;
+}
+
 .diaHeader {
   display: flex;
   align-items: baseline;

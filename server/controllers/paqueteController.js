@@ -377,4 +377,13 @@ const eliminar = async (req, res, next) => {
   }
 };
 
-module.exports = { listar, destacados, obtenerPorId, obtenerPorSlug, crear, actualizar, toggleDisponible, eliminar };
+const uploadItinerarioImagen = async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No se recibió imagen.' });
+    res.json({ url: `/uploads/itinerarios/${req.file.filename}` });
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports = { listar, destacados, obtenerPorId, obtenerPorSlug, crear, actualizar, toggleDisponible, eliminar, uploadItinerarioImagen };

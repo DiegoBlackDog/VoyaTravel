@@ -144,6 +144,7 @@ export default function PaqueteDetallePage() {
     precio_nino,
     precio_infante,
     duracion_dias,
+    duracion_noches,
     etiquetas = [],
     destinos = [],
     imagenes = [],
@@ -153,6 +154,29 @@ export default function PaqueteDetallePage() {
     condiciones,
     alojamientos = [],
   } = paquete;
+
+  const renderTextoItem = (item) => {
+    if (typeof item === 'string') return item;
+    const { tipo, detalle } = item;
+
+    if (tipo === 'Alojamiento') {
+      const noches = detalle ? Number(detalle) : duracion_noches;
+      if (destinos.length > 1 && detalle) {
+        // multi-destino: each alojamiento item should have destino in detalle or use first destino
+        const dest = destinos[0]?.nombre || '';
+        return noches && dest
+          ? `${noches} noches de alojamiento en ${dest} con régimen según hotel`
+          : noches ? `${noches} noches de alojamiento con régimen según hotel` : 'Alojamiento';
+      }
+      return noches
+        ? `${noches} noches de alojamiento con régimen según hotel`
+        : 'Alojamiento';
+    }
+
+    if (tipo === 'Traslados') return detalle || tipo;
+    if (tipo === 'Personalizado') return detalle || 'Personalizado';
+    return detalle ? `${tipo} — ${detalle}` : tipo;
+  };
 
   const precioMostrar = precio_desde ?? precio_adulto;
 
@@ -216,7 +240,7 @@ export default function PaqueteDetallePage() {
             )}
             <span className={styles.metaDuracion}>
               <FaClock size={13} />
-              {duracion_dias} {duracion_dias === 1 ? 'día' : 'días'}
+              {duracion_dias} {duracion_dias === 1 ? 'día' : 'días'}{duracion_noches ? ` / ${duracion_noches} ${duracion_noches === 1 ? 'noche' : 'noches'}` : ''}
             </span>
           </div>
 
@@ -317,7 +341,7 @@ export default function PaqueteDetallePage() {
                             {incluyeArr.map((item, i) => (
                               <li key={i} className={styles.incluyeItem}>
                                 <FaCheckCircle size={15} className={styles.iconoIncluye} />
-                                <span>{item}</span>
+                                <span>{renderTextoItem(item)}</span>
                               </li>
                             ))}
                           </ul>
@@ -330,7 +354,7 @@ export default function PaqueteDetallePage() {
                             {noIncluyeArr.map((item, i) => (
                               <li key={i} className={styles.incluyeItem}>
                                 <FaTimesCircle size={15} className={styles.iconoNoIncluye} />
-                                <span>{item}</span>
+                                <span>{renderTextoItem(item)}</span>
                               </li>
                             ))}
                           </ul>
@@ -395,7 +419,7 @@ export default function PaqueteDetallePage() {
 
               <div className={styles.precioDuracion}>
                 <FaClock size={13} />
-                <span>{duracion_dias} {duracion_dias === 1 ? 'día' : 'días'}</span>
+                <span>{duracion_dias} {duracion_dias === 1 ? 'día' : 'días'}{duracion_noches ? ` / ${duracion_noches} ${duracion_noches === 1 ? 'noche' : 'noches'}` : ''}</span>
               </div>
             </div>
 

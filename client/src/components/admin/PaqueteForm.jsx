@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { FiPlus, FiX, FiSave, FiSearch, FiEdit2, FiChevronDown } from 'react-icons/fi';
 import slugify from '../../utils/slugify';
@@ -98,41 +98,121 @@ function DestinoBuscadorForm({ destinos, selectedIds, onChange }) {
   );
 }
 
-const MONEDAS = [
-  { value: 'USD', label: 'USD (Dolar)' },
-  { value: 'UYU', label: 'UYU (Peso uruguayo)' },
-  { value: 'EUR', label: 'EUR (Euro)' },
-];
 
-const OPCIONES_INCLUYE = [
-  'Vuelo de ida y vuelta',
-  'Hotel (habitación doble)',
-  'Traslados aeropuerto - hotel',
-  'Desayuno incluido',
-  'Media pensión (desayuno + cena)',
-  'Pensión completa',
-  'Guía de turismo en español',
-  'Seguro de viaje básico',
-  'Asistencia al viajero 24hs',
+const OPCIONES_INCLUYE_TIPO = [
+  'Billete aéreo según itinerario',
+  'Alojamiento',
+  'Traslados',
+  'Seguro de Viaje',
+  'Tasas e impuestos aéreos incluidos',
   'Visitas y excursiones indicadas',
-  'Transfers incluidos',
-  'Impuestos y tasas incluidas',
-  'City tax incluida',
+  'Guía de turismo',
+  'Personalizado',
 ];
 
-const OPCIONES_NO_INCLUYE = [
-  'Vuelos internacionales',
+const OPCIONES_NO_INCLUYE_TIPO = [
+  'Seguro de Viaje',
   'Visa y trámites consulares',
   'Gastos personales',
   'Propinas',
-  'Seguro de viaje premium',
   'Comidas no mencionadas',
   'Actividades opcionales',
-  'Bebidas en restaurantes',
-  'Equipaje adicional',
-  'Recargo por habitación individual',
   'Traslados no indicados',
+  'Personalizado',
 ];
+
+const INCLUYE_STANDARD = [
+  { tipo: 'Billete aéreo según itinerario', detalle: 'Equipaje de mano (Carry on)' },
+  { tipo: 'Alojamiento', detalle: '' },
+  { tipo: 'Traslados', detalle: 'Traslados Aeropuerto - Hotel - Aeropuerto' },
+  { tipo: 'Tasas e impuestos aéreos incluidos', detalle: '' },
+];
+
+const NO_INCLUYE_STANDARD = [
+  { tipo: 'Seguro de Viaje', detalle: '' },
+];
+
+const OPCIONES_BILLETE   = ['Equipaje de mano (Carry on)', 'Equipaje en bodega', 'Artículo Personal'];
+const OPCIONES_TRASLADOS = ['Aeropuerto - Hotel - Aeropuerto', 'Aeropuerto - Hotel', 'Hotel - Aeropuerto'];
+const OPCIONES_SEGURO    = ['Urban', 'Tarjeta Celeste 40k'];
+
+function getSecondaryType(tipo) {
+  switch (tipo) {
+    case 'Billete aéreo según itinerario': return 'combo-billete';
+    case 'Alojamiento':                    return 'number';
+    case 'Traslados':                      return 'combo-traslados';
+    case 'Seguro de Viaje':                return 'combo-seguro';
+    case 'Personalizado':                  return 'text';
+    default:                               return null;
+  }
+}
+
+function normalizeItems(arr) {
+  return (arr || []).map((item) =>
+    typeof item === 'string' ? { tipo: 'Personalizado', detalle: item } : item
+  );
+}
+
+/* ── Combobox ── */
+function Combobox({ value, onChange, opciones, placeholder, className }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef(null);
+  const filtered = useMemo(() => {
+    if (!value?.trim()) return opciones.slice(0, 10);
+    const q = value.toLowerCase();
+    return opciones.filter((o) => o.toLowerCase().includes(q)).slice(0, 8);
+  }, [value, opciones]);
+  useEffect(() => {
+    const h = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', h);
+    return () => document.removeEventListener('mousedown', h);
+  }, []);
+  return (
+    <div ref={wrapRef} className={`${styles.comboWrap} ${className || ''}`}>
+      <input type="text" className={styles.comboInput} value={value || ''} autoComplete="off"
+        onChange={(e) => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)} placeholder={placeholder} />
+      {open && filtered.length > 0 && (
+        <ul className={styles.comboDropdown}>
+          {filtered.map((o) => (
+            <li key={o}>
+              <button type="button" className={styles.comboOpcion}
+                onMouseDown={(e) => { e.preventDefault(); onChange(o); setOpen(false); }}>{o}</button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ── ItemRow ── */
+function ItemRow({ item, onChange, onRemove, esRojo, multiDest }) {
+  const secType = getSecondaryType(item.tipo);
+  const handleTipoChange = (v) => onChange({ tipo: v, detalle: '', destino: '' });
+  return (
+    <div className={`${styles.itemRow} ${esRojo ? styles.itemRowRojo : ''}`}>
+      <Combobox value={item.tipo} onChange={handleTipoChange}
+        opciones={esRojo ? OPCIONES_NO_INCLUYE_TIPO : OPCIONES_INCLUYE_TIPO}
+        placeholder="Seleccioná o escribí..." className={styles.comboPrimario} />
+      {secType === 'number' && multiDest && (
+        <input type="number" className={`${styles.comboInput} ${styles.comboInputAngosto}`}
+          value={item.detalle} onChange={(e) => onChange({ ...item, detalle: e.target.value })}
+          placeholder="Noches" min="0" />
+      )}
+      {secType === 'text' && (
+        <div className={styles.comboWrap}>
+          <input type="text" className={styles.comboInput} value={item.detalle}
+            onChange={(e) => onChange({ ...item, detalle: e.target.value })} placeholder="Escribí el detalle..." />
+        </div>
+      )}
+      {secType === 'combo-billete'   && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_BILLETE}   placeholder="Tipo de equipaje..."  />}
+      {secType === 'combo-traslados' && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_TRASLADOS} placeholder="Tipo de traslado..." />}
+      {secType === 'combo-seguro'    && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_SEGURO}    placeholder="Tipo de seguro..."   />}
+      <button type="button" className={styles.itemRemove} onClick={onRemove}><FiX size={12} /></button>
+    </div>
+  );
+}
 
 const CONDICIONES_DEFAULT = `Los paquetes están sujetos a disponibilidad al momento de la reserva. Los precios pueden variar sin previo aviso.
 
@@ -287,15 +367,8 @@ export default function PaqueteForm({
       slug: '',
       descripcion: '',
       resumen: '',
-      precio_adulto: '',
-      precio_nino: '',
-      precio_infante: '',
-      moneda: 'USD',
-      duracion_dias: '',
-      duracion_noches: '',
+
       condiciones: CONDICIONES_DEFAULT,
-      disponible: true,
-      destacado: false,
       etiquetas_ids: [],
       destinos_ids: [],
       ...defaultValues,
@@ -303,8 +376,8 @@ export default function PaqueteForm({
   });
 
   /* ── Dynamic lists for incluye / no_incluye ── */
-  const [incluye, setIncluye] = useState(defaultValues?.incluye || []);
-  const [noIncluye, setNoIncluye] = useState(defaultValues?.no_incluye || []);
+  const [incluye, setIncluye] = useState(normalizeItems(defaultValues?.incluye));
+  const [noIncluye, setNoIncluye] = useState(normalizeItems(defaultValues?.no_incluye));
 
   /* ── Operadores dinámicos ── */
   const [listaOperadores, setListaOperadores] = useState([]);
@@ -365,9 +438,6 @@ export default function PaqueteForm({
     setModalAloj(null);
   };
 
-  const [nuevoIncluye, setNuevoIncluye] = useState('');
-  const [nuevoNoIncluye, setNuevoNoIncluye] = useState('');
-
   /* ── Auto-slug from title ── */
   const [slugManual, setSlugManual] = useState(false);
   const titulo = watch('titulo');
@@ -378,47 +448,35 @@ export default function PaqueteForm({
     }
   }, [titulo, slugManual, setValue]);
 
-  /* ── Handlers for dynamic lists ── */
-  const agregarIncluye = useCallback(() => {
-    const texto = nuevoIncluye.trim();
-    if (!texto) return;
-    setIncluye((prev) => [...prev, texto]);
-    setNuevoIncluye('');
-  }, [nuevoIncluye]);
+  /* ── Handlers for incluye / no_incluye ── */
+  const addItem    = useCallback((setter) => setter((p) => [...p, { tipo: '', detalle: '', destino: '' }]), []);
+  const updateItem = useCallback((setter, i, v) => setter((p) => { const n = [...p]; n[i] = v; return n; }), []);
+  const removeItem = useCallback((setter, i) => setter((p) => p.filter((_, j) => j !== i)), []);
 
-  const eliminarIncluye = (index) => {
-    setIncluye((prev) => prev.filter((_, i) => i !== index));
-  };
+  /* ── Estándar toggles ── */
+  const isIncluyeStandard = incluye.length === INCLUYE_STANDARD.length &&
+    INCLUYE_STANDARD.every((s, i) => incluye[i]?.tipo === s.tipo && incluye[i]?.detalle === s.detalle);
+  const isNoIncluyeStandard = noIncluye.length === NO_INCLUYE_STANDARD.length &&
+    NO_INCLUYE_STANDARD.every((s, i) => noIncluye[i]?.tipo === s.tipo);
 
-  const agregarNoIncluye = useCallback(() => {
-    const texto = nuevoNoIncluye.trim();
-    if (!texto) return;
-    setNoIncluye((prev) => [...prev, texto]);
-    setNuevoNoIncluye('');
-  }, [nuevoNoIncluye]);
-
-  const eliminarNoIncluye = (index) => {
-    setNoIncluye((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const handleKeyDown = (e, agregar) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      agregar();
+  const toggleIncluyeStandard = () => {
+    if (isIncluyeStandard && isNoIncluyeStandard) {
+      setIncluye([]);
+      setNoIncluye([]);
+    } else {
+      setIncluye(INCLUYE_STANDARD.map((i) => ({ ...i })));
+      setNoIncluye(NO_INCLUYE_STANDARD.map((i) => ({ ...i })));
     }
   };
+
 
   /* ── Submit ── */
   const procesarSubmit = (data) => {
     const payload = {
       ...data,
-      precio_adulto: data.precio_adulto ? Number(data.precio_adulto) : null,
-      precio_nino: data.precio_nino ? Number(data.precio_nino) : null,
-      precio_infante: data.precio_infante ? Number(data.precio_infante) : null,
-      duracion_dias: data.duracion_dias ? Number(data.duracion_dias) : null,
-      duracion_noches: data.duracion_noches ? Number(data.duracion_noches) : null,
-      incluye,
-      no_incluye: noIncluye,
+
+      incluye: incluye.filter((i) => i.tipo),
+      no_incluye: noIncluye.filter((i) => i.tipo),
       costos: costos.filter((c) => c.operador && c.sistema && c.tipo).map((c) => ({
         ...c,
         fecha_cotizacion: c.fecha_cotizacion || HOY,
@@ -498,276 +556,60 @@ export default function PaqueteForm({
             rows={5}
           />
         </div>
-      </div>
-
-      {/* ══════════ Seccion 2: Precios ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Precios</h3>
-
-        <div className={styles.filaCuatro}>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="precio_adulto">Precio adulto {alojamientos.length === 0 && '*'}</label>
-            <input
-              id="precio_adulto"
-              type="number"
-              step="0.01"
-              min="0"
-              className={`${styles.input} ${errors.precio_adulto ? styles.inputError : ''}`}
-              {...register('precio_adulto', { required: alojamientos.length === 0 ? 'Obligatorio' : false })}
-              placeholder="0.00"
-            />
-            {errors.precio_adulto && <span className={styles.errorMsg}>{errors.precio_adulto.message}</span>}
-          </div>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="precio_nino">Precio nino</label>
-            <input
-              id="precio_nino"
-              type="number"
-              step="0.01"
-              min="0"
-              className={styles.input}
-              {...register('precio_nino')}
-              placeholder="Opcional"
-            />
-          </div>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="precio_infante">Precio infante</label>
-            <input
-              id="precio_infante"
-              type="number"
-              step="0.01"
-              min="0"
-              className={styles.input}
-              {...register('precio_infante')}
-              placeholder="Opcional"
-            />
-          </div>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="moneda">Moneda</label>
-            <select
-              id="moneda"
-              className={styles.select}
-              {...register('moneda')}
-            >
-              {MONEDAS.map((m) => (
-                <option key={m.value} value={m.value}>{m.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════ Seccion 3: Duracion ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Duracion</h3>
-
-        <div className={styles.filaDos}>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="duracion_dias">Dias</label>
-            <input
-              id="duracion_dias"
-              type="number"
-              min="1"
-              className={styles.input}
-              {...register('duracion_dias')}
-              placeholder="Ej: 7"
-            />
-          </div>
-          <div className={styles.campo}>
-            <label className={styles.label} htmlFor="duracion_noches">Noches</label>
-            <input
-              id="duracion_noches"
-              type="number"
-              min="0"
-              className={styles.input}
-              {...register('duracion_noches')}
-              placeholder="Ej: 6"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════ Seccion 4: Incluye / No incluye ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Incluye / No incluye</h3>
-
-        <div className={styles.filaDos}>
-          {/* Incluye */}
-          <div className={styles.campo}>
-            <label className={styles.label}>Incluye</label>
-            <select
-              className={styles.select}
-              value=""
-              onChange={(e) => {
-                if (e.target.value && !incluye.includes(e.target.value)) {
-                  setIncluye((prev) => [...prev, e.target.value]);
-                }
-              }}
-            >
-              <option value="">+ Opción predefinida...</option>
-              {OPCIONES_INCLUYE.filter((o) => !incluye.includes(o)).map((o) => (
-                <option key={o} value={o}>{o}</option>
-              ))}
-            </select>
-            <div className={styles.agregarWrap}>
-              <input
-                type="text"
-                className={styles.input}
-                value={nuevoIncluye}
-                onChange={(e) => setNuevoIncluye(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, agregarIncluye)}
-                placeholder="O escribí uno personalizado..."
-              />
-              <button type="button" className={styles.botonAgregarItem} onClick={agregarIncluye}>
-                <FiPlus size={14} />
-              </button>
-            </div>
-            <div className={styles.listaItems}>
-              {incluye.map((item, i) => (
-                <div key={i} className={styles.itemChip}>
-                  <span className={styles.itemTexto}>{item}</span>
-                  <button type="button" className={styles.itemEliminar} onClick={() => eliminarIncluye(i)}>
-                    <FiX size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* No incluye */}
-          <div className={styles.campo}>
-            <label className={styles.label}>No incluye</label>
-            <select
-              className={styles.select}
-              value=""
-              onChange={(e) => {
-                if (e.target.value && !noIncluye.includes(e.target.value)) {
-                  setNoIncluye((prev) => [...prev, e.target.value]);
-                }
-              }}
-            >
-              <option value="">+ Opción predefinida...</option>
-              {OPCIONES_NO_INCLUYE.filter((o) => !noIncluye.includes(o)).map((o) => (
-                <option key={o} value={o}>{o}</option>
-              ))}
-            </select>
-            <div className={styles.agregarWrap}>
-              <input
-                type="text"
-                className={styles.input}
-                value={nuevoNoIncluye}
-                onChange={(e) => setNuevoNoIncluye(e.target.value)}
-                onKeyDown={(e) => handleKeyDown(e, agregarNoIncluye)}
-                placeholder="O escribí uno personalizado..."
-              />
-              <button type="button" className={styles.botonAgregarItem} onClick={agregarNoIncluye}>
-                <FiPlus size={14} />
-              </button>
-            </div>
-            <div className={styles.listaItems}>
-              {noIncluye.map((item, i) => (
-                <div key={i} className={`${styles.itemChip} ${styles.itemChipRojo}`}>
-                  <span className={styles.itemTexto}>{item}</span>
-                  <button type="button" className={styles.itemEliminar} onClick={() => eliminarNoIncluye(i)}>
-                    <FiX size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ══════════ Seccion 5: Condiciones ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Condiciones</h3>
 
         <div className={styles.campo}>
-          <textarea
-            id="condiciones"
-            className={styles.textarea}
-            {...register('condiciones')}
-            placeholder="Condiciones generales del paquete, politicas de cancelacion, etc."
-            rows={4}
+          <label className={styles.label}>Destinos</label>
+          <Controller
+            name="destinos_ids"
+            control={control}
+            render={({ field }) => (
+              destinos.length === 0
+                ? <p className={styles.sinDatos}>No hay destinos disponibles.</p>
+                : <DestinoBuscadorForm
+                    destinos={destinos}
+                    selectedIds={field.value || []}
+                    onChange={field.onChange}
+                  />
+            )}
           />
         </div>
       </div>
 
-      {/* ══════════ Seccion 6: Etiquetas ══════════ */}
+      {/* ══════════ Seccion 3: Incluye / No incluye ══════════ */}
       <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Etiquetas</h3>
+        <h3 className={styles.seccionTitulo}>Incluye / No incluye</h3>
 
-        <Controller
-          name="etiquetas_ids"
-          control={control}
-          render={({ field }) => (
-            etiquetas.length === 0
-              ? <p className={styles.sinDatos}>No hay etiquetas disponibles.</p>
-              : <div className={styles.etqGrid}>
-                  {etiquetas.map((categoria) => (
-                    <EtiquetaMultiSelect
-                      key={categoria.id}
-                      categoria={categoria}
-                      selectedIds={field.value || []}
-                      onChange={(ids) => field.onChange(ids)}
-                    />
-                  ))}
-                </div>
-          )}
-        />
-      </div>
+        {/* Incluye */}
+        <div className={styles.incluyeBloque}>
+          <div className={styles.incluyeBloqueHeader}>
+            <p className={styles.incluyeBloqueTitulo}>Incluye</p>
+            <button type="button" className={styles.botonStandard} onClick={toggleIncluyeStandard}>
+              {isIncluyeStandard && isNoIncluyeStandard ? 'Limpiar' : 'Estándar'}
+            </button>
+          </div>
+          <div className={styles.itemList}>
+            {incluye.map((item, i) => (
+              <ItemRow key={i} item={item} onChange={(v) => updateItem(setIncluye, i, v)} onRemove={() => removeItem(setIncluye, i)} esRojo={false} multiDest={destinosIds.length > 1} />
+            ))}
+          </div>
+          <button type="button" className={styles.botonAgregarItem} onClick={() => addItem(setIncluye)}>
+            <FiPlus size={13} /> Agregar
+          </button>
+        </div>
 
-      {/* ══════════ Seccion 7: Destinos ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Destinos</h3>
+        <div className={styles.incluyeLinea} />
 
-        <Controller
-          name="destinos_ids"
-          control={control}
-          render={({ field }) => (
-            destinos.length === 0
-              ? <p className={styles.sinDatos}>No hay destinos disponibles.</p>
-              : <DestinoBuscadorForm
-                  destinos={destinos}
-                  selectedIds={field.value || []}
-                  onChange={field.onChange}
-                />
-          )}
-        />
-      </div>
-
-      {/* ══════════ Seccion 8: Opciones ══════════ */}
-      <div className={styles.seccion}>
-        <h3 className={styles.seccionTitulo}>Opciones</h3>
-
-        <div className={styles.opcionesCompactas}>
-          {[
-            { name: 'disponible', label: 'Disponible', desc: 'Visible en el sitio' },
-            { name: 'destacado',  label: 'Destacado',  desc: 'Aparece en la home' },
-          ].map(({ name, label, desc }) => (
-            <Controller
-              key={name}
-              name={name}
-              control={control}
-              render={({ field }) => (
-                <div className={styles.opcionItem}>
-                  <button
-                    type="button"
-                    role="switch"
-                    aria-checked={field.value}
-                    className={`${styles.toggle} ${field.value ? styles.toggleActivo : ''}`}
-                    onClick={() => field.onChange(!field.value)}
-                  >
-                    <span className={styles.toggleCircle} />
-                  </button>
-                  <div>
-                    <span className={styles.opcionLabel}>{label}</span>
-                    <span className={styles.opcionDesc}>{desc}</span>
-                  </div>
-                </div>
-              )}
-            />
-          ))}
+        {/* No incluye */}
+        <div className={styles.incluyeBloque}>
+          <p className={`${styles.incluyeBloqueTitulo} ${styles.incluyeBloqueTituloRojo}`}>No incluye</p>
+          <div className={styles.itemList}>
+            {noIncluye.map((item, i) => (
+              <ItemRow key={i} item={item} onChange={(v) => updateItem(setNoIncluye, i, v)} onRemove={() => removeItem(setNoIncluye, i)} esRojo multiDest={destinosIds.length > 1} />
+            ))}
+          </div>
+          <button type="button" className={`${styles.botonAgregarItem} ${styles.botonAgregarItemRojo}`} onClick={() => addItem(setNoIncluye)}>
+            <FiPlus size={13} /> Agregar
+          </button>
         </div>
       </div>
 
@@ -958,6 +800,43 @@ export default function PaqueteForm({
           </div>
         </div>
       )}
+
+      {/* ══════════ Etiquetas ══════════ */}
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Etiquetas</h3>
+        <Controller
+          name="etiquetas_ids"
+          control={control}
+          render={({ field }) => (
+            etiquetas.length === 0
+              ? <p className={styles.sinDatos}>No hay etiquetas disponibles.</p>
+              : <div className={styles.etqGrid}>
+                  {etiquetas.map((categoria) => (
+                    <EtiquetaMultiSelect
+                      key={categoria.id}
+                      categoria={categoria}
+                      selectedIds={field.value || []}
+                      onChange={(ids) => field.onChange(ids)}
+                    />
+                  ))}
+                </div>
+          )}
+        />
+      </div>
+
+      {/* ══════════ Condiciones ══════════ */}
+      <div className={styles.seccion}>
+        <h3 className={styles.seccionTitulo}>Condiciones</h3>
+        <div className={styles.campo}>
+          <textarea
+            id="condiciones"
+            className={styles.textarea}
+            {...register('condiciones')}
+            placeholder="Condiciones generales del paquete, politicas de cancelacion, etc."
+            rows={4}
+          />
+        </div>
+      </div>
 
       {/* ══════════ Boton guardar ══════════ */}
       <div className={styles.acciones}>

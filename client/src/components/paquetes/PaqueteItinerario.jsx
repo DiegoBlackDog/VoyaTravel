@@ -1,9 +1,9 @@
+import { urlImagen } from '../../services/paqueteService';
 import styles from './PaqueteItinerario.module.css';
 
 export default function PaqueteItinerario({ itinerarios = [] }) {
   if (!itinerarios.length) return null;
 
-  // Sort by orden, fallback to dia
   const ordenados = [...itinerarios].sort((a, b) => (a.orden ?? a.numero_dia) - (b.orden ?? b.numero_dia));
 
   return (
@@ -22,9 +22,18 @@ export default function PaqueteItinerario({ itinerarios = [] }) {
               <span className={styles.diaLabel}>Día {item.numero_dia}</span>
               <h3 className={styles.diaTitulo}>{item.titulo}</h3>
             </div>
-            {item.descripcion && (
-              <p className={styles.diaDescripcion}>{item.descripcion}</p>
-            )}
+            <div className={styles.diaBody}>
+              {item.descripcion && (
+                <p className={styles.diaDescripcion}>{item.descripcion}</p>
+              )}
+              {item.imagen && (
+                <img
+                  src={urlImagen(item.imagen)}
+                  alt={item.titulo}
+                  className={styles.diaImagen}
+                />
+              )}
+            </div>
           </div>
         </div>
       ))}

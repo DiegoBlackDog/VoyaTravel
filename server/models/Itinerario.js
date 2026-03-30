@@ -32,6 +32,10 @@ const Itinerario = sequelize.define('Itinerario', {
     allowNull: false,
     defaultValue: 0,
   },
+  imagen: {
+    type: DataTypes.STRING(500),
+    allowNull: true,
+  },
 }, {
   tableName: 'itinerario',
   timestamps: false,

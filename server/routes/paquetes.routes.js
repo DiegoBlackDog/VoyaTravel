@@ -1,4 +1,7 @@
 const router = require('express').Router();
+const path = require('path');
+const fs = require('fs');
+const multer = require('multer');
 const { body } = require('express-validator');
 const { validar } = require('../middleware/validacion');
 const { requireAuth } = require('../middleware/auth');
@@ -12,7 +15,22 @@ const {
   actualizar,
   toggleDisponible,
   eliminar,
+  uploadItinerarioImagen,
 } = require('../controllers/paqueteController');
+
+const uploadDir = path.join(__dirname, '../uploads/itinerarios');
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+const imgStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, uploadDir),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.jpg';
+    cb(null, `itin_${Date.now()}${ext}`);
+  },
+});
+const imgUpload = multer({ storage: imgStorage, limits: { fileSize: 8 * 1024 * 1024 } });
+
+// Upload (before /:slug wildcard)
+router.post('/upload-itinerario-imagen', requireAuth, requireMinRole('editor'), imgUpload.single('imagen'), uploadItinerarioImagen);
 
 // Public
 router.get('/', listar);

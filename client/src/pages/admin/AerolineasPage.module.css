@@ -32,6 +32,10 @@
   background: #fff;
 }
 
+.filaSeleccionada {
+  background: #fef9ec;
+}
+
 .imgPlaceholder {
   width: 80px;
   height: 56px;

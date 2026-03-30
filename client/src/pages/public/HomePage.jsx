@@ -78,13 +78,13 @@ import styles from './HomePage.module.css';
 /* ------------------------------------------------------------------ */
 
 const TIPOS_VIAJE = [
-  { label: 'Relax', emoji: '🏖️', experiencia: 'relax', bg: '#f0f9f4' },
-  { label: 'Aventura', emoji: '🧗', experiencia: 'aventura', bg: '#fff5f3' },
-  { label: 'Circuitos', emoji: '🗺️', experiencia: 'circuitos', bg: '#fffbf0' },
-  { label: 'Grupal', emoji: '👥', experiencia: 'grupal', bg: '#f0f4ff' },
-  { label: 'Eventos', emoji: '🎉', experiencia: 'eventos', bg: '#fdf0ff' },
-  { label: 'Terrestre', emoji: '🚌', experiencia: 'terrestre', bg: '#f0f8ff' },
-  { label: 'Exótico', emoji: '🌴', experiencia: 'exotico', bg: '#fff0f7' },
+  { label: 'Relax',     emoji: '🏖️', experiencia: 'tipo-de-experiencia-relax',      bg: '#f0f9f4' },
+  { label: 'Aventura',  emoji: '🧗', experiencia: 'tipo-de-experiencia-aventura',   bg: '#fff5f3' },
+  { label: 'Circuitos', emoji: '🗺️', experiencia: 'tipo-de-experiencia-circuitos',  bg: '#fffbf0' },
+  { label: 'Grupal',    emoji: '👥', experiencia: 'tipo-de-experiencia-grupal',     bg: '#f0f4ff' },
+  { label: 'Eventos',   emoji: '🎉', experiencia: 'tipo-de-experiencia-eventos',    bg: '#fdf0ff' },
+  { label: 'Terrestre', emoji: '🚌', experiencia: 'tipo-de-experiencia-terrestre',  bg: '#f0f8ff' },
+  { label: 'Exótico',   emoji: '🌴', experiencia: 'tipo-de-experiencia-exotico',    bg: '#fff0f7' },
 ];
 
 const POR_QUE_VOYA = [

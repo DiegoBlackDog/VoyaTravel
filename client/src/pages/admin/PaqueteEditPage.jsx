@@ -16,6 +16,12 @@ export default function PaqueteEditPage() {
   const [etiquetas, setEtiquetas] = useState([]);
   const [destinos, setDestinos] = useState([]);
   const [itinerario, setItinerario] = useState([]);
+  const [disponible, setDisponible] = useState(true);
+  const [destacado, setDestacado] = useState(false);
+  const [precioAdulto, setPrecioAdulto] = useState('');
+  const [moneda, setMoneda] = useState('USD');
+  const [duracionDias, setDuracionDias] = useState('');
+  const [duracionNoches, setDuracionNoches] = useState('');
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -47,6 +53,12 @@ export default function PaqueteEditPage() {
       const paq = data.paquete || data;
 
       setPaquete(paq);
+      setDisponible(paq.disponible !== false);
+      setDestacado(paq.destacado === true);
+      setPrecioAdulto(paq.precio_adulto ?? '');
+      setMoneda(paq.moneda || 'USD');
+      setDuracionDias(paq.duracion_dias ?? '');
+      setDuracionNoches(paq.duracion_noches ?? '');
       setItinerario(
         (paq.itinerario || [])
           .sort((a, b) => (a.orden ?? a.numero_dia ?? 0) - (b.orden ?? b.numero_dia ?? 0))
@@ -88,10 +100,17 @@ export default function PaqueteEditPage() {
     try {
       const payload = {
         ...formData,
+        disponible,
+        destacado,
+        precio_adulto: precioAdulto ? Number(precioAdulto) : null,
+        moneda,
+        duracion_dias: duracionDias ? Number(duracionDias) : null,
+        duracion_noches: duracionNoches ? Number(duracionNoches) : null,
         itinerario: itinerario.map((d, i) => ({
           numero_dia: i + 1,
           titulo: d.titulo,
           descripcion: d.descripcion,
+          imagen: d.imagen || null,
           orden: i + 1,
         })),
       };
@@ -99,6 +118,7 @@ export default function PaqueteEditPage() {
       if (esEdicion) {
         await api.put(`/paquetes/${id}`, payload);
         setExito('Paquete actualizado correctamente.');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         refrescarPaquete();
       } else {
         const { data } = await api.post('/paquetes', payload);
@@ -128,15 +148,9 @@ export default function PaqueteEditPage() {
       slug: paquete.slug || '',
       descripcion: paquete.descripcion || '',
       resumen: paquete.resumen || '',
-      precio_adulto: paquete.precio_adulto ?? '',
-      precio_nino: paquete.precio_nino ?? '',
-      precio_infante: paquete.precio_infante ?? '',
-      moneda: paquete.moneda || 'USD',
       duracion_dias: paquete.duracion_dias ?? '',
       duracion_noches: paquete.duracion_noches ?? '',
       condiciones: paquete.condiciones || '',
-      disponible: paquete.disponible !== false,
-      destacado: paquete.destacado === true,
       incluye: paquete.incluye || [],
       no_incluye: paquete.no_incluye || [],
       etiquetas_ids: (paquete.etiquetas || []).map((e) => e.id),
@@ -212,9 +226,106 @@ export default function PaqueteEditPage() {
             onUpdate={refrescarPaquete}
           />
 
+          {/* Duración */}
+          <div className={styles.opcionesCard}>
+            <div className={styles.duracionHeader}>
+              <h3 className={styles.opcionesTitulo} style={{ margin: 0 }}>Duración</h3>
+              <button
+                type="button"
+                className={styles.botonStandard}
+                onClick={() => {
+                  const isDuracionStandard = String(duracionDias) === '8' && String(duracionNoches) === '7';
+                  if (isDuracionStandard) { setDuracionDias(''); setDuracionNoches(''); }
+                  else { setDuracionDias(8); setDuracionNoches(7); }
+                }}
+              >
+                {String(duracionDias) === '8' && String(duracionNoches) === '7' ? 'Limpiar' : 'Estándar'}
+              </button>
+            </div>
+            <div className={styles.preciosGrid} style={{ marginTop: 12 }}>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Días</label>
+                <input
+                  type="number"
+                  min="1"
+                  className={styles.preciosInput}
+                  value={duracionDias}
+                  onChange={(e) => setDuracionDias(e.target.value)}
+                  placeholder="Ej: 8"
+                />
+              </div>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Noches</label>
+                <input
+                  type="number"
+                  min="0"
+                  className={styles.preciosInput}
+                  value={duracionNoches}
+                  onChange={(e) => setDuracionNoches(e.target.value)}
+                  placeholder="Ej: 7"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Precios */}
+          <div className={styles.opcionesCard}>
+            <h3 className={styles.opcionesTitulo}>Precio</h3>
+            <div className={styles.preciosGrid}>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Precio adulto</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  className={styles.preciosInput}
+                  value={precioAdulto}
+                  onChange={(e) => setPrecioAdulto(e.target.value)}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Moneda</label>
+                <select className={styles.preciosSelect} value={moneda} onChange={(e) => setMoneda(e.target.value)}>
+                  <option value="USD">USD</option>
+                  <option value="UYU">UYU</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Opciones */}
+          <div className={styles.opcionesCard}>
+            <h3 className={styles.opcionesTitulo}>Opciones</h3>
+            <div className={styles.opcionesLista}>
+              {[
+                { value: disponible, setter: setDisponible, label: 'Disponible', desc: 'Visible en el sitio' },
+                { value: destacado,  setter: setDestacado,  label: 'Destacado',  desc: 'Aparece en la home' },
+              ].map(({ value, setter, label, desc }) => (
+                <div key={label} className={styles.opcionItem}>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={value}
+                    className={`${styles.toggle} ${value ? styles.toggleActivo : ''}`}
+                    onClick={() => setter(!value)}
+                  >
+                    <span className={styles.toggleCircle} />
+                  </button>
+                  <div>
+                    <span className={styles.opcionLabel}>{label}</span>
+                    <span className={styles.opcionDesc}>{desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <ItinerarioEditor
             value={itinerario}
             onChange={setItinerario}
+            paqueteId={paquete?.id || null}
           />
         </div>
       </div>

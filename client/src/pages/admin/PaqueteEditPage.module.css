@@ -97,6 +97,137 @@
   top: var(--espaciado-xl);
 }
 
+/* ── Opciones card (side column) ── */
+.opcionesCard {
+  background: #fff;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  padding: var(--espaciado-lg);
+}
+
+.opcionesTitulo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  margin: 0 0 var(--espaciado-md);
+}
+
+.duracionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.botonStandard {
+  font-family: var(--font-cuerpo);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-verde);
+  background: transparent;
+  border: 1.5px solid var(--color-verde);
+  border-radius: 20px;
+  padding: 3px 12px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.botonStandard:hover {
+  background: var(--color-verde);
+  color: #fff;
+}
+
+.preciosGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--espaciado-sm);
+}
+
+.preciosCampo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.preciosLabel {
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-negro);
+}
+
+.preciosInput,
+.preciosSelect {
+  padding: 8px 10px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  color: var(--color-negro);
+  background: #fff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.preciosInput:focus,
+.preciosSelect:focus { border-color: var(--color-verde); }
+
+.opcionesLista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaciado-md);
+}
+
+.opcionItem {
+  display: flex;
+  align-items: center;
+  gap: var(--espaciado-sm);
+}
+
+.opcionLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  display: block;
+}
+
+.opcionDesc {
+  font-size: 0.75rem;
+  color: var(--color-gris);
+  display: block;
+}
+
+.toggle {
+  width: 44px;
+  height: 24px;
+  border-radius: var(--radio-completo);
+  border: none;
+  background: var(--color-borde);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.toggleActivo { background: var(--color-verde); }
+
+.toggleCircle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggleActivo .toggleCircle { transform: translateX(20px); }
+
 /* ── Loading ── */
 .cargando {
   display: flex;

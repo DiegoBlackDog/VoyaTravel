@@ -19,6 +19,8 @@ export default function AerolineasPage() {
   const [modal, setModal]             = useState(null);
   const [guardando, setGuardando]     = useState(false);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [seleccionados, setSeleccionados] = useState(new Set());
   const [importando, setImportando]   = useState(false);
   const [imgPreview, setImgPreview]   = useState(null);
   const [imgFile, setImgFile]         = useState(null);
@@ -30,6 +32,7 @@ export default function AerolineasPage() {
     try {
       const { data } = await api.get('/aerolineas', { params: busqueda ? { busqueda } : {} });
       setAerolineas(data.aerolineas || []);
+      setSeleccionados(new Set());
     } catch { setError('No se pudo cargar.'); }
     finally { setCargando(false); }
   }, [busqueda]);
@@ -82,6 +85,16 @@ export default function AerolineasPage() {
     } catch (err) { setError(err.response?.data?.error || 'Error.'); setConfirmEliminar(null); }
   };
 
+  const handleEliminarBulk = async () => {
+    try {
+      const ids = Array.from(seleccionados);
+      await api.delete('/aerolineas/bulk', { data: { ids } });
+      setConfirmBulk(false);
+      setExito(`${ids.length} aerolínea${ids.length > 1 ? 's' : ''} eliminada${ids.length > 1 ? 's' : ''}.`);
+      cargar();
+    } catch (err) { setError(err.response?.data?.error || 'Error al eliminar.'); setConfirmBulk(false); }
+  };
+
   const handleImportar = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -95,6 +108,24 @@ export default function AerolineasPage() {
     finally { setImportando(false); e.target.value = ''; }
   };
 
+  const toggleSeleccion = (id) => {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleTodos = () => {
+    if (seleccionados.size === aerolineas.length) {
+      setSeleccionados(new Set());
+    } else {
+      setSeleccionados(new Set(aerolineas.map((a) => a.id)));
+    }
+  };
+
+  const todosSeleccionados = aerolineas.length > 0 && seleccionados.size === aerolineas.length;
+
   return (
     <div className={styles.pagina}>
       <div className={styles.encabezado}>
@@ -103,6 +134,11 @@ export default function AerolineasPage() {
           <p className={styles.subtitulo}>{aerolineas.length} registros</p>
         </div>
         <div className={styles.headerAcciones}>
+          {seleccionados.size > 0 && (
+            <button className={styles.botonPeligro} onClick={() => setConfirmBulk(true)}>
+              <FiTrash2 size={14} /> Eliminar ({seleccionados.size})
+            </button>
+          )}
           <button className={styles.botonSecundario} onClick={cargar} disabled={cargando}>
             <FiRefreshCw size={14} /> Recargar
           </button>
@@ -152,6 +188,9 @@ export default function AerolineasPage() {
           <table className={styles.tabla}>
             <thead>
               <tr>
+                <th style={{ width: 36 }}>
+                  <input type="checkbox" checked={todosSeleccionados} onChange={toggleTodos} />
+                </th>
                 <th>Logo</th>
                 <th>Nombre</th>
                 <th>IATA</th>
@@ -162,7 +201,10 @@ export default function AerolineasPage() {
             </thead>
             <tbody>
               {aerolineas.map((a) => (
-                <tr key={a.id}>
+                <tr key={a.id} className={seleccionados.has(a.id) ? propios.filaSeleccionada : ''}>
+                  <td>
+                    <input type="checkbox" checked={seleccionados.has(a.id)} onChange={() => toggleSeleccion(a.id)} />
+                  </td>
                   <td>
                     {a.imagen
                       ? <img src={`${API_URL}${a.imagen}`} alt={a.nombre} className={propios.logo} />
@@ -235,6 +277,7 @@ export default function AerolineasPage() {
         </div>
       )}
 
+      {/* Confirm eliminar uno */}
       {confirmEliminar && (
         <div className={styles.overlay} onClick={() => setConfirmEliminar(null)}>
           <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
@@ -243,6 +286,20 @@ export default function AerolineasPage() {
             <div className={styles.confirmAcciones}>
               <button className={styles.botonSecundario} onClick={() => setConfirmEliminar(null)}>Cancelar</button>
               <button className={styles.botonPeligro} onClick={handleEliminar}><FiTrash2 size={14} /> Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm eliminar bulk */}
+      {confirmBulk && (
+        <div className={styles.overlay} onClick={() => setConfirmBulk(false)}>
+          <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+            <h3>Eliminar aerolíneas</h3>
+            <p>¿Eliminar <strong>{seleccionados.size}</strong> aerolínea{seleccionados.size > 1 ? 's' : ''}?</p>
+            <div className={styles.confirmAcciones}>
+              <button className={styles.botonSecundario} onClick={() => setConfirmBulk(false)}>Cancelar</button>
+              <button className={styles.botonPeligro} onClick={handleEliminarBulk}><FiTrash2 size={14} /> Eliminar</button>
             </div>
           </div>
         </div>

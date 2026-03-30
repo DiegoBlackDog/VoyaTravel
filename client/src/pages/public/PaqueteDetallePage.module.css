@@ -223,9 +223,9 @@
 /* ------------------------------------------------------------------ */
 
 .incluyeGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .incluyeColumna {
@@ -643,11 +643,6 @@
   .sidebar {
     position: static;
     order: -1;
-  }
-
-  .incluyeGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
   }
 
   .skeletonContenido {

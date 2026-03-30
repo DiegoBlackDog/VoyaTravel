@@ -193,6 +193,54 @@
   border-color: var(--color-verde);
 }
 
+/* ── Imagen por día ── */
+.botonImagen {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1.5px dashed var(--color-borde);
+  border-radius: var(--radio-md);
+  background: #fafafa;
+  color: var(--color-gris);
+  font-family: var(--font-cuerpo);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.botonImagen:hover { border-color: var(--color-verde); color: var(--color-verde); }
+
+.imgPreviewWrap {
+  position: relative;
+  display: inline-block;
+}
+
+.imgPreview {
+  max-width: 100%;
+  max-height: 160px;
+  border-radius: var(--radio-md);
+  display: block;
+  object-fit: cover;
+}
+
+.imgRemove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.imgRemove:hover { background: #dc2626; }
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .contenedor {

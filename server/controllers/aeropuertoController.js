@@ -67,6 +67,17 @@ exports.eliminar = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+exports.eliminarBulk = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0)
+      return res.status(400).json({ error: 'Se requiere un array de ids.' });
+    const { Op } = require('sequelize');
+    const eliminados = await Aeropuerto.destroy({ where: { id: { [Op.in]: ids } } });
+    res.json({ eliminados });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 exports.importarExcel = async (req, res) => {
   try {
     const XLSX = require('xlsx');

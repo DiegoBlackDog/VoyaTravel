@@ -14,9 +14,11 @@ export default function AeropuertosPage() {
   const [error, setError]         = useState('');
   const [exito, setExito]         = useState('');
   const [busqueda, setBusqueda]   = useState('');
-  const [modal, setModal]         = useState(null); // null | { data, esEdicion }
+  const [modal, setModal]         = useState(null);
   const [guardando, setGuardando] = useState(false);
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [seleccionados, setSeleccionados] = useState(new Set());
   const [importando, setImportando] = useState(false);
   const fileRef = useRef(null);
 
@@ -25,6 +27,7 @@ export default function AeropuertosPage() {
     try {
       const { data } = await api.get('/aeropuertos', { params: busqueda ? { busqueda } : {} });
       setAeropuertos(data.aeropuertos || []);
+      setSeleccionados(new Set());
     } catch { setError('No se pudo cargar.'); }
     finally { setCargando(false); }
   }, [busqueda]);
@@ -62,6 +65,16 @@ export default function AeropuertosPage() {
     } catch (err) { setError(err.response?.data?.error || 'Error.'); setConfirmEliminar(null); }
   };
 
+  const handleEliminarBulk = async () => {
+    try {
+      const ids = Array.from(seleccionados);
+      await api.delete('/aeropuertos/bulk', { data: { ids } });
+      setConfirmBulk(false);
+      setExito(`${ids.length} aeropuerto${ids.length > 1 ? 's' : ''} eliminado${ids.length > 1 ? 's' : ''}.`);
+      cargar();
+    } catch (err) { setError(err.response?.data?.error || 'Error al eliminar.'); setConfirmBulk(false); }
+  };
+
   const handleImportar = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -75,6 +88,24 @@ export default function AeropuertosPage() {
     finally { setImportando(false); e.target.value = ''; }
   };
 
+  const toggleSeleccion = (id) => {
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleTodos = () => {
+    if (seleccionados.size === aeropuertos.length) {
+      setSeleccionados(new Set());
+    } else {
+      setSeleccionados(new Set(aeropuertos.map((a) => a.id)));
+    }
+  };
+
+  const todosSeleccionados = aeropuertos.length > 0 && seleccionados.size === aeropuertos.length;
+
   return (
     <div className={styles.pagina}>
       <div className={styles.encabezado}>
@@ -83,6 +114,11 @@ export default function AeropuertosPage() {
           <p className={styles.subtitulo}>{aeropuertos.length} registros</p>
         </div>
         <div className={styles.headerAcciones}>
+          {seleccionados.size > 0 && (
+            <button className={styles.botonPeligro} onClick={() => setConfirmBulk(true)}>
+              <FiTrash2 size={14} /> Eliminar ({seleccionados.size})
+            </button>
+          )}
           <button className={styles.botonSecundario} onClick={cargar} disabled={cargando}>
             <FiRefreshCw size={14} /> Recargar
           </button>
@@ -132,6 +168,9 @@ export default function AeropuertosPage() {
           <table className={styles.tabla}>
             <thead>
               <tr>
+                <th style={{ width: 36 }}>
+                  <input type="checkbox" checked={todosSeleccionados} onChange={toggleTodos} />
+                </th>
                 <th>Nombre</th>
                 <th>Ciudad</th>
                 <th>País</th>
@@ -143,6 +182,9 @@ export default function AeropuertosPage() {
             <tbody>
               {aeropuertos.map((a) => (
                 <tr key={a.id}>
+                  <td>
+                    <input type="checkbox" checked={seleccionados.has(a.id)} onChange={() => toggleSeleccion(a.id)} />
+                  </td>
                   <td>{a.nombre}</td>
                   <td>{a.ciudad || '—'}</td>
                   <td>{a.pais   || '—'}</td>
@@ -199,7 +241,7 @@ export default function AeropuertosPage() {
         </div>
       )}
 
-      {/* Confirm eliminar */}
+      {/* Confirm eliminar uno */}
       {confirmEliminar && (
         <div className={styles.overlay} onClick={() => setConfirmEliminar(null)}>
           <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
@@ -208,6 +250,20 @@ export default function AeropuertosPage() {
             <div className={styles.confirmAcciones}>
               <button className={styles.botonSecundario} onClick={() => setConfirmEliminar(null)}>Cancelar</button>
               <button className={styles.botonPeligro} onClick={handleEliminar}><FiTrash2 size={14} /> Eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm eliminar bulk */}
+      {confirmBulk && (
+        <div className={styles.overlay} onClick={() => setConfirmBulk(false)}>
+          <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+            <h3>Eliminar aeropuertos</h3>
+            <p>¿Eliminar <strong>{seleccionados.size}</strong> aeropuerto{seleccionados.size > 1 ? 's' : ''}?</p>
+            <div className={styles.confirmAcciones}>
+              <button className={styles.botonSecundario} onClick={() => setConfirmBulk(false)}>Cancelar</button>
+              <button className={styles.botonPeligro} onClick={handleEliminarBulk}><FiTrash2 size={14} /> Eliminar</button>
             </div>
           </div>
         </div>

@@ -25,6 +25,7 @@ router.get('/',       ...auth, ctrl.listar);
 router.get('/:id',    ...auth, ctrl.obtenerPorId);
 router.post('/',      ...auth, imgUpload.single('imagen'), ctrl.crear);
 router.put('/:id',    ...auth, imgUpload.single('imagen'), ctrl.actualizar);
+router.delete('/bulk', ...auth, ctrl.eliminarBulk);
 router.delete('/:id', ...auth, ctrl.eliminar);
 router.post('/importar/excel', ...auth, memUpload.single('archivo'), ctrl.importarExcel);
 

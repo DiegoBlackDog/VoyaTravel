@@ -82,6 +82,24 @@ exports.eliminar = async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 
+exports.eliminarBulk = async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0)
+      return res.status(400).json({ error: 'Se requiere un array de ids.' });
+
+    const aerolineas = await Aerolinea.findAll({ where: { id: { [Op.in]: ids } } });
+    for (const a of aerolineas) {
+      if (a.imagen) {
+        const filePath = path.join(__dirname, '../', a.imagen);
+        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      }
+      await a.destroy();
+    }
+    res.json({ eliminados: aerolineas.length });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
 exports.importarExcel = async (req, res) => {
   try {
     const XLSX = require('xlsx');

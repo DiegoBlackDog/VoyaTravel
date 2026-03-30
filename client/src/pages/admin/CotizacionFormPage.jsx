@@ -31,7 +31,7 @@ const NO_INCLUYE_STANDARD = [
   { tipo: 'Seguro de Viaje', detalle: '', destino: '' },
 ];
 const OPCIONES_BILLETE   = ['Equipaje de mano (Carry on)', 'Equipaje en bodega', 'Artículo Personal'];
-const OPCIONES_TRASLADOS = ['Traslados Aeropuerto - Hotel - Aeropuerto', 'Traslados Aeropuerto - Hotel', 'Traslados Hotel - Aeropuerto'];
+const OPCIONES_TRASLADOS = ['Aeropuerto - Hotel - Aeropuerto', 'Aeropuerto - Hotel', 'Hotel - Aeropuerto'];
 const OPCIONES_SEGURO    = ['Urban', 'Tarjeta Celeste 40k'];
 
 const getSecondaryType = (tipo) => {
@@ -465,6 +465,22 @@ export default function CotizacionFormPage() {
   const updateItem = useCallback((setter, i, v) => setter((p) => { const n = [...p]; n[i] = v; return n; }), []);
   const removeItem = useCallback((setter, i) => setter((p) => p.filter((_, j) => j !== i)), []);
 
+  /* ── Estándar toggles ── */
+  const isDuracionStandard = String(form.duracion_dias) === '8' && String(form.duracion_noches) === '7';
+  const toggleDuracionStandard = () => {
+    if (isDuracionStandard) { setField('duracion_dias', ''); setField('duracion_noches', ''); }
+    else { setField('duracion_dias', 8); setField('duracion_noches', 7); }
+  };
+
+  const isIncluyeStandard = incluye.length === INCLUYE_STANDARD.length &&
+    INCLUYE_STANDARD.every((s, i) => incluye[i]?.tipo === s.tipo && incluye[i]?.detalle === s.detalle);
+  const isNoIncluyeStandard = noIncluye.length === NO_INCLUYE_STANDARD.length &&
+    NO_INCLUYE_STANDARD.every((s, i) => noIncluye[i]?.tipo === s.tipo);
+  const toggleIncluyeStandard = () => {
+    if (isIncluyeStandard && isNoIncluyeStandard) { setIncluye([]); setNoIncluye([]); }
+    else { setIncluye(INCLUYE_STANDARD.map((i) => ({ ...i }))); setNoIncluye(NO_INCLUYE_STANDARD.map((i) => ({ ...i }))); }
+  };
+
   /* ── Alojamiento modal ── */
   const abrirAloj = (index = null) => {
     if (index !== null) {
@@ -522,6 +538,7 @@ export default function CotizacionFormPage() {
     if (destinosSeleccionados.length === 0) {
       setError('Debés seleccionar al menos 1 destino.');
       setGuardando(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -529,6 +546,7 @@ export default function CotizacionFormPage() {
     if (alojamientos.length === 0) {
       setError('Debés agregar al menos 1 alojamiento.');
       setGuardando(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -540,6 +558,7 @@ export default function CotizacionFormPage() {
       if (totalNochesIncluye > Number(form.duracion_noches)) {
         setError(`La suma de noches en Alojamiento (${totalNochesIncluye}) supera la duración total (${form.duracion_noches} noches).`);
         setGuardando(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
     }
@@ -586,6 +605,7 @@ export default function CotizacionFormPage() {
         await api.put(`/cotizaciones/${id}`, payload);
         setExito('Cotización guardada.');
         setTimeout(() => setExito(''), 3000);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         const { data } = await api.post('/cotizaciones', payload);
         const newId = data?.cotizacion?.id;
@@ -593,6 +613,7 @@ export default function CotizacionFormPage() {
       }
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Error al guardar.');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setGuardando(false);
     }
@@ -663,8 +684,8 @@ export default function CotizacionFormPage() {
         <div className={styles.seccion}>
           <div className={styles.seccionTituloFila}>
             <p className={styles.seccionTitulo}>Viaje</p>
-            <button type="button" className={styles.botonStandard} onClick={() => { setField('duracion_dias', 8); setField('duracion_noches', 7); }}>
-              Estándar
+            <button type="button" className={styles.botonStandard} onClick={toggleDuracionStandard}>
+              {isDuracionStandard ? 'Limpiar' : 'Estándar'}
             </button>
           </div>
           <div className={styles.fila}>
@@ -696,8 +717,8 @@ export default function CotizacionFormPage() {
           <div className={styles.incluyeBloque}>
             <div className={styles.incluyeBloqueHeader}>
               <p className={styles.incluyeBloqueTitulo}>Incluye</p>
-              <button type="button" className={styles.botonStandard} onClick={() => { setIncluye(INCLUYE_STANDARD.map((i) => ({ ...i }))); setNoIncluye(NO_INCLUYE_STANDARD.map((i) => ({ ...i }))); }}>
-                Estándar
+              <button type="button" className={styles.botonStandard} onClick={toggleIncluyeStandard}>
+                {isIncluyeStandard && isNoIncluyeStandard ? 'Limpiar' : 'Estándar'}
               </button>
             </div>
             <div className={styles.itemList}>

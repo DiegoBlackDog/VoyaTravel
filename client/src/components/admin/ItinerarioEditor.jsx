@@ -1,59 +1,57 @@
-import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiMapPin } from 'react-icons/fi';
+import { useRef } from 'react';
+import { FiPlus, FiTrash2, FiChevronUp, FiChevronDown, FiMapPin, FiImage, FiX } from 'react-icons/fi';
+import api from '../../services/api';
 import styles from './ItinerarioEditor.module.css';
 
-export default function ItinerarioEditor({ value = [], onChange }) {
-  const dias = Array.isArray(value) ? value : [];
+const API_BASE = import.meta.env.DEV ? 'http://localhost:4000' : '';
 
-  const actualizar = (nuevosDias) => {
-    onChange?.(nuevosDias);
-  };
+export default function ItinerarioEditor({ value = [], onChange, paqueteId = null }) {
+  const dias = Array.isArray(value) ? value : [];
+  const fileRefs = useRef({});
+
+  const actualizar = (nuevosDias) => onChange?.(nuevosDias);
 
   const agregarDia = () => {
     actualizar([
       ...dias,
-      {
-        numero_dia: dias.length + 1,
-        titulo: '',
-        descripcion: '',
-        orden: dias.length + 1,
-      },
+      { numero_dia: dias.length + 1, titulo: '', descripcion: '', imagen: null, orden: dias.length + 1 },
     ]);
   };
 
   const eliminarDia = (index) => {
-    const nuevosDias = dias
-      .filter((_, i) => i !== index)
-      .map((d, i) => ({
-        ...d,
-        numero_dia: i + 1,
-        orden: i + 1,
-      }));
-    actualizar(nuevosDias);
+    actualizar(
+      dias.filter((_, i) => i !== index)
+           .map((d, i) => ({ ...d, numero_dia: i + 1, orden: i + 1 }))
+    );
   };
 
   const cambiarCampo = (index, campo, valor) => {
-    const nuevosDias = dias.map((d, i) =>
-      i === index ? { ...d, [campo]: valor } : d
-    );
-    actualizar(nuevosDias);
+    actualizar(dias.map((d, i) => (i === index ? { ...d, [campo]: valor } : d)));
   };
 
   const moverArriba = (index) => {
     if (index === 0) return;
-    const nuevosDias = [...dias];
-    [nuevosDias[index - 1], nuevosDias[index]] = [nuevosDias[index], nuevosDias[index - 1]];
-    actualizar(
-      nuevosDias.map((d, i) => ({ ...d, numero_dia: i + 1, orden: i + 1 }))
-    );
+    const arr = [...dias];
+    [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+    actualizar(arr.map((d, i) => ({ ...d, numero_dia: i + 1, orden: i + 1 })));
   };
 
   const moverAbajo = (index) => {
     if (index >= dias.length - 1) return;
-    const nuevosDias = [...dias];
-    [nuevosDias[index], nuevosDias[index + 1]] = [nuevosDias[index + 1], nuevosDias[index]];
-    actualizar(
-      nuevosDias.map((d, i) => ({ ...d, numero_dia: i + 1, orden: i + 1 }))
-    );
+    const arr = [...dias];
+    [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+    actualizar(arr.map((d, i) => ({ ...d, numero_dia: i + 1, orden: i + 1 })));
+  };
+
+  const subirImagen = async (index, file) => {
+    const fd = new FormData();
+    fd.append('imagen', file);
+    try {
+      const { data } = await api.post('/paquetes/upload-itinerario-imagen', fd);
+      cambiarCampo(index, 'imagen', data.url);
+    } catch {
+      // silent fail
+    }
   };
 
   return (
@@ -63,11 +61,7 @@ export default function ItinerarioEditor({ value = [], onChange }) {
           <FiMapPin size={18} />
           Itinerario
         </h3>
-        <button
-          type="button"
-          className={styles.botonAgregar}
-          onClick={agregarDia}
-        >
+        <button type="button" className={styles.botonAgregar} onClick={agregarDia}>
           <FiPlus size={15} />
           Agregar dia
         </button>
@@ -85,30 +79,13 @@ export default function ItinerarioEditor({ value = [], onChange }) {
             <div className={styles.diaHeader}>
               <span className={styles.diaNumero}>Dia {dia.numero_dia}</span>
               <div className={styles.diaAcciones}>
-                <button
-                  type="button"
-                  className={styles.botonMover}
-                  onClick={() => moverArriba(index)}
-                  disabled={index === 0}
-                  title="Mover arriba"
-                >
+                <button type="button" className={styles.botonMover} onClick={() => moverArriba(index)} disabled={index === 0} title="Mover arriba">
                   <FiChevronUp size={16} />
                 </button>
-                <button
-                  type="button"
-                  className={styles.botonMover}
-                  onClick={() => moverAbajo(index)}
-                  disabled={index >= dias.length - 1}
-                  title="Mover abajo"
-                >
+                <button type="button" className={styles.botonMover} onClick={() => moverAbajo(index)} disabled={index >= dias.length - 1} title="Mover abajo">
                   <FiChevronDown size={16} />
                 </button>
-                <button
-                  type="button"
-                  className={styles.botonEliminar}
-                  onClick={() => eliminarDia(index)}
-                  title="Eliminar dia"
-                >
+                <button type="button" className={styles.botonEliminar} onClick={() => eliminarDia(index)} title="Eliminar dia">
                   <FiTrash2 size={14} />
                 </button>
               </div>
@@ -134,6 +111,35 @@ export default function ItinerarioEditor({ value = [], onChange }) {
                   placeholder="Describe las actividades del dia..."
                   rows={3}
                 />
+              </div>
+
+              {/* Imagen del dia */}
+              <div className={styles.campo}>
+                {dia.imagen ? (
+                  <div className={styles.imgPreviewWrap}>
+                    <img src={`${API_BASE}${dia.imagen}`} alt={`Dia ${dia.numero_dia}`} className={styles.imgPreview} />
+                    <button type="button" className={styles.imgRemove} onClick={() => cambiarCampo(index, 'imagen', null)} title="Quitar imagen">
+                      <FiX size={13} />
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      ref={(el) => { fileRefs.current[index] = el; }}
+                      type="file"
+                      accept="image/*"
+                      style={{ display: 'none' }}
+                      onChange={(e) => { if (e.target.files[0]) subirImagen(index, e.target.files[0]); }}
+                    />
+                    <button
+                      type="button"
+                      className={styles.botonImagen}
+                      onClick={() => fileRefs.current[index]?.click()}
+                    >
+                      <FiImage size={13} /> Agregar imagen del día
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
