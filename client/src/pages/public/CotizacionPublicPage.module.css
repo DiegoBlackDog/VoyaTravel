@@ -267,6 +267,30 @@
 
 .pnrTabla tbody tr:nth-child(even) td { background: #f7f5f2; }
 
+.pnrAerolineaCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.pnrLogoImg {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.pnrCardLogoImg {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  flex-shrink: 0;
+  border-radius: 6px;
+  background: #f5f5f5;
+}
+
 .pnrVuelo {
   font-weight: 700;
   color: var(--color-verde);

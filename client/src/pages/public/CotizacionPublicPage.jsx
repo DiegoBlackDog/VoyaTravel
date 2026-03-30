@@ -11,6 +11,7 @@ import {
 import { FiExternalLink } from 'react-icons/fi';
 import api from '../../services/api';
 import { parsePnr, formatSegment } from '../../utils/pnrParser';
+import { getAirlineLogo } from '../../utils/airlineLogos';
 import styles from './CotizacionPublicPage.module.css';
 
 /* ── Constants ── */
@@ -226,7 +227,19 @@ export default function CotizacionPublicPage() {
                     <tbody>
                       {segments.map((s, i) => (
                         <tr key={i}>
-                          <td>{s.airline}</td>
+                          <td>
+                            <div className={styles.pnrAerolineaCell}>
+                              {getAirlineLogo(s.airlineCode) && (
+                                <img
+                                  src={getAirlineLogo(s.airlineCode)}
+                                  alt={s.airline}
+                                  className={styles.pnrLogoImg}
+                                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                />
+                              )}
+                              <span>{s.airline}</span>
+                            </div>
+                          </td>
                           <td className={styles.pnrVuelo}>{s.flightNo}</td>
                           <td><strong>{s.salida.split(' · ')[0]}</strong>{s.salida.split(' · ')[1] ? ` - ${s.salida.split(' · ')[1]}` : ''}</td>
                           <td className={styles.pnrAeropuerto}>{s.desde}</td>
@@ -243,7 +256,19 @@ export default function CotizacionPublicPage() {
                     <div key={i} className={styles.pnrCard}>
                       <div className={styles.pnrCardHeader}>
                         <div className={styles.pnrCardAerolinea}>
-                          <div className={styles.pnrLogoPlaceholder} />
+                          {getAirlineLogo(s.airlineCode) ? (
+                            <img
+                              src={getAirlineLogo(s.airlineCode)}
+                              alt={s.airline}
+                              className={styles.pnrCardLogoImg}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextSibling?.classList?.remove(styles.hidden);
+                              }}
+                            />
+                          ) : (
+                            <div className={styles.pnrLogoPlaceholder} />
+                          )}
                           <span>{s.airline}</span>
                         </div>
                         <span className={styles.pnrCardFecha}>{s.fecha}</span>

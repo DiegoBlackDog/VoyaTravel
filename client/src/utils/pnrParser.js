@@ -13,7 +13,7 @@ const AIRLINE_NAMES = {
   SK: 'SAS', SQ: 'Singapore Airlines', TK: 'Turkish Airlines',
   TP: 'TAP Air Portugal', UA: 'United Airlines', UX: 'Air Europa',
   VH: 'Amaszonas Uruguay', XL: 'LATAM Ecuador', '4C': 'LATAM Colombia',
-  '2K': 'Avianca Ecuador', AD: 'Azul Linhas Aéreas', H2: 'Sky Airline',
+  '2K': 'Avianca Ecuador', AD: 'Azul Linhas Aéreas', H2: 'Sky Airline', JA: 'JetSMART',
 };
 
 const AIRPORT_NAMES = {
@@ -85,7 +85,7 @@ function parseSegmentLine(line) {
   //          "UX7701  17MAR" (no space), "LA8076 N" (no space + class).
   let airlineCode, flightNo;
   const fromStart = line.trim().replace(/^\d{1,2}\s+/, '');
-  const flightMatch = fromStart.match(/^([A-Z]{2})\s?(\d{1,4})/);
+  const flightMatch = fromStart.match(/^([A-Z0-9]{2})\s?(\d{1,4})/);
   if (!flightMatch) return null;
   airlineCode = flightMatch[1];
   flightNo = flightMatch[2];
