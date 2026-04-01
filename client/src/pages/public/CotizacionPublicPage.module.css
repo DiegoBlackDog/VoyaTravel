@@ -218,6 +218,15 @@
 
 .pagoIcono { color: var(--color-verde); flex-shrink: 0; }
 
+.equipajeFila {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+  color: var(--color-gris);
+}
+
 /* ── ITINERARIO ── */
 .pnrText {
   font-family: monospace;

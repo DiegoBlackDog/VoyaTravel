@@ -7,6 +7,7 @@ import {
   FaCreditCard, FaUniversity, FaStore, FaMoneyBillWave,
   FaInstagram, FaFacebook, FaWhatsapp, FaPhone, FaEnvelope,
   FaLinkedin, FaGlobe, FaMobileAlt, FaUtensils,
+  FaSuitcase, FaSuitcaseRolling, FaShoppingBag,
 } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import api from '../../services/api';
@@ -50,6 +51,12 @@ const TIPO_ICON_MAP = {
 function getItemIcon(tipo) {
   return TIPO_ICON_MAP[tipo] || FaCheck;
 }
+
+const EQUIPAJE_ICON_MAP = {
+  'Equipaje de mano (Carry on)': FaSuitcaseRolling,
+  'Equipaje en bodega':          FaSuitcase,
+  'Artículo Personal':           FaShoppingBag,
+};
 
 function renderItemLabel(item, cot) {
   if (typeof item === 'string') return item;
@@ -191,8 +198,26 @@ export default function CotizacionPublicPage() {
           <div className={styles.card}>
             <div className={styles.cardHeader}>Incluye</div>
             <ul className={styles.itemLista}>
-              {incluyeArr.map((item, i) => {
-                const Icon = getItemIcon(typeof item === 'string' ? item : item.tipo);
+              {incluyeArr.flatMap((item, i) => {
+                const tipo = typeof item === 'string' ? item : item.tipo;
+                const detalle = typeof item === 'object' ? item.detalle : '';
+                const Icon = getItemIcon(tipo);
+                const esBillete = tipo === 'Billete aéreo según itinerario' && detalle;
+
+                if (esBillete) {
+                  const EquipajeIcon = EQUIPAJE_ICON_MAP[detalle] || FaSuitcase;
+                  return [
+                    <li key={`${i}-billete`} className={styles.itemFila}>
+                      <Icon size={15} className={styles.iconoIncluye} />
+                      <span>{tipo}</span>
+                    </li>,
+                    <li key={`${i}-equipaje`} className={styles.itemFila}>
+                      <EquipajeIcon size={15} className={styles.iconoIncluye} />
+                      <span>{detalle}</span>
+                    </li>,
+                  ];
+                }
+
                 return (
                   <li key={i} className={styles.itemFila}>
                     <Icon size={15} className={styles.iconoIncluye} />
