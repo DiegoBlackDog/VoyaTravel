@@ -22,6 +22,8 @@ export default function PaqueteEditPage() {
   const [moneda, setMoneda] = useState('USD');
   const [duracionDias, setDuracionDias] = useState('');
   const [duracionNoches, setDuracionNoches] = useState('');
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaVencimiento, setFechaVencimiento] = useState('');
   const [cargando, setCargando] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState('');
@@ -59,6 +61,8 @@ export default function PaqueteEditPage() {
       setMoneda(paq.moneda || 'USD');
       setDuracionDias(paq.duracion_dias ?? '');
       setDuracionNoches(paq.duracion_noches ?? '');
+      setFechaInicio(paq.fecha_inicio ?? '');
+      setFechaVencimiento(paq.fecha_vencimiento ?? '');
       setItinerario(
         (paq.itinerario || [])
           .sort((a, b) => (a.orden ?? a.numero_dia ?? 0) - (b.orden ?? b.numero_dia ?? 0))
@@ -106,6 +110,8 @@ export default function PaqueteEditPage() {
         moneda,
         duracion_dias: duracionDias ? Number(duracionDias) : null,
         duracion_noches: duracionNoches ? Number(duracionNoches) : null,
+        fecha_inicio: fechaInicio || null,
+        fecha_vencimiento: fechaVencimiento || null,
         itinerario: itinerario.map((d, i) => ({
           numero_dia: i + 1,
           titulo: d.titulo,
@@ -266,6 +272,36 @@ export default function PaqueteEditPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Vigencia */}
+          <div className={styles.opcionesCard}>
+            <h3 className={styles.opcionesTitulo}>Vigencia</h3>
+            <div className={styles.preciosGrid}>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Fecha inicio</label>
+                <input
+                  type="date"
+                  className={styles.preciosInput}
+                  value={fechaInicio}
+                  onChange={(e) => setFechaInicio(e.target.value)}
+                />
+              </div>
+              <div className={styles.preciosCampo}>
+                <label className={styles.preciosLabel}>Fecha vencimiento</label>
+                <input
+                  type="date"
+                  className={styles.preciosInput}
+                  value={fechaVencimiento}
+                  onChange={(e) => setFechaVencimiento(e.target.value)}
+                />
+              </div>
+            </div>
+            {fechaVencimiento && (
+              <p className={styles.vigenciaAviso}>
+                Al vencer esta fecha el paquete dejará de ser visible en el sitio.
+              </p>
+            )}
           </div>
 
           {/* Precios */}

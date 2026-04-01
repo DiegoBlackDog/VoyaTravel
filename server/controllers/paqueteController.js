@@ -75,6 +75,7 @@ const listar = async (req, res, next) => {
       duracion_max,
       disponible,
       destacado,
+      mostrar_vencidos,
     } = req.query;
 
     // Accept both naming conventions (frontend uses page/ordenar, legacy uses pagina/orden)
@@ -83,9 +84,15 @@ const listar = async (req, res, next) => {
 
     const where = {};
 
-    // Public (no session) only see available
-    if (!req.session || !req.session.usuario) {
+    const esAdmin = req.session?.usuario && mostrar_vencidos === 'true';
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    if (!esAdmin) {
+      // Public view: only disponible + not expired
       where.disponible = true;
+      where[Op.and] = [
+        { [Op.or]: [{ fecha_vencimiento: null }, { fecha_vencimiento: { [Op.gte]: hoy } }] },
+      ];
     } else if (disponible !== undefined) {
       where.disponible = disponible === 'true';
     }
@@ -238,8 +245,17 @@ const obtenerPorId = async (req, res, next) => {
 
 const obtenerPorSlug = async (req, res, next) => {
   try {
+    const hoy = new Date().toISOString().slice(0, 10);
+    const whereSlug = {
+      slug: req.params.slug,
+      disponible: true,
+      [Op.and]: [
+        { [Op.or]: [{ fecha_vencimiento: null }, { fecha_vencimiento: { [Op.gte]: hoy } }] },
+      ],
+    };
+
     const paqueteRaw = await Paquete.findOne({
-      where: { slug: req.params.slug },
+      where: whereSlug,
       include: includeCompleto,
     });
 

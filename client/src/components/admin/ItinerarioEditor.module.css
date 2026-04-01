@@ -73,11 +73,43 @@
   border-color: var(--color-verde-claro);
 }
 
+.diaCardExpandida {
+  border-color: var(--color-verde-claro);
+}
+
 .diaHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--espaciado-sm);
+  margin-bottom: 0;
+  user-select: none;
+}
+
+.diaHeaderIzq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.chevron {
+  color: var(--color-gris);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.chevronAbierto {
+  transform: rotate(90deg);
+}
+
+.diaTituloCompacto {
+  font-family: var(--font-cuerpo);
+  font-size: 0.85rem;
+  color: var(--color-negro);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .diaNumero {
@@ -145,6 +177,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--espaciado-sm);
+  margin-top: var(--espaciado-md);
 }
 
 .campo {

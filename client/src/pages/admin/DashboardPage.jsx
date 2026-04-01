@@ -43,7 +43,7 @@ export default function DashboardPage() {
     setCargando(true);
     setError('');
     try {
-      const { data } = await api.get('/paquetes', { params: { limit: 1000 } });
+      const { data } = await api.get('/paquetes', { params: { limit: 1000, mostrar_vencidos: true } });
       const paquetes = data.paquetes || [];
 
       const total = paquetes.length;

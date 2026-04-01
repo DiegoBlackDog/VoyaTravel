@@ -30,7 +30,7 @@ export default function PaquetesListPage() {
     setCargando(true);
     setError('');
     try {
-      const params = { page: pagina, limit: LIMIT };
+      const params = { page: pagina, limit: LIMIT, mostrar_vencidos: true };
       if (busqueda) params.busqueda = busqueda;
       if (tabActiva === 'disponibles') params.disponible = true;
       if (tabActiva === 'ocultos')     params.disponible = false;

@@ -8,7 +8,18 @@ import {
   FaMapMarkerAlt,
   FaTag,
   FaExclamationCircle,
+  FaPlane, FaBed, FaBus, FaShieldAlt, FaCamera, FaDollarSign, FaCheck,
 } from 'react-icons/fa';
+
+const TIPO_ICON_MAP = {
+  'Billete aéreo según itinerario':     FaPlane,
+  'Alojamiento':                        FaBed,
+  'Traslados':                          FaBus,
+  'Seguro de Viaje':                    FaShieldAlt,
+  'Visitas y excursiones no indicadas': FaCamera,
+  'Tasas e impuestos aéreos incluidos': FaDollarSign,
+};
+const getItemIcon = (tipo) => TIPO_ICON_MAP[tipo] || FaCheck;
 import { obtenerPorSlug } from '../../services/paqueteService';
 import PaqueteGaleria from '../../components/paquetes/PaqueteGaleria';
 import PaqueteItinerario from '../../components/paquetes/PaqueteItinerario';
@@ -338,12 +349,15 @@ export default function PaqueteDetallePage() {
                         <div className={styles.incluyeColumna}>
                           <h3 className={styles.incluyeSubtitulo}>Incluye</h3>
                           <ul className={styles.incluyeLista}>
-                            {incluyeArr.map((item, i) => (
-                              <li key={i} className={styles.incluyeItem}>
-                                <FaCheckCircle size={15} className={styles.iconoIncluye} />
-                                <span>{renderTextoItem(item)}</span>
-                              </li>
-                            ))}
+                            {incluyeArr.map((item, i) => {
+                              const Icon = getItemIcon(typeof item === 'string' ? item : item.tipo);
+                              return (
+                                <li key={i} className={styles.incluyeItem}>
+                                  <Icon size={15} className={styles.iconoIncluye} />
+                                  <span>{renderTextoItem(item)}</span>
+                                </li>
+                              );
+                            })}
                           </ul>
                         </div>
                       )}

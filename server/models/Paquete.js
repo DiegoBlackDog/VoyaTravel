@@ -88,6 +88,14 @@ const Paquete = sequelize.define('Paquete', {
     allowNull: false,
     defaultValue: true,
   },
+  fecha_inicio: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+  },
+  fecha_vencimiento: {
+    type: DataTypes.DATEONLY,
+    allowNull: true,
+  },
   destacado: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
