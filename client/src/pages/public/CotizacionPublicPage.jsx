@@ -401,7 +401,7 @@ export default function CotizacionPublicPage() {
           <div className={styles.pagosGrid}>
             {MEDIOS_PAGO.map(({ Icon, label }) => (
               <div key={label} className={styles.pagoItem}>
-                <Icon size={22} className={styles.pagoIcono} />
+                <Icon size={28} className={styles.pagoIcono} />
                 <span>{label}</span>
               </div>
             ))}
