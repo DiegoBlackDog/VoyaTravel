@@ -441,33 +441,41 @@ export default function CotizacionPublicPage() {
 
           {/* Columna 2: Datos empresa */}
           <div className={styles.footerCol2}>
-            <ul className={styles.footerInfoLista}>
-              {web && (
-                <li className={styles.footerInfoItem}>
-                  <FaGlobe size={13} />
-                  <a href={web} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
-                    {web.replace(/^https?:\/\//, '')}
-                  </a>
-                </li>
-              )}
-              {direccion && (
-                <li className={styles.footerInfoItem}>
-                  <FaMapMarkerAlt size={13} /><span>{direccion}</span>
-                </li>
-              )}
-              {telEmpresa && (
-                <li className={styles.footerInfoItem}>
-                  <FaPhone size={13} />
-                  <a href={`tel:${telEmpresa}`} className={styles.footerLink}>{telEmpresa}</a>
-                </li>
-              )}
-              {emailEmpresa && (
-                <li className={styles.footerInfoItem}>
-                  <FaEnvelope size={13} />
-                  <a href={`mailto:${emailEmpresa}`} className={styles.footerLink}>{emailEmpresa}</a>
-                </li>
-              )}
-            </ul>
+            {/* Fila 1: dirección + teléfono */}
+            {(direccion || telEmpresa) && (
+              <div className={styles.footerInfoFila}>
+                {direccion && (
+                  <span className={styles.footerInfoItem}>
+                    <FaMapMarkerAlt size={13} /><span>{direccion}</span>
+                  </span>
+                )}
+                {telEmpresa && (
+                  <span className={styles.footerInfoItem}>
+                    <FaPhone size={13} />
+                    <a href={`tel:${telEmpresa}`} className={styles.footerLink}>{telEmpresa}</a>
+                  </span>
+                )}
+              </div>
+            )}
+            {/* Fila 2: web + email */}
+            {(web || emailEmpresa) && (
+              <div className={styles.footerInfoFila}>
+                {web && (
+                  <span className={styles.footerInfoItem}>
+                    <FaGlobe size={13} />
+                    <a href={web} target="_blank" rel="noopener noreferrer" className={styles.footerLink}>
+                      {web.replace(/^https?:\/\//, '')}
+                    </a>
+                  </span>
+                )}
+                {emailEmpresa && (
+                  <span className={styles.footerInfoItem}>
+                    <FaEnvelope size={13} />
+                    <a href={`mailto:${emailEmpresa}`} className={styles.footerLink}>{emailEmpresa}</a>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Columna 3: Datos asesor */}

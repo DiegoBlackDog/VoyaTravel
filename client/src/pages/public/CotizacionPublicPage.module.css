@@ -54,7 +54,7 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 32px 32px;
 }
@@ -99,7 +99,7 @@
 
 /* ── BODY ── */
 .body {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 36px 32px 48px;
   display: flex;
@@ -139,7 +139,7 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.92rem;
+  font-size: 0.96rem;
   color: var(--color-negro);
   line-height: 1.45;
 }
@@ -182,7 +182,7 @@
 
 .alojHotelLink {
   font-weight: 600;
-  color: var(--color-verde);
+  color: var(--color-negro);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -469,7 +469,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--color-negro);
 }
 
@@ -481,7 +481,7 @@
 }
 
 .alojPrecioChip {
-  font-size: 0.82rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--color-verde);
   background: rgba(55,137,102,0.1);
@@ -494,7 +494,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.82rem;
+  font-size: 1rem;
   color: var(--color-gris);
   margin-left: 4px;
 }
@@ -506,13 +506,13 @@
 }
 
 .footerGrid {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px 32px 36px;
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: 40px;
-  align-items: center;
+  align-items: start;
 }
 
 /* Col 1: Logo + redes */
@@ -520,6 +520,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  align-self: center;
 }
 
 .footerLogo {
@@ -527,6 +528,8 @@
   font-size: 2.8rem;
   color: #fff;
   letter-spacing: 0.02em;
+  margin-right: -0.02em;
+  margin-top: -15px;
   font-weight: 300;
 }
 
@@ -540,25 +543,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: 8px;
 }
 
-.footerInfoLista {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.footerInfoFila {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
   align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
 }
 
 .footerInfoItem {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   font-size: 0.875rem;
   color: rgba(255,255,255,0.85);
+  white-space: nowrap;
 }
 
 /* Col 3: Asesor */
@@ -605,7 +607,7 @@
   color: rgba(255,255,255,0.4);
   margin: 0;
   padding: 0 32px 20px;
-  max-width: 960px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
   display: block;
@@ -645,8 +647,22 @@
   .footerGrid {
     grid-template-columns: 1fr;
     gap: 24px;
-    padding: 32px 20px 28px;
+    padding: 32px 24px 28px;
+    align-items: center;
+    text-align: center;
   }
-  .footerCol3 { align-items: flex-start; text-align: left; }
-  .footerFecha { padding: 0 20px 20px; }
+  .footerCol1 { align-self: auto; align-items: center; order: 3; }
+  .footerSocial { justify-content: center; }
+  .footerCol2 {
+    order: 2;
+    align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.15);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    padding: 20px 0;
+  }
+  .footerInfoFila { justify-content: center; flex-direction: column; gap: 10px; align-items: center; }
+  .footerInfoItem { justify-content: center; }
+  .footerCol3 { align-items: center; text-align: center; order: 1; }
+  .footerContactItem { justify-content: center; }
+  .footerFecha { padding: 0 24px 20px; text-align: center; }
 }
