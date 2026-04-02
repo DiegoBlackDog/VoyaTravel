@@ -64,15 +64,6 @@ function formatTime(t) {
   return `${t.slice(0, 2)}:${t.slice(2, 4)}`;
 }
 
-function getAirlineName(code) {
-  return AIRLINE_NAMES[code?.toUpperCase()] || code;
-}
-
-function getAirportName(code) {
-  return AIRPORT_NAMES[code?.toUpperCase()]
-    ? `${AIRPORT_NAMES[code.toUpperCase()]} - ${code.toUpperCase()}`
-    : code?.toUpperCase() || '';
-}
 
 function parseSegmentLine(line) {
 
@@ -132,18 +123,38 @@ export function parsePnr(pnrText) {
   return segments;
 }
 
-export function formatSegment(seg) {
-  const desdeParts = getAirportName(seg.depart_airport).split(' - ');
-  const hastaParts = getAirportName(seg.arrive_airport).split(' - ');
+/**
+ * Build lookup maps from API data (aerolineas + aeropuertos arrays from the DB).
+ * Falls back to hardcoded maps for any missing entries.
+ */
+export function buildLookups(aerolineas = [], aeropuertos = []) {
+  const airlines = { ...AIRLINE_NAMES };
+  const airports = { ...AIRPORT_NAMES };
+  aerolineas.forEach((a) => { if (a.iata) airlines[a.iata.toUpperCase()] = a.nombre; });
+  aeropuertos.forEach((a) => { if (a.iata) airports[a.iata.toUpperCase()] = a.ciudad || a.nombre; });
+  return { airlines, airports };
+}
+
+export function formatSegment(seg, lookups = {}) {
+  const airlines = lookups.airlines || AIRLINE_NAMES;
+  const airports = lookups.airports || AIRPORT_NAMES;
+
+  const getAirline = (code) => airlines[code?.toUpperCase()] || code;
+  const getAirport = (code) => {
+    const city = airports[code?.toUpperCase()];
+    return city ? `${city} - ${code?.toUpperCase()}` : (code?.toUpperCase() || '');
+  };
+
+  const desdeParts = getAirport(seg.depart_airport).split(' - ');
+  const hastaParts = getAirport(seg.arrive_airport).split(' - ');
   return {
-    airline: getAirlineName(seg.airline),
+    airline: getAirline(seg.airline),
     airlineCode: seg.airline,
     flightNo: seg.flight_no?.replace(seg.airline, '').trim(),
     salida: `${formatPnrDate(seg.depart_date)} · ${formatTime(seg.depart_time)}`,
     llegada: `${formatPnrDate(seg.arrive_date)} · ${formatTime(seg.arrive_time)}`,
-    desde: getAirportName(seg.depart_airport),
-    hasta: getAirportName(seg.arrive_airport),
-    // raw fields for mobile card
+    desde: getAirport(seg.depart_airport),
+    hasta: getAirport(seg.arrive_airport),
     desdeCodigo: seg.depart_airport?.toUpperCase() || '',
     desdeNombre: desdeParts[0] || seg.depart_airport,
     hastaCodigo: seg.arrive_airport?.toUpperCase() || '',

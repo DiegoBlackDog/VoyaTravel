@@ -6,6 +6,7 @@ const { body } = require('express-validator');
 const { validar } = require('../middleware/validacion');
 const { requireAuth } = require('../middleware/auth');
 const { requireMinRole } = require('../middleware/roles');
+const comprimirImagen = require('../middleware/comprimirImagen');
 const {
   listar,
   destacados,
@@ -27,10 +28,10 @@ const imgStorage = multer.diskStorage({
     cb(null, `itin_${Date.now()}${ext}`);
   },
 });
-const imgUpload = multer({ storage: imgStorage, limits: { fileSize: 8 * 1024 * 1024 } });
+const imgUpload = multer({ storage: imgStorage, limits: { fileSize: 20 * 1024 * 1024 } });
 
 // Upload (before /:slug wildcard)
-router.post('/upload-itinerario-imagen', requireAuth, requireMinRole('editor'), imgUpload.single('imagen'), uploadItinerarioImagen);
+router.post('/upload-itinerario-imagen', requireAuth, requireMinRole('editor'), imgUpload.single('imagen'), comprimirImagen(1200), uploadItinerarioImagen);
 
 // Public
 router.get('/', listar);

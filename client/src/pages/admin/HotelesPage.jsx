@@ -6,7 +6,18 @@ import { useAuth } from '../../hooks/useAuth';
 import styles from './DestinosPage.module.css';
 import hotelStyles from './HotelesPage.module.css';
 
-const EMPTY_FORM = { nombre: '', ciudad: '', web_url: '', destino_id: '' };
+const EMPTY_FORM = { nombre: '', ciudad: '', estrellas: '', web_url: '', destino_id: '' };
+
+function parseEstrellas(val) {
+  if (val == null || val === '') return null;
+  const str = String(val).trim();
+  // Count ⭐ emoji
+  const emojiCount = (str.match(/⭐/g) || []).length;
+  if (emojiCount > 0) return Math.min(emojiCount, 5);
+  const num = parseInt(str, 10);
+  if (!isNaN(num) && num >= 1 && num <= 5) return num;
+  return null;
+}
 
 export default function HotelesPage() {
   const { usuario } = useAuth();
@@ -55,7 +66,7 @@ export default function HotelesPage() {
   const toggleDestino = (id) => setAbiertos((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const abrirNuevo = (destino_id) => { setForm({ ...EMPTY_FORM, destino_id }); setEditandoId(null); setModalAbierto(true); };
-  const abrirEditar = (h) => { setForm({ nombre: h.nombre, ciudad: h.ciudad || '', web_url: h.web_url || '', destino_id: h.destino_id }); setEditandoId(h.id); setModalAbierto(true); };
+  const abrirEditar = (h) => { setForm({ nombre: h.nombre, ciudad: h.ciudad || '', estrellas: h.estrellas ?? '', web_url: h.web_url || '', destino_id: h.destino_id }); setEditandoId(h.id); setModalAbierto(true); };
   const cerrarModal = () => { setModalAbierto(false); setEditandoId(null); setForm(EMPTY_FORM); };
 
   const handleGuardar = async (e) => {
@@ -63,7 +74,7 @@ export default function HotelesPage() {
     if (!form.nombre.trim()) return;
     setGuardando(true);
     try {
-      const body = { nombre: form.nombre.trim(), destino_id: form.destino_id || null, ciudad: form.ciudad.trim() || null, web_url: form.web_url.trim() || null };
+      const body = { nombre: form.nombre.trim(), destino_id: form.destino_id || null, ciudad: form.ciudad.trim() || null, web_url: form.web_url.trim() || null, estrellas: form.estrellas !== '' ? Number(form.estrellas) : null };
       if (editandoId) { await api.put(`/hoteles/${editandoId}`, body); setExito('Hotel actualizado.'); }
       else { await api.post('/hoteles', body); setExito('Hotel creado.'); }
       cerrarModal(); cargar();
@@ -153,7 +164,8 @@ export default function HotelesPage() {
         raw.slice(startRow).forEach((row, i) => {
           const destinoNombre = String(row[0] || '').trim();
           const hotelNombre = String(row[1] || '').trim();
-          const webUrl = String(row[2] || '').trim();
+          const estrellasRaw = row[2];
+          const webUrl = String(row[3] || '').trim();
 
           if (!destinoNombre && !hotelNombre) return; // skip empty rows
 
@@ -167,7 +179,7 @@ export default function HotelesPage() {
             return;
           }
 
-          rows.push({ destino_id: destino.id, destino_nombre: destino.nombre, nombre: hotelNombre, web_url: webUrl || null, ciudad: destinoNombre });
+          rows.push({ destino_id: destino.id, destino_nombre: destino.nombre, nombre: hotelNombre, estrellas: parseEstrellas(estrellasRaw), web_url: webUrl || null, ciudad: destinoNombre });
         });
 
         setImportPreview({ rows, warnings });
@@ -192,7 +204,7 @@ export default function HotelesPage() {
           (h) => h.destino_id === row.destino_id && normalizar(h.nombre) === normalizar(row.nombre)
         );
         if (existe) { omitidos++; continue; }
-        await api.post('/hoteles', { nombre: row.nombre, destino_id: row.destino_id, web_url: row.web_url, ciudad: row.ciudad });
+        await api.post('/hoteles', { nombre: row.nombre, destino_id: row.destino_id, web_url: row.web_url, ciudad: row.ciudad, estrellas: row.estrellas });
         creados++;
       } catch { errores++; }
     }
@@ -282,7 +294,7 @@ export default function HotelesPage() {
                                 />
                               </th>
                             )}
-                            <th>Nombre</th><th>Ciudad</th><th>Web</th><th>Acciones</th>
+                            <th>Nombre</th><th>Estrellas</th><th>Ciudad</th><th>Web</th><th>Acciones</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -294,6 +306,7 @@ export default function HotelesPage() {
                                 </td>
                               )}
                               <td className={hotelStyles.hotelNombre}>{h.nombre}</td>
+                              <td>{h.estrellas ? '★'.repeat(h.estrellas) : '—'}</td>
                               <td>{h.ciudad || '—'}</td>
                               <td>
                                 {h.web_url
@@ -337,9 +350,18 @@ export default function HotelesPage() {
                   <input className={styles.formInput} type="text" value={form.ciudad} onChange={(e) => setForm((p) => ({ ...p, ciudad: e.target.value }))} placeholder="Ej: Punta Cana" />
                 </div>
               </div>
-              <div className={styles.formGroup}>
-                <label>URL del sitio web</label>
-                <input className={styles.formInput} type="url" value={form.web_url} onChange={(e) => setForm((p) => ({ ...p, web_url: e.target.value }))} placeholder="https://..." />
+              <div className={styles.formRow}>
+                <div className={styles.formGroup}>
+                  <label>Estrellas</label>
+                  <select className={styles.formInput} value={form.estrellas} onChange={(e) => setForm((p) => ({ ...p, estrellas: e.target.value }))}>
+                    <option value="">Sin clasificar</option>
+                    {[1,2,3,4,5].map((n) => <option key={n} value={n}>{n} ★</option>)}
+                  </select>
+                </div>
+                <div className={styles.formGroup}>
+                  <label>URL del sitio web</label>
+                  <input className={styles.formInput} type="url" value={form.web_url} onChange={(e) => setForm((p) => ({ ...p, web_url: e.target.value }))} placeholder="https://..." />
+                </div>
               </div>
               <div className={styles.modalAcciones}>
                 <button type="button" className={styles.botonSecundario} onClick={cerrarModal}>Cancelar</button>
@@ -387,12 +409,13 @@ export default function HotelesPage() {
                 {importPreview.rows.length > 0 && (
                   <div className={hotelStyles.importTablaWrap}>
                     <table className={hotelStyles.importTabla}>
-                      <thead><tr><th>Destino</th><th>Hotel</th><th>Web</th></tr></thead>
+                      <thead><tr><th>Destino</th><th>Hotel</th><th>Estrellas</th><th>Web</th></tr></thead>
                       <tbody>
                         {importPreview.rows.map((r, i) => (
                           <tr key={i}>
                             <td>{r.destino_nombre}</td>
                             <td>{r.nombre}</td>
+                            <td>{r.estrellas ? '★'.repeat(r.estrellas) : '—'}</td>
                             <td>{r.web_url ? <a href={r.web_url} target="_blank" rel="noopener noreferrer" className={hotelStyles.webLink}><FiExternalLink size={12} /> Link</a> : '—'}</td>
                           </tr>
                         ))}

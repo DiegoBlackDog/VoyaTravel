@@ -42,9 +42,7 @@ export default function ImageUploader({ paqueteId, imagenes = [], onUpdate }) {
         formData.append('imagenes', archivo);
       }
 
-      await api.post(`/imagenes/${paqueteId}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      await api.post(`/imagenes/${paqueteId}`, formData);
 
       onUpdate?.();
     } catch (err) {

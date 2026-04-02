@@ -9,7 +9,12 @@ const api = axios.create({
 // Allow FormData requests to set their own Content-Type (multipart with boundary)
 api.interceptors.request.use((config) => {
   if (config.data instanceof FormData) {
-    delete config.headers['Content-Type'];
+    // axios 1.x uses AxiosHeaders — must use .delete() not delete operator
+    if (typeof config.headers.delete === 'function') {
+      config.headers.delete('Content-Type');
+    } else {
+      delete config.headers['Content-Type'];
+    }
   }
   return config;
 });

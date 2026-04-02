@@ -7,7 +7,7 @@ const ctrl = require('../controllers/aeropuertoController');
 const memUpload = multer({ storage: multer.memoryStorage() });
 const auth = [requireAuth, requireMinRole('editor')];
 
-router.get('/',       ...auth, ctrl.listar);
+router.get('/',       ctrl.listar);
 router.get('/:id',    ...auth, ctrl.obtenerPorId);
 router.post('/',      ...auth, ctrl.crear);
 router.put('/:id',    ...auth, ctrl.actualizar);

@@ -66,7 +66,7 @@ app.use((err, req, res, next) => {
 // ── Start server ──
 const PORT = process.env.PORT || 4000;
 
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ alter: { drop: false } }).then(() => {
   app.listen(PORT, () => {
     console.log(`Servidor corriendo en puerto ${PORT}`);
   });

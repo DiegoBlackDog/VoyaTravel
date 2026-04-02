@@ -90,11 +90,91 @@
   margin: 0 0 4px;
 }
 
+.bannerDuracionRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .bannerDuracion {
   font-family: var(--font-cuerpo);
   font-size: 0.88rem;
   color: rgba(255,255,255,0.75);
   margin: 0;
+}
+
+.botonPdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 14px;
+  background: var(--color-verde);
+  border: 1.5px solid var(--color-verde);
+  border-radius: 20px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: var(--font-cuerpo);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.botonPdf:hover { background: #2d7a59; border-color: #2d7a59; }
+.botonPdf:disabled { opacity: 0.6; cursor: wait; }
+
+/* ── PRINT / PDF ── */
+@media print {
+  /* 8mm top/bottom: enough breathing room between pages, small enough to avoid browser header/footer */
+  @page { size: A4 portrait; margin: 8mm 0; }
+
+  .no-print { display: none !important; }
+
+  /* White background, no viewport height */
+  .pagina {
+    background: #fff !important;
+    min-height: 0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide navbar */
+  .navBar { display: none !important; }
+
+  /* Compact banner */
+  .banner { height: 180px !important; break-inside: avoid; }
+  .bannerContent { padding: 0 20px 18px !important; }
+  .bannerDestino { font-size: 1.6rem !important; }
+
+  /* Body: use margin instead of padding so @page margin:0 doesn't clip */
+  .body {
+    padding: 12px 16px 20px !important;
+    gap: 12px !important;
+  }
+
+  /* Cards: no shadows, avoid internal page breaks */
+  .card {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  .cardHeader {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* PNR: always show table, never cards */
+  .pnrTablaWrap { display: block !important; }
+  .pnrCards     { display: none !important; }
+
+  /* Footer */
+  .footer {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    break-inside: avoid;
+  }
+  .footerGrid { padding: 20px 16px 16px !important; gap: 20px !important; }
 }
 
 /* ── BODY ── */
@@ -189,6 +269,14 @@
   gap: 4px;
 }
 .alojHotelLink:hover { text-decoration: underline; }
+
+.hotelEstrellas {
+  font-size: 0.7rem;
+  color: #f59e0b;
+  letter-spacing: 1px;
+  margin-left: 4px;
+  font-weight: normal;
+}
 
 .alojPrecio {
   font-weight: 600;

@@ -5,7 +5,7 @@ import {
   FiAlertCircle, FiCopy, FiExternalLink, FiSave, FiSearch, FiUploadCloud,
 } from 'react-icons/fi';
 import api from '../../services/api';
-import { parsePnr, formatSegment } from '../../utils/pnrParser';
+import { parsePnr, formatSegment, buildLookups } from '../../utils/pnrParser';
 import styles from './CotizacionFormPage.module.css';
 
 /* ────────────────────────────────────────────────── */
@@ -348,6 +348,7 @@ export default function CotizacionFormPage() {
 
   const [destinosSeleccionados, setDestinosSeleccionados] = useState([]);
   const [todosDestinos, setTodosDestinos]                 = useState([]);
+  const [pnrLookups, setPnrLookups]                       = useState({});
   const [incluye,   setIncluye]   = useState([]);
   const [noIncluye, setNoIncluye] = useState([]);
 
@@ -370,6 +371,12 @@ export default function CotizacionFormPage() {
       const { data: dData } = await api.get('/destinos');
       const allD = dData.destinos || [];
       setTodosDestinos(allD);
+
+      const [alRes, apRes] = await Promise.all([
+        api.get('/aerolineas').catch(() => ({ data: { aerolineas: [] } })),
+        api.get('/aeropuertos').catch(() => ({ data: { aeropuertos: [] } })),
+      ]);
+      setPnrLookups(buildLookups(alRes.data.aerolineas || [], apRes.data.aeropuertos || []));
 
       if (!esEdicion) { setCargando(false); return; }
 
@@ -762,7 +769,7 @@ export default function CotizacionFormPage() {
               <label>Texto del itinerario / PNR</label>
               <textarea className={styles.textarea} value={itinerarioPnr} onChange={(e) => setItinerarioPnr(e.target.value)} rows={10} placeholder="Pegá aquí el itinerario o texto del PNR..." />
               {(() => {
-                const segments = parsePnr(itinerarioPnr).map(formatSegment);
+                const segments = parsePnr(itinerarioPnr).map((s) => formatSegment(s, pnrLookups));
                 if (!segments.length) return null;
                 return (
                   <div className={styles.pnrTablaWrap}>

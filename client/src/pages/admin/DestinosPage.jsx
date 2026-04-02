@@ -1,8 +1,89 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { FiPlus, FiRefreshCw, FiAlertCircle, FiCheck, FiEdit2, FiTrash2, FiSearch, FiUpload, FiX } from 'react-icons/fi';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import styles from './DestinosPage.module.css';
+
+function PaisSelect({ value, onChange, className }) {
+  const [query, setQuery] = useState(value || '');
+  const [abierto, setAbierto] = useState(false);
+  const wrapRef = useRef(null);
+
+  // Sync query when value changes externally (e.g. opening edit modal)
+  useEffect(() => { setQuery(value || ''); }, [value]);
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setAbierto(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const filtrados = useMemo(() => {
+    const q = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return q ? PAISES.filter((p) => p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(q)) : PAISES;
+  }, [query]);
+
+  const seleccionar = (pais) => {
+    setQuery(pais);
+    onChange(pais);
+    setAbierto(false);
+  };
+
+  const handleInput = (e) => {
+    setQuery(e.target.value);
+    onChange(e.target.value);
+    setAbierto(true);
+  };
+
+  const handleBlur = () => {
+    // If typed value matches exactly a country, keep it; otherwise clear to last valid
+    setTimeout(() => {
+      if (!PAISES.includes(query) && query !== '') {
+        const match = PAISES.find((p) => p.toLowerCase() === query.toLowerCase());
+        if (match) { setQuery(match); onChange(match); }
+      }
+    }, 150);
+  };
+
+  return (
+    <div ref={wrapRef} style={{ position: 'relative' }}>
+      <input
+        className={className}
+        type="text"
+        value={query}
+        onChange={handleInput}
+        onFocus={() => setAbierto(true)}
+        onBlur={handleBlur}
+        placeholder="Seleccionar país..."
+        autoComplete="off"
+      />
+      {abierto && filtrados.length > 0 && (
+        <ul style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 999,
+          background: '#fff', border: '1.5px solid var(--color-borde)',
+          borderRadius: 'var(--radio-md)', maxHeight: 220, overflowY: 'auto',
+          margin: 0, padding: 0, listStyle: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        }}>
+          {filtrados.map((p) => (
+            <li
+              key={p}
+              onMouseDown={() => seleccionar(p)}
+              style={{
+                padding: '8px 12px', cursor: 'pointer', fontSize: '0.875rem',
+                background: p === value ? 'var(--color-verde-claro, #f0faf4)' : 'transparent',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#f5f5f5'}
+              onMouseLeave={(e) => e.currentTarget.style.background = p === value ? 'var(--color-verde-claro, #f0faf4)' : 'transparent'}
+            >
+              {p}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 function slugify(text) {
   return text
@@ -12,6 +93,34 @@ function slugify(text) {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '');
 }
+
+const PAISES = [
+  'Afganistán','Albania','Alemania','Andorra','Angola','Antigua y Barbuda','Arabia Saudita',
+  'Argelia','Argentina','Armenia','Australia','Austria','Azerbaiyán','Bahamas','Bangladés',
+  'Barbados','Baréin','Bélgica','Belice','Benín','Bielorrusia','Bolivia','Bosnia y Herzegovina',
+  'Botsuana','Brasil','Brunéi','Bulgaria','Burkina Faso','Burundi','Bután','Cabo Verde',
+  'Camboya','Camerún','Canadá','Catar','Chad','Chile','China','Chipre','Colombia','Comoras',
+  'Congo','Corea del Norte','Corea del Sur','Costa de Marfil','Costa Rica','Croacia','Cuba',
+  'Dinamarca','Dominica','Ecuador','Egipto','El Salvador','Emiratos Árabes Unidos','Eritrea',
+  'Eslovaquia','Eslovenia','España','Estados Unidos','Estonia','Etiopía','Filipinas','Finlandia',
+  'Fiyi','Francia','Gabón','Gambia','Georgia','Ghana','Granada','Grecia','Guatemala','Guinea',
+  'Guinea-Bisáu','Guinea Ecuatorial','Guyana','Haití','Honduras','Hungría','India','Indonesia',
+  'Irak','Irán','Irlanda','Islandia','Islas Marshall','Islas Salomón','Israel','Italia','Jamaica',
+  'Japón','Jordania','Kazajistán','Kenia','Kirguistán','Kiribati','Kuwait','Laos','Lesoto',
+  'Letonia','Líbano','Liberia','Libia','Liechtenstein','Lituania','Luxemburgo','Madagascar',
+  'Malasia','Malaui','Maldivas','Malí','Malta','Marruecos','Mauricio','Mauritania','México',
+  'Micronesia','Moldavia','Mónaco','Mongolia','Montenegro','Mozambique','Namibia','Nauru',
+  'Nepal','Nicaragua','Níger','Nigeria','Noruega','Nueva Zelanda','Omán','Países Bajos',
+  'Pakistán','Palaos','Panamá','Papúa Nueva Guinea','Paraguay','Perú','Polonia','Portugal',
+  'Reino Unido','República Centroafricana','República Checa','República Democrática del Congo',
+  'República Dominicana','Ruanda','Rumania','Rusia','Samoa','San Cristóbal y Nieves',
+  'San Marino','San Vicente y las Granadinas','Santa Lucía','Santo Tomé y Príncipe','Senegal',
+  'Serbia','Seychelles','Sierra Leona','Singapur','Siria','Somalia','Sri Lanka','Suazilandia',
+  'Sudáfrica','Sudán','Sudán del Sur','Suecia','Suiza','Surinam','Tailandia','Tanzania',
+  'Tayikistán','Timor Oriental','Togo','Tonga','Trinidad y Tobago','Túnez','Turkmenistán',
+  'Turquía','Tuvalu','Ucrania','Uganda','Uruguay','Uzbekistán','Vanuatu','Venezuela',
+  'Vietnam','Yemen','Yibuti','Zambia','Zimbabue',
+];
 
 const REGIONES = [
   'América del Norte',
@@ -55,6 +164,11 @@ export default function DestinosPage() {
   const [subiendoImagen, setSubiendoImagen] = useState(false);
   const [previewImagen, setPreviewImagen] = useState('');
   const fileRef = useRef(null);
+
+  // Bulk delete
+  const [seleccionados, setSeleccionados] = useState(new Set());
+  const [confirmBulk, setConfirmBulk] = useState(false);
+  const [eliminandoBulk, setEliminandoBulk] = useState(false);
 
   // Delete confirm
   const [confirmEliminar, setConfirmEliminar] = useState(null);
@@ -138,16 +252,14 @@ export default function DestinosPage() {
     try {
       const fd = new FormData();
       fd.append('imagen', archivo);
-      const { data } = await api.post(`/destinos/${editandoId}/imagen`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post(`/destinos/${editandoId}/imagen`, fd);
       const src = imagenSrc(data.imagen);
       setForm((prev) => ({ ...prev, imagen: data.imagen }));
       setPreviewImagen(src);
       setExito('Imagen subida correctamente.');
       cargar();
-    } catch {
-      setError('Error al subir la imagen.');
+    } catch (err) {
+      setError('Error al subir la imagen: ' + (err.response?.data?.error || err.message));
     } finally {
       setSubiendoImagen(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -195,6 +307,37 @@ export default function DestinosPage() {
     }
   };
 
+  const toggleSeleccion = (id) => setSeleccionados((prev) => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const toggleTodos = () => {
+    const ids = destinosFiltrados.map((d) => d.id);
+    const todosSelec = ids.every((id) => seleccionados.has(id));
+    setSeleccionados((prev) => {
+      const next = new Set(prev);
+      if (todosSelec) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  };
+
+  const handleEliminarBulk = async () => {
+    setEliminandoBulk(true);
+    let ok = 0, fail = 0;
+    for (const id of seleccionados) {
+      try { await api.delete(`/destinos/${id}`); ok++; }
+      catch { fail++; }
+    }
+    setEliminandoBulk(false);
+    setConfirmBulk(false);
+    setSeleccionados(new Set());
+    setExito(`${ok} destino${ok !== 1 ? 's' : ''} eliminado${ok !== 1 ? 's' : ''}.${fail ? ` ${fail} con error.` : ''}`);
+    cargar();
+  };
+
   return (
     <div className={styles.pagina}>
       {/* Header */}
@@ -212,6 +355,11 @@ export default function DestinosPage() {
             <FiRefreshCw size={14} />
             Recargar
           </button>
+          {seleccionados.size > 0 && esAdmin && (
+            <button className={styles.botonPeligro} onClick={() => setConfirmBulk(true)}>
+              <FiTrash2 size={14} /> Eliminar {seleccionados.size} seleccionado{seleccionados.size !== 1 ? 's' : ''}
+            </button>
+          )}
           <button className={styles.botonPrimario} onClick={abrirNuevo}>
             <FiPlus size={15} />
             Nuevo destino
@@ -260,6 +408,15 @@ export default function DestinosPage() {
         <table className={styles.tabla}>
           <thead>
             <tr>
+              {esAdmin && (
+                <th style={{ width: 36 }}>
+                  <input
+                    type="checkbox"
+                    checked={destinosFiltrados.length > 0 && destinosFiltrados.every((d) => seleccionados.has(d.id))}
+                    onChange={toggleTodos}
+                  />
+                </th>
+              )}
               <th>Foto</th>
               <th>Nombre</th>
               <th>País</th>
@@ -269,7 +426,12 @@ export default function DestinosPage() {
           </thead>
           <tbody>
             {destinosFiltrados.map((d) => (
-              <tr key={d.id}>
+              <tr key={d.id} className={seleccionados.has(d.id) ? styles.filaSeleccionada : ''}>
+                {esAdmin && (
+                  <td>
+                    <input type="checkbox" checked={seleccionados.has(d.id)} onChange={() => toggleSeleccion(d.id)} />
+                  </td>
+                )}
                 <td>
                   {d.imagen ? (
                     <img
@@ -336,12 +498,10 @@ export default function DestinosPage() {
                 </div>
                 <div className={styles.formGroup}>
                   <label>País</label>
-                  <input
+                  <PaisSelect
                     className={styles.formInput}
-                    type="text"
                     value={form.pais}
-                    onChange={(e) => handleChange('pais', e.target.value)}
-                    placeholder="Ej: Perú"
+                    onChange={(val) => handleChange('pais', val)}
                   />
                 </div>
               </div>
@@ -388,7 +548,7 @@ export default function DestinosPage() {
                   <div className={styles.imagenControles}>
                     <input
                       className={styles.formInput}
-                      type="url"
+                      type="text"
                       value={form.imagen}
                       onChange={(e) => handleChange('imagen', e.target.value)}
                       placeholder="https://... o subí un archivo"
@@ -435,6 +595,27 @@ export default function DestinosPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk delete confirm */}
+      {confirmBulk && (
+        <div className={styles.overlay} onClick={() => !eliminandoBulk && setConfirmBulk(false)}>
+          <div className={styles.confirmDialog} onClick={(e) => e.stopPropagation()}>
+            <h3>Eliminar destinos</h3>
+            <p>
+              ¿Estás seguro de que deseas eliminar <strong>{seleccionados.size}</strong> destino{seleccionados.size !== 1 ? 's' : ''}?
+              Esta acción no se puede deshacer.
+            </p>
+            <div className={styles.confirmAcciones}>
+              <button className={styles.botonSecundario} onClick={() => setConfirmBulk(false)} disabled={eliminandoBulk}>
+                Cancelar
+              </button>
+              <button className={styles.botonPeligro} onClick={handleEliminarBulk} disabled={eliminandoBulk}>
+                <FiTrash2 size={14} /> {eliminandoBulk ? 'Eliminando...' : `Eliminar ${seleccionados.size}`}
+              </button>
+            </div>
           </div>
         </div>
       )}

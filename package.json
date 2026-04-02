@@ -15,7 +15,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "open-pnr": "^0.0.4"
   },
   "devDependencies": {
     "sharp": "^0.34.5"

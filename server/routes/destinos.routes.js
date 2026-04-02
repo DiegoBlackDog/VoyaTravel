@@ -4,6 +4,7 @@ const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { requireAuth } = require('../middleware/auth');
 const { requireMinRole } = require('../middleware/roles');
+const comprimirImagen = require('../middleware/comprimirImagen');
 const { listar, crear, actualizar, eliminar, subirImagen } = require('../controllers/destinoController');
 
 const uploadDestino = multer({
@@ -15,7 +16,7 @@ const uploadDestino = multer({
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     cb(allowed.includes(file.mimetype) ? null : new Error('Solo JPEG, PNG o WebP'), allowed.includes(file.mimetype));
   },
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
 });
 
 // Public
@@ -24,7 +25,7 @@ router.get('/', listar);
 // Editor+
 router.post('/', requireAuth, requireMinRole('editor'), crear);
 router.put('/:id', requireAuth, requireMinRole('editor'), actualizar);
-router.post('/:id/imagen', requireAuth, requireMinRole('editor'), uploadDestino.single('imagen'), subirImagen);
+router.post('/:id/imagen', requireAuth, requireMinRole('editor'), uploadDestino.single('imagen'), comprimirImagen(1400), subirImagen);
 
 // Admin
 router.delete('/:id', requireAuth, requireMinRole('admin'), eliminar);

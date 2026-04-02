@@ -124,6 +124,10 @@
   background: rgba(55, 137, 102, 0.04);
 }
 
+.filaSeleccionada {
+  background: #fef9ec;
+}
+
 .botonPeligro {
   display: inline-flex;
   align-items: center;

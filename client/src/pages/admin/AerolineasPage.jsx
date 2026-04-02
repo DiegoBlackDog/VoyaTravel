@@ -66,10 +66,10 @@ export default function AerolineasPage() {
       if (imgFile) fd.append('imagen', imgFile);
 
       if (modal.esEdicion) {
-        await api.put(`/aerolineas/${modal.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await api.put(`/aerolineas/${modal.id}`, fd);
         setExito('Aerolínea actualizada.');
       } else {
-        await api.post('/aerolineas', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await api.post('/aerolineas', fd);
         setExito('Aerolínea creada.');
       }
       setModal(null); cargar();

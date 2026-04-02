@@ -11,7 +11,7 @@ import {
 } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import api from '../../services/api';
-import { parsePnr, formatSegment } from '../../utils/pnrParser';
+import { parsePnr, formatSegment, buildLookups } from '../../utils/pnrParser';
 import { getAirlineLogo } from '../../utils/airlineLogos';
 import styles from './CotizacionPublicPage.module.css';
 
@@ -83,6 +83,7 @@ export default function CotizacionPublicPage() {
   const { token }      = useParams();
   const [cot,          setCot]          = useState(null);
   const [config,       setConfig]       = useState({});
+  const [pnrLookups,   setPnrLookups]   = useState({});
   const [cargando,     setCargando]     = useState(true);
   const [error,        setError]        = useState(false);
 
@@ -97,6 +98,13 @@ export default function CotizacionPublicPage() {
     api.get('/configuracion')
       .then(({ data }) => setConfig(data.configuracion || {}))
       .catch(() => {});
+
+    Promise.all([
+      api.get('/aerolineas').catch(() => ({ data: { aerolineas: [] } })),
+      api.get('/aeropuertos').catch(() => ({ data: { aeropuertos: [] } })),
+    ]).then(([alRes, apRes]) =>
+      setPnrLookups(buildLookups(alRes.data.aerolineas || [], apRes.data.aeropuertos || []))
+    );
   }, [token]);
 
   if (cargando) {
@@ -121,6 +129,10 @@ export default function CotizacionPublicPage() {
   const fechaCreacion = cot.creado_en
     ? new Date(cot.creado_en).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
+
+  const handleDescargarPdf = () => {
+    window.print();
+  };
 
   const destinoPrincipal =
     cot.destinos_extra?.[0] ||
@@ -161,7 +173,7 @@ export default function CotizacionPublicPage() {
       {/* ── BANNER (foto) ── */}
       <div className={styles.banner}>
         {destinoPrincipal?.imagen && (
-          <div className={styles.bannerImg} style={{ backgroundImage: `url(${destinoPrincipal.imagen})` }} />
+          <div className={styles.bannerImg} style={{ backgroundImage: `url(${destinoPrincipal.imagen.startsWith('http') ? destinoPrincipal.imagen : API_BASE + destinoPrincipal.imagen})` }} />
         )}
         <div className={styles.bannerOverlay} />
         <div className={styles.bannerContent}>
@@ -180,13 +192,21 @@ export default function CotizacionPublicPage() {
           {cot.nombre_pasajero && (
             <p className={styles.bannerPasajero}>Para {cot.nombre_pasajero}</p>
           )}
-          {(cot.duracion_dias || cot.duracion_noches) && (
-            <p className={styles.bannerDuracion}>
-              {cot.duracion_dias ? `${cot.duracion_dias} días` : ''}
-              {cot.duracion_dias && cot.duracion_noches ? ' / ' : ''}
-              {cot.duracion_noches ? `${cot.duracion_noches} noches` : ''}
-            </p>
-          )}
+          <div className={styles.bannerDuracionRow}>
+            {(cot.duracion_dias || cot.duracion_noches) && (
+              <p className={styles.bannerDuracion}>
+                {cot.duracion_dias ? `${cot.duracion_dias} días` : ''}
+                {cot.duracion_dias && cot.duracion_noches ? ' / ' : ''}
+                {cot.duracion_noches ? `${cot.duracion_noches} noches` : ''}
+              </p>
+            )}
+            <button
+              className={`${styles.botonPdf} no-print`}
+              onClick={handleDescargarPdf}
+            >
+              ↓ PDF
+            </button>
+          </div>
         </div>
       </div>
 
@@ -231,7 +251,7 @@ export default function CotizacionPublicPage() {
 
         {/* Itinerario PNR — moved up */}
         {cot.itinerario_tipo === 'pnr' && cot.itinerario_pnr && (() => {
-          const segments = parsePnr(cot.itinerario_pnr).map(formatSegment);
+          const segments = parsePnr(cot.itinerario_pnr).map((s) => formatSegment(s, pnrLookups));
           return (
             <div className={styles.card}>
               <div className={styles.cardHeader}>Itinerario de vuelo</div>
@@ -357,10 +377,15 @@ export default function CotizacionPublicPage() {
                             <span>
                               {a.hotel?.web_url ? (
                                 <a href={a.hotel.web_url} target="_blank" rel="noopener noreferrer" className={styles.alojHotelLink}>
-                                  {a.hotel?.nombre || '—'} <FiExternalLink size={10} />
+                                  {a.hotel?.nombre || '—'}
+                                  {a.hotel?.estrellas > 0 && <span className={styles.hotelEstrellas}>{'★'.repeat(a.hotel.estrellas)}</span>}
+                                  {' '}<FiExternalLink size={10} />
                                 </a>
                               ) : (
-                                <strong>{a.hotel?.nombre || '—'}</strong>
+                                <strong>
+                                  {a.hotel?.nombre || '—'}
+                                  {a.hotel?.estrellas > 0 && <span className={styles.hotelEstrellas}>{'★'.repeat(a.hotel.estrellas)}</span>}
+                                </strong>
                               )}
                               {a.regimen && (
                                 <span className={styles.alojRegimen}>
