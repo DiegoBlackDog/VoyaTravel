@@ -545,7 +545,7 @@
   font-size: 0.875rem;
   color: var(--color-negro);
   font-weight: 500;
-  flex: 1;
+  flex: 0 1 220px;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -763,5 +763,161 @@
 .pnrAeropuerto {
   color: var(--color-verde);
   white-space: nowrap;
+}
+
+/* ── Modo cotización toggle ── */
+.modoSelector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--color-crema);
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  margin-bottom: var(--espaciado-lg);
+}
+
+.modoLabel {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-gris);
+  white-space: nowrap;
+}
+
+.modoBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.modoBtn {
+  padding: 7px 20px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  cursor: pointer;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gris);
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.modoBtn:hover { border-color: var(--color-verde); color: var(--color-negro); }
+
+.modoBtnActivo {
+  background: var(--color-verde);
+  color: #fff;
+  border-color: var(--color-verde);
+}
+.modoBtnActivo:hover { background: var(--color-verde-oscuro); border-color: var(--color-verde-oscuro); }
+
+/* ── Precio neto input en ItemRow ── */
+.precioNetoInput {
+  flex: none;
+  width: 100px;
+}
+
+/* ── Margen ── */
+.margenFila {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.margenOpcion {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gris);
+  cursor: pointer;
+  padding: 8px 14px;
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-sm);
+  background: #fff;
+  transition: border-color 0.15s, color 0.15s;
+}
+.margenOpcion input[type="radio"] { accent-color: var(--color-verde); }
+.margenOpcion:hover { border-color: var(--color-verde); color: var(--color-negro); }
+
+.margenOpcionActiva {
+  border-color: var(--color-verde);
+  color: var(--color-negro);
+  background: rgba(55, 137, 102, 0.05);
+}
+
+.margenInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.margenSufijo {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-verde);
+}
+
+/* ── Aloj chips wrapper ── */
+.alojChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+/* ── Totales tabla compacta ── */
+.totalesWrap {
+  border: 1.5px solid var(--color-borde);
+  border-radius: var(--radio-md);
+  overflow: hidden;
+}
+
+.totalesTabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+}
+
+.totalFila {
+  border-bottom: 1px solid var(--color-borde);
+}
+.totalFila:last-child { border-bottom: none; }
+.totalFila:nth-child(even) { background: var(--color-crema); }
+
+.totalNombre {
+  padding: 9px 14px;
+  font-weight: 600;
+  color: var(--color-negro);
+  white-space: nowrap;
+  border-right: 1px solid var(--color-borde);
+}
+
+.totalCelda {
+  padding: 9px 16px;
+  border-right: 1px solid var(--color-borde);
+  white-space: nowrap;
+}
+.totalCelda:last-child { border-right: none; }
+
+.totalBase {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gris);
+  margin-right: 6px;
+}
+
+.totalValor {
+  font-weight: 700;
+  color: var(--color-verde);
 }
 

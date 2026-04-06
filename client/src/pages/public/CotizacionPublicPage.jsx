@@ -126,6 +126,37 @@ export default function CotizacionPublicPage() {
     alojamientos.some((a) => a[col.key] != null && Number(a[col.key]) > 0)
   );
 
+  /* ── Precios netos (solo cuando modo_cotizacion === 'neta') ── */
+  const TIPOS_SIN_PRECIO_PUB = new Set(['Alojamiento', 'Tasas e impuestos aéreos incluidos']);
+  const preciosNetos = (() => {
+    if (cot.modo_cotizacion !== 'neta') return null;
+    const sumaIncluye = incluyeArr.reduce((acc, item) => {
+      const tipo = typeof item === 'string' ? item : item.tipo;
+      if (TIPOS_SIN_PRECIO_PUB.has(tipo)) return acc;
+      const p = parseFloat(item.precio);
+      return isNaN(p) || p === 0 ? acc : acc + p;
+    }, 0);
+    const margenNum = parseFloat(cot.margen_valor) || 0;
+    const margenTipo = cot.margen_tipo || 'porcentaje';
+    // Map: grupoKey → { colKey → total }
+    const mapa = new Map();
+    alojamientos.forEach((a) => {
+      const k = a.grupo != null ? a.grupo : `id_${a.id}`;
+      if (!mapa.has(k)) mapa.set(k, {});
+      PRECIO_COLS.forEach((col) => {
+        const base = parseFloat(a[col.key]);
+        if (isNaN(base) || base === 0 || a[col.key] == null) return;
+        const subtotal = base + sumaIncluye;
+        let total = margenTipo === 'porcentaje'
+          ? subtotal * (1 + margenNum / 100)
+          : subtotal + margenNum;
+        if (total % 1 !== 0) total = Math.round(total);
+        mapa.get(k)[col.key] = total;
+      });
+    });
+    return mapa;
+  })();
+
   const fechaCreacion = cot.creado_en
     ? new Date(cot.creado_en).toLocaleDateString('es-UY', { day: 'numeric', month: 'long', year: 'numeric' })
     : '';
@@ -366,7 +397,12 @@ export default function CotizacionPublicPage() {
               <div className={styles.alojOpciones}>
                 {grupos.map((g, gi) => {
                   const p = g.precios;
-                  const preciosVisibles = PRECIO_COLS.filter((col) => p[col.key] != null && Number(p[col.key]) > 0);
+                  const grupoKey = p.grupo != null ? p.grupo : `id_${p.id}`;
+                  const netosGrupo = preciosNetos?.get(grupoKey);
+                  const preciosVisibles = PRECIO_COLS.filter((col) => {
+                    if (netosGrupo) return netosGrupo[col.key] != null;
+                    return p[col.key] != null && Number(p[col.key]) > 0;
+                  });
                   return (
                     <div key={gi} className={styles.alojOpcion}>
                       <p className={styles.alojOpcionTitulo}>Opción {gi + 1}</p>
@@ -399,11 +435,14 @@ export default function CotizacionPublicPage() {
                       </ul>
                       {preciosVisibles.length > 0 && (
                         <div className={styles.alojPrecios}>
-                          {preciosVisibles.map((col) => (
-                            <span key={col.key} className={styles.alojPrecioChip}>
-                              {col.label}: USD {Number(p[col.key]).toLocaleString('es-UY')}
-                            </span>
-                          ))}
+                          {preciosVisibles.map((col) => {
+                            const valor = netosGrupo ? netosGrupo[col.key] : Number(p[col.key]);
+                            return (
+                              <span key={col.key} className={styles.alojPrecioChip}>
+                                {col.label}: USD {Number(valor).toLocaleString('es-UY')}
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

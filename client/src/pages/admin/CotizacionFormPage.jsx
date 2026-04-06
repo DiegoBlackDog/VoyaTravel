@@ -76,8 +76,8 @@ const normalizeItems = (arr) => {
   if (!Array.isArray(arr)) return [];
   return arr.map((item) =>
     typeof item === 'string'
-      ? { tipo: item, detalle: '', destino: '' }
-      : { tipo: item.tipo || '', detalle: item.detalle || '', destino: item.destino || '' }
+      ? { tipo: item, detalle: '', destino: '', precio: '' }
+      : { tipo: item.tipo || '', detalle: item.detalle || '', destino: item.destino || '', precio: item.precio ?? '' }
   );
 };
 
@@ -129,11 +129,14 @@ function Combobox({ value, onChange, opciones, placeholder, className }) {
 /* ────────────────────────────────────────────────── */
 /* ItemRow — incluye / no incluye                     */
 /* ────────────────────────────────────────────────── */
-function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados }) {
+const TIPOS_SIN_PRECIO = new Set(['Alojamiento', 'Tasas e impuestos aéreos incluidos']);
+
+function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados, modoNeta }) {
   const secType   = getSecondaryType(item.tipo);
   const multiDest = destinosSeleccionados && destinosSeleccionados.length > 1;
+  const showPrecio = modoNeta && item.tipo.trim() && !TIPOS_SIN_PRECIO.has(item.tipo);
 
-  const handleTipoChange = (v) => onChange({ tipo: v, detalle: '', destino: '' });
+  const handleTipoChange = (v) => onChange({ tipo: v, detalle: '', destino: '', precio: item.precio ?? '' });
 
   return (
     <div className={`${styles.itemRow} ${esRojo ? styles.itemRowRojo : ''}`}>
@@ -171,6 +174,18 @@ function ItemRow({ item, onChange, onRemove, esRojo, destinosSeleccionados }) {
       {secType === 'combo-billete'   && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_BILLETE}   placeholder="Tipo de equipaje..."  />}
       {secType === 'combo-traslados' && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_TRASLADOS} placeholder="Tipo de traslado..." />}
       {secType === 'combo-seguro'    && <Combobox value={item.detalle} onChange={(v) => onChange({ ...item, detalle: v })} opciones={OPCIONES_SEGURO}    placeholder="Tipo de seguro..."   />}
+
+      {showPrecio && (
+        <input
+          type="number"
+          className={`${styles.comboInput} ${styles.precioNetoInput}`}
+          value={item.precio || ''}
+          onChange={(e) => onChange({ ...item, precio: e.target.value })}
+          placeholder="USD"
+          min="0"
+          step="0.01"
+        />
+      )}
 
       <button type="button" className={styles.itemRemove} onClick={onRemove}><FiX size={12} /></button>
     </div>
@@ -359,6 +374,10 @@ export default function CotizacionFormPage() {
   const [dropDragging,          setDropDragging]          = useState(false);
   const fileInputRef = useRef(null);
 
+  const [modoCotizacion, setModoCotizacion] = useState('clasica');
+  const [margenTipo,     setMargenTipo]     = useState('porcentaje');
+  const [margenValor,    setMargenValor]    = useState('');
+
   /* alojamientos is now an array of GROUPS:
      { items: [{destino_id, destino_nombre, hotel_id, hotel_nombre, regimen}], precio_single, ... } */
   const [alojamientos, setAlojamientos] = useState([]);
@@ -398,6 +417,9 @@ export default function CotizacionFormPage() {
 
       setIncluye(normalizeItems(c.incluye));
       setNoIncluye(normalizeItems(c.no_incluye));
+      setModoCotizacion(c.modo_cotizacion || 'clasica');
+      setMargenTipo(c.margen_tipo || 'porcentaje');
+      setMargenValor(c.margen_valor != null ? String(c.margen_valor) : '');
       setItinerarioTipo(c.itinerario_tipo    || '');
       setItinerarioPnr(c.itinerario_pnr      || '');
       setItinerarioImagen(c.itinerario_imagen || '');
@@ -468,7 +490,7 @@ export default function CotizacionFormPage() {
     finally { setItinerarioImgSubiendo(false); }
   };
 
-  const addItem    = useCallback((setter) => setter((p) => [...p, { tipo: '', detalle: '', destino: '' }]), []);
+  const addItem    = useCallback((setter) => setter((p) => [...p, { tipo: '', detalle: '', destino: '', precio: '' }]), []);
   const updateItem = useCallback((setter, i, v) => setter((p) => { const n = [...p]; n[i] = v; return n; }), []);
   const removeItem = useCallback((setter, i) => setter((p) => p.filter((_, j) => j !== i)), []);
 
@@ -605,6 +627,9 @@ export default function CotizacionFormPage() {
       itinerario_pnr:    itinerarioTipo === 'pnr'   ? (itinerarioPnr.trim() || null)  : null,
       itinerario_imagen: itinerarioTipo === 'imagen' ? (itinerarioImagen || null)      : null,
       alojamientos: alojamientosFlat,
+      modo_cotizacion: modoCotizacion,
+      margen_tipo:     modoCotizacion === 'neta' ? margenTipo : null,
+      margen_valor:    modoCotizacion === 'neta' && margenValor ? Number(margenValor) : null,
     };
 
     try {
@@ -632,6 +657,33 @@ export default function CotizacionFormPage() {
     navigator.clipboard.writeText(url).then(() => { setExito('Link copiado.'); setTimeout(() => setExito(''), 3000); });
   };
 
+  const totalesNetos = useMemo(() => {
+    if (modoCotizacion !== 'neta') return [];
+    const sumaIncluye = incluye.reduce((acc, item) => {
+      if (TIPOS_SIN_PRECIO.has(item.tipo)) return acc;
+      const p = parseFloat(item.precio);
+      return isNaN(p) || p === 0 ? acc : acc + p;
+    }, 0);
+    const margenNum = parseFloat(margenValor) || 0;
+    const result = [];
+    alojamientos.forEach((g, gi) => {
+      const nombres = g.items.map((it) => it.hotel_nombre || '—').join(' / ');
+      PRECIO_COLS.forEach((col) => {
+        const val = g[col.key];
+        if (val === '' || val == null) return;
+        const base = parseFloat(val);
+        if (isNaN(base) || base === 0) return;
+        const subtotal = base + sumaIncluye;
+        let total = margenTipo === 'porcentaje'
+          ? subtotal * (1 + margenNum / 100)
+          : subtotal + margenNum;
+        if (total % 1 !== 0) total = Math.round(total);
+        result.push({ gi, nombres, label: col.label, total });
+      });
+    });
+    return result;
+  }, [modoCotizacion, incluye, alojamientos, margenTipo, margenValor]);
+
   if (cargando) return <div style={{ padding: 40 }}>Cargando...</div>;
 
   const linkUrl = token ? `${window.location.origin}/cotizacion/${token}` : null;
@@ -657,6 +709,20 @@ export default function CotizacionFormPage() {
       {exito && <div className={styles.alertaExito}>{exito}</div>}
 
       <form onSubmit={handleSubmit}>
+
+        {/* ── Modo de cotización ── */}
+        <div className={styles.modoSelector}>
+          <span className={styles.modoLabel}>Modo de cotización</span>
+          <div className={styles.modoBtns}>
+            {[['clasica', 'Clásica'], ['neta', 'Neta']].map(([val, lbl]) => (
+              <button key={val} type="button"
+                className={`${styles.modoBtn} ${modoCotizacion === val ? styles.modoBtnActivo : ''}`}
+                onClick={() => setModoCotizacion(val)}>
+                {lbl}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* ── Datos del pasajero ── */}
         <div className={styles.seccion}>
@@ -730,7 +796,7 @@ export default function CotizacionFormPage() {
             </div>
             <div className={styles.itemList}>
               {incluye.map((item, i) => (
-                <ItemRow key={i} item={item} onChange={(v) => updateItem(setIncluye, i, v)} onRemove={() => removeItem(setIncluye, i)} esRojo={false} destinosSeleccionados={destinosSeleccionados} />
+                <ItemRow key={i} item={item} onChange={(v) => updateItem(setIncluye, i, v)} onRemove={() => removeItem(setIncluye, i)} esRojo={false} destinosSeleccionados={destinosSeleccionados} modoNeta={modoCotizacion === 'neta'} />
               ))}
             </div>
             <button type="button" className={styles.botonAgregarItem} onClick={() => addItem(setIncluye)}>
@@ -838,11 +904,17 @@ export default function CotizacionFormPage() {
             <div className={styles.alojLista}>
               {alojamientos.map((g, i) => {
                 const nombres = g.items.map((it) => it.hotel_nombre || '—').join(' / ');
-                const precio  = g.precio_doble ? `USD ${Number(g.precio_doble).toLocaleString('es-UY')} doble` : g.precio_single ? `USD ${Number(g.precio_single).toLocaleString('es-UY')} single` : '';
+                const preciosOcupados = PRECIO_COLS.filter((col) => g[col.key] !== '' && g[col.key] != null && Number(g[col.key]) > 0);
                 return (
                   <div key={i} className={styles.alojFila}>
                     <span className={styles.alojNombres}>{nombres}</span>
-                    {precio && <span className={styles.alojPrecioChip}>{precio}</span>}
+                    <div className={styles.alojChips}>
+                      {preciosOcupados.map((col) => (
+                        <span key={col.key} className={styles.alojPrecioChip}>
+                          {col.label} USD {Number(g[col.key]).toLocaleString('es-UY')}
+                        </span>
+                      ))}
+                    </div>
                     <div className={styles.alojAcciones}>
                       <button type="button" className={styles.botonIcono} onClick={() => abrirAloj(i)} title="Editar"><FiEdit2 size={13} /></button>
                       <button type="button" className={`${styles.botonIcono} ${styles.botonIconoPeligro}`} onClick={() => eliminarAloj(i)} title="Eliminar"><FiTrash2 size={13} /></button>
@@ -857,6 +929,63 @@ export default function CotizacionFormPage() {
             <FiPlus size={14} /> Agregar alojamiento
           </button>
         </div>
+
+        {/* ── Margen (solo modo neta) ── */}
+        {modoCotizacion === 'neta' && (
+          <div className={styles.seccion}>
+            <p className={styles.seccionTitulo}>Margen</p>
+            <div className={styles.margenFila}>
+              {[['porcentaje', 'Porcentaje'], ['fijo', 'Monto Fijo']].map(([val, lbl]) => (
+                <label key={val} className={`${styles.margenOpcion} ${margenTipo === val ? styles.margenOpcionActiva : ''}`}>
+                  <input type="radio" name="margenTipo" value={val} checked={margenTipo === val} onChange={() => setMargenTipo(val)} />
+                  {lbl}
+                </label>
+              ))}
+              <div className={styles.margenInputWrap}>
+                <input
+                  type="number"
+                  className={styles.input}
+                  style={{ maxWidth: 130 }}
+                  value={margenValor}
+                  onChange={(e) => setMargenValor(e.target.value)}
+                  placeholder={margenTipo === 'porcentaje' ? 'Ej: 15' : 'Ej: 100'}
+                  min="0"
+                  step="0.01"
+                />
+                <span className={styles.margenSufijo}>{margenTipo === 'porcentaje' ? '%' : 'USD'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Totales (solo modo neta) ── */}
+        {modoCotizacion === 'neta' && totalesNetos.length > 0 && (
+          <div className={styles.seccion}>
+            <p className={styles.seccionTitulo}>Totales</p>
+            <div className={styles.totalesWrap}>
+            <table className={styles.totalesTabla}>
+              <tbody>
+                {alojamientos.map((g, gi) => {
+                  const filas = totalesNetos.filter((t) => t.gi === gi);
+                  if (!filas.length) return null;
+                  const nombres = g.items.map((it) => it.hotel_nombre || '—').join(' / ');
+                  return (
+                    <tr key={gi} className={styles.totalFila}>
+                      <td className={styles.totalNombre}>{nombres}</td>
+                      {filas.map((f, j) => (
+                        <td key={j} className={styles.totalCelda}>
+                          <span className={styles.totalBase}>{f.label}</span>
+                          <span className={styles.totalValor}>USD {f.total.toLocaleString('es-UY')}</span>
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        )}
 
         {/* ── Condiciones ── */}
         <div className={styles.seccion}>

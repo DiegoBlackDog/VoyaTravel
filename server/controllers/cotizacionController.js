@@ -69,7 +69,7 @@ exports.uploadImagen = (req, res) => {
 
 exports.crear = async (req, res) => {
   try {
-    const { nombre_pasajero, destino_id, destinos_ids, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, itinerario_tipo, itinerario_pnr, itinerario_imagen, alojamientos } = req.body;
+    const { nombre_pasajero, destino_id, destinos_ids, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, itinerario_tipo, itinerario_pnr, itinerario_imagen, alojamientos, modo_cotizacion, margen_tipo, margen_valor } = req.body;
     const token = crypto.randomUUID().replace(/-/g, '');
 
     const cot = await Cotizacion.create({
@@ -86,6 +86,9 @@ exports.crear = async (req, res) => {
       itinerario_tipo:   itinerario_tipo || null,
       itinerario_pnr:    itinerario_pnr || null,
       itinerario_imagen: itinerario_imagen || null,
+      modo_cotizacion:   modo_cotizacion || 'clasica',
+      margen_tipo:       margen_tipo || null,
+      margen_valor:      margen_valor != null ? margen_valor : null,
       token,
       usuario_id: req.session.usuario.id,
     });
@@ -108,7 +111,7 @@ exports.actualizar = async (req, res) => {
     const esAdmin = req.session.usuario.rol === 'admin';
     if (!esAdmin && cot.usuario_id !== req.session.usuario.id) return res.status(403).json({ error: 'Sin permiso' });
 
-    const { nombre_pasajero, destino_id, destinos_ids, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, itinerario_tipo, itinerario_pnr, itinerario_imagen, alojamientos } = req.body;
+    const { nombre_pasajero, destino_id, destinos_ids, duracion_dias, duracion_noches, incluye, no_incluye, condiciones, contacto_metodo, contacto_dato, itinerario_tipo, itinerario_pnr, itinerario_imagen, alojamientos, modo_cotizacion, margen_tipo, margen_valor } = req.body;
 
     await cot.update({
       nombre_pasajero,
@@ -124,6 +127,9 @@ exports.actualizar = async (req, res) => {
       itinerario_tipo:   itinerario_tipo || null,
       itinerario_pnr:    itinerario_pnr || null,
       itinerario_imagen: itinerario_imagen || null,
+      modo_cotizacion:   modo_cotizacion || 'clasica',
+      margen_tipo:       margen_tipo || null,
+      margen_valor:      margen_valor != null ? margen_valor : null,
     });
 
     if (Array.isArray(alojamientos)) {
@@ -162,6 +168,9 @@ exports.duplicar = async (req, res) => {
       itinerario_tipo:   original.itinerario_tipo,
       itinerario_pnr:    original.itinerario_pnr,
       itinerario_imagen: original.itinerario_imagen,
+      modo_cotizacion:   original.modo_cotizacion || 'clasica',
+      margen_tipo:       original.margen_tipo,
+      margen_valor:      original.margen_valor,
       token,
       usuario_id: req.session.usuario.id,
     });
@@ -187,6 +196,50 @@ exports.duplicar = async (req, res) => {
 
     const full = await Cotizacion.findByPk(nueva.id, { include: INCLUDE_FULL });
     res.status(201).json({ cotizacion: full });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+};
+
+exports.stats = async (req, res) => {
+  try {
+    const esAdmin = req.session.usuario.rol === 'admin';
+
+    // Start of current week (Monday 00:00:00)
+    const ahora = new Date();
+    const diaSemana = ahora.getDay(); // 0=Dom
+    const diasDesdeMonday = diaSemana === 0 ? 6 : diaSemana - 1;
+    const inicioSemana = new Date(ahora);
+    inicioSemana.setDate(ahora.getDate() - diasDesdeMonday);
+    inicioSemana.setHours(0, 0, 0, 0);
+
+    if (esAdmin) {
+      const todas = await Cotizacion.findAll({
+        attributes: ['id', 'usuario_id', 'creado_en'],
+        include: [{ model: Usuario, as: 'usuario', attributes: ['id', 'nombre'] }],
+      });
+
+      const total  = todas.length;
+      const semana = todas.filter((c) => new Date(c.creado_en) >= inicioSemana).length;
+
+      const mapaUsuarios = new Map();
+      todas.forEach((c) => {
+        const uid    = c.usuario_id;
+        const nombre = c.usuario?.nombre || 'Sin asignar';
+        if (!mapaUsuarios.has(uid)) mapaUsuarios.set(uid, { id: uid, nombre, total: 0, semana: 0 });
+        const u = mapaUsuarios.get(uid);
+        u.total++;
+        if (new Date(c.creado_en) >= inicioSemana) u.semana++;
+      });
+
+      const por_usuario = [...mapaUsuarios.values()].sort((a, b) => b.semana - a.semana || b.total - a.total);
+      res.json({ total, semana, por_usuario });
+    } else {
+      const uid = req.session.usuario.id;
+      const [total, semana] = await Promise.all([
+        Cotizacion.count({ where: { usuario_id: uid } }),
+        Cotizacion.count({ where: { usuario_id: uid, creado_en: { [Op.gte]: inicioSemana } } }),
+      ]);
+      res.json({ total, semana });
+    }
   } catch (err) { res.status(500).json({ error: err.message }); }
 };
 

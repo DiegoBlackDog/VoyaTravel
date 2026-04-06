@@ -29,6 +29,9 @@ const Cotizacion = sequelize.define('Cotizacion', {
   itinerario_pnr:    { type: DataTypes.TEXT },
   itinerario_imagen: { type: DataTypes.STRING(500) },
   token:             { type: DataTypes.STRING(64), unique: true },
+  modo_cotizacion:   { type: DataTypes.STRING(20), defaultValue: 'clasica' },
+  margen_tipo:       { type: DataTypes.STRING(20), allowNull: true },
+  margen_valor:      { type: DataTypes.FLOAT, allowNull: true },
 }, {
   tableName: 'cotizaciones',
   timestamps: true,

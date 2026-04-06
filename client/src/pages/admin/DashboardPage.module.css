@@ -161,6 +161,114 @@
   color: #b8860b;
 }
 
+.tarjetaAzul .tarjetaIcono {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+/* ── Per-user activity block ── */
+.usuariosBloque {
+  margin-top: var(--espaciado-lg);
+  background: #fff;
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-lg);
+  padding: var(--espaciado-lg);
+  box-shadow: var(--sombra-sm);
+}
+
+.usuariosBloqueLabel {
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-gris);
+  margin: 0 0 var(--espaciado-md);
+}
+
+.usuariosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.usuarioFila {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.usuarioAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(55, 137, 102, 0.1);
+  color: var(--color-verde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.usuarioInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.usuarioHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.usuarioNombre {
+  font-family: var(--font-cuerpo);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-negro);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.usuarioContadores {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.usuarioSemana {
+  font-family: var(--font-cuerpo);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+.usuarioTotal {
+  font-family: var(--font-cuerpo);
+  font-size: 0.78rem;
+  color: var(--color-gris-claro);
+}
+
+.barraWrap {
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barraRelleno {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-verde), #3b82f6);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+  min-width: 4px;
+}
+
 /* Skeleton loading */
 .skeleton {
   height: 100px;

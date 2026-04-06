@@ -22,6 +22,9 @@ const imgUpload = multer({ storage: imgStorage, limits: { fileSize: 20 * 1024 * 
 // Public — no auth required
 router.get('/public/:token', ctrl.obtenerPorToken);
 
+// Stats (must be before /:id routes)
+router.get('/stats', requireAuth, requireMinRole('editor'), ctrl.stats);
+
 // Upload imagen (must be before /:id routes)
 router.post('/upload-imagen', requireAuth, requireMinRole('editor'), imgUpload.single('imagen'), comprimirImagen(1200), ctrl.uploadImagen);
 
