@@ -1,13 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   FiPlus, FiRefreshCw, FiAlertCircle, FiCheck,
-  FiEdit2, FiTrash2, FiSearch, FiX, FiSave, FiUpload, FiImage,
+  FiEdit2, FiTrash2, FiSearch, FiX, FiSave, FiUpload, FiImage, FiInfo,
 } from 'react-icons/fi';
 import api from '../../services/api';
+import InfoImportModal from '../../components/admin/InfoImportModal';
 import styles from './DestinosPage.module.css';
 import propios from './AerolineasPage.module.css';
 
 const VACIO = { iata: '', icao: '', nombre: '', pais_region: '' };
+
+const AEROLINEAS_INFO = [
+  { letra: 'A', campo: 'Código IATA', descripcion: 'Código de 2 letras (ej: LA, IB, AA).', requerido: true },
+  { letra: 'B', campo: 'Código ICAO', descripcion: 'Código de 3-4 letras (ej: LAN, IBE). Opcional.', requerido: false },
+  { letra: 'C', campo: 'Nombre',      descripcion: 'Nombre completo de la aerolínea.', requerido: true },
+  { letra: 'D', campo: 'País/Región', descripcion: 'País o región de origen (ej: Chile, Europa).', requerido: true },
+];
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export default function AerolineasPage() {
@@ -22,6 +30,7 @@ export default function AerolineasPage() {
   const [confirmBulk, setConfirmBulk] = useState(false);
   const [seleccionados, setSeleccionados] = useState(new Set());
   const [importando, setImportando]   = useState(false);
+  const [infoAbierto, setInfoAbierto] = useState(false);
   const [imgPreview, setImgPreview]   = useState(null);
   const [imgFile, setImgFile]         = useState(null);
   const fileRef    = useRef(null);
@@ -142,13 +151,16 @@ export default function AerolineasPage() {
           <button className={styles.botonSecundario} onClick={cargar} disabled={cargando}>
             <FiRefreshCw size={14} /> Recargar
           </button>
-          <button className={styles.botonSecundario} onClick={() => fileRef.current?.click()} disabled={importando}>
-            <FiUpload size={14} /> {importando ? 'Importando...' : 'Importar Excel'}
-          </button>
-          <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImportar} />
           <button className={styles.botonPrimario} onClick={abrirNuevo}>
             <FiPlus size={14} /> Nueva aerolínea
           </button>
+          <button className={styles.botonSecundario} onClick={() => fileRef.current?.click()} disabled={importando}>
+            <FiUpload size={14} /> {importando ? 'Importando...' : 'Importar Excel'}
+          </button>
+          <button className={styles.botonIcono} onClick={() => setInfoAbierto(true)} title="Ver formato Excel" type="button">
+            <FiInfo size={16} />
+          </button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImportar} />
         </div>
       </div>
 
@@ -304,6 +316,13 @@ export default function AerolineasPage() {
           </div>
         </div>
       )}
+      <InfoImportModal
+        abierto={infoAbierto}
+        onCerrar={() => setInfoAbierto(false)}
+        titulo="Aerolíneas"
+        columnas={AEROLINEAS_INFO}
+        nota="Al menos el campo Nombre (columna C) es obligatorio. Los códigos IATA e ICAO son opcionales pero ayudan a mostrar logos automáticamente."
+      />
     </div>
   );
 }

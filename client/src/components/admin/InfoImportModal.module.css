@@ -1,0 +1,131 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 620px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.headerTitulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerTitulo h3 {
+  font-family: var(--font-titulares);
+  font-size: 1.1rem;
+  color: var(--color-negro);
+  margin: 0;
+}
+
+.headerIcono {
+  color: var(--color-verde);
+  flex-shrink: 0;
+}
+
+.cerrar {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-gris);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, background 0.15s;
+}
+.cerrar:hover { color: var(--color-negro); background: #f0f0f0; }
+
+.intro {
+  font-family: var(--font-cuerpo);
+  font-size: 0.88rem;
+  color: var(--color-gris);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-family: var(--font-cuerpo);
+}
+
+.tabla th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f5f5f3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gris);
+  border-bottom: 2px solid #e8e5e1;
+}
+
+.tabla td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eeebe7;
+  color: var(--color-negro);
+  vertical-align: top;
+}
+
+.tabla tbody tr:last-child td { border-bottom: none; }
+.tabla tbody tr:hover td { background: #fafaf8; }
+
+.colLetra {
+  font-weight: 700;
+  color: var(--color-verde) !important;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.colCampo {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.colDesc { color: var(--color-gris); }
+
+.colReq {
+  text-align: center;
+  color: var(--color-verde);
+  font-weight: 700;
+}
+
+.nota {
+  font-family: var(--font-cuerpo);
+  font-size: 0.83rem;
+  color: var(--color-gris);
+  background: #fef9ec;
+  border-left: 3px solid #ffc757;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  margin: 0;
+  line-height: 1.55;
+}

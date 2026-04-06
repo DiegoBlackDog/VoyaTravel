@@ -319,6 +319,19 @@ export default function ContactoPage() {
                 Escribir por WhatsApp
               </button>
             </div>
+
+            {/* Mapa */}
+            {(!cargandoConfig && configuracion?.direccion) && (
+              <div className={styles.mapaWrap}>
+                <iframe
+                  title="Ubicación de la agencia"
+                  className={styles.mapaFrame}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(configuracion.direccion)}&output=embed&hl=es`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+            )}
           </aside>
         </div>
       </div>

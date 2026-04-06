@@ -146,7 +146,6 @@ function DestinoBuscador({ destinos, selected, onToggle }) {
           {seleccionados.map((d) => (
             <span key={d.slug} className={styles.destinoChip}>
               <span>{d.nombre}</span>
-              {d.pais && <span className={styles.destinoChipPais}>, {d.pais}</span>}
               <button
                 type="button"
                 className={styles.destinoChipX}
@@ -219,7 +218,7 @@ function DestinoBuscador({ destinos, selected, onToggle }) {
 
 export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, resetFiltros }) {
   const [destinos, setDestinos] = useState([]);
-  const [etiquetas, setEtiquetas] = useState({ Temporada: [], Transporte: [], Experiencia: [], Viaje: [] });
+  const [categorias, setCategorias] = useState([]);
   const [cargandoOpciones, setCargandoOpciones] = useState(true);
 
   // Estado local para sliders (para evitar llamadas en cada movimiento)
@@ -247,16 +246,7 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
     ])
       .then(([destinosData, categoriasData]) => {
         setDestinos(destinosData);
-
-        // El API retorna { categorias: [{ nombre, etiquetas: [...] }] }
-        const grupos = { Temporada: [], Transporte: [], Experiencia: [], Viaje: [] };
-        categoriasData.forEach((cat) => {
-          if (cat.nombre === 'Temporada') grupos.Temporada = cat.etiquetas || [];
-          else if (cat.nombre === 'Tipo de transporte') grupos.Transporte = cat.etiquetas || [];
-          else if (cat.nombre === 'Tipo de experiencia') grupos.Experiencia = cat.etiquetas || [];
-          else if (cat.nombre === 'Tipo de viaje') grupos.Viaje = cat.etiquetas || [];
-        });
-        setEtiquetas(grupos);
+        setCategorias(categoriasData.filter((c) => c.etiquetas?.length > 0));
       })
       .catch((err) => console.error('Error cargando opciones de filtros:', err))
       .finally(() => setCargandoOpciones(false));
@@ -378,11 +368,11 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
             </div>
           </SeccionFiltro>
 
-          {/* ---- Temporada ---- */}
-          {etiquetas.Temporada.length > 0 && (
-            <SeccionFiltro titulo="Temporada">
+          {/* ---- Categorías de etiquetas (dinámico) ---- */}
+          {categorias.map((cat, idx) => (
+            <SeccionFiltro key={cat.id} titulo={cat.nombre} defaultOpen={idx === 0}>
               <div className={styles.checkboxList}>
-                {etiquetas.Temporada.map((e) => (
+                {cat.etiquetas.map((e) => (
                   <CheckboxItem
                     key={e.id}
                     label={e.nombre}
@@ -393,58 +383,7 @@ export default function PaqueteFiltros({ filtros, setFiltro, toggleFiltroMulti, 
                 ))}
               </div>
             </SeccionFiltro>
-          )}
-
-          {/* ---- Transporte ---- */}
-          {etiquetas.Transporte.length > 0 && (
-            <SeccionFiltro titulo="Transporte" defaultOpen={false}>
-              <div className={styles.checkboxList}>
-                {etiquetas.Transporte.map((e) => (
-                  <CheckboxItem
-                    key={e.id}
-                    label={e.nombre}
-                    value={e.slug}
-                    checked={selectedEtiquetas.includes(e.slug)}
-                    onChange={(v) => toggleFiltroMulti('etiqueta', v)}
-                  />
-                ))}
-              </div>
-            </SeccionFiltro>
-          )}
-
-          {/* ---- Experiencia ---- */}
-          {etiquetas.Experiencia.length > 0 && (
-            <SeccionFiltro titulo="Experiencia" defaultOpen={false}>
-              <div className={styles.checkboxList}>
-                {etiquetas.Experiencia.map((e) => (
-                  <CheckboxItem
-                    key={e.id}
-                    label={e.nombre}
-                    value={e.slug}
-                    checked={selectedEtiquetas.includes(e.slug)}
-                    onChange={(v) => toggleFiltroMulti('etiqueta', v)}
-                  />
-                ))}
-              </div>
-            </SeccionFiltro>
-          )}
-
-          {/* ---- Tipo de viaje ---- */}
-          {etiquetas.Viaje.length > 0 && (
-            <SeccionFiltro titulo="Tipo de viaje" defaultOpen={false}>
-              <div className={styles.checkboxList}>
-                {etiquetas.Viaje.map((e) => (
-                  <CheckboxItem
-                    key={e.id}
-                    label={e.nombre}
-                    value={e.slug}
-                    checked={selectedEtiquetas.includes(e.slug)}
-                    onChange={(v) => toggleFiltroMulti('etiqueta', v)}
-                  />
-                ))}
-              </div>
-            </SeccionFiltro>
-          )}
+          ))}
         </div>
       )}
     </aside>

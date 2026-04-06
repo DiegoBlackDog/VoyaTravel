@@ -1,10 +1,18 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { FiPlus, FiRefreshCw, FiAlertCircle, FiCheck, FiEdit2, FiTrash2, FiChevronDown, FiExternalLink, FiSearch, FiX, FiUpload } from 'react-icons/fi';
+import { FiPlus, FiRefreshCw, FiAlertCircle, FiCheck, FiEdit2, FiTrash2, FiChevronDown, FiExternalLink, FiSearch, FiX, FiUpload, FiInfo } from 'react-icons/fi';
 import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import InfoImportModal from '../../components/admin/InfoImportModal';
 import styles from './DestinosPage.module.css';
 import hotelStyles from './HotelesPage.module.css';
+
+const HOTELES_INFO = [
+  { letra: 'A', campo: 'Destino',   descripcion: 'Nombre exacto del destino al que pertenece el hotel (debe existir en el sistema).', requerido: true },
+  { letra: 'B', campo: 'Nombre',    descripcion: 'Nombre del hotel.', requerido: true },
+  { letra: 'C', campo: 'Estrellas', descripcion: 'Número de estrellas (1-5) o cantidad de ⭐. Dejar vacío si no aplica.', requerido: false },
+  { letra: 'D', campo: 'URL web',   descripcion: 'Dirección web del hotel (ej: https://hotel.com).', requerido: false },
+];
 
 const EMPTY_FORM = { nombre: '', ciudad: '', estrellas: '', web_url: '', destino_id: '' };
 
@@ -42,6 +50,7 @@ export default function HotelesPage() {
 
   // Import state
   const [modalImport, setModalImport] = useState(false);
+  const [infoAbierto, setInfoAbierto] = useState(false);
   const [importPreview, setImportPreview] = useState(null); // { rows, warnings }
   const [importando, setImportando] = useState(false);
   const [importResult, setImportResult] = useState(null); // { creados, omitidos, errores }
@@ -234,6 +243,9 @@ export default function HotelesPage() {
           )}
           <button className={styles.botonSecundario} onClick={() => fileRef.current?.click()}>
             <FiUpload size={14} /> Importar Excel
+          </button>
+          <button className={styles.botonIcono} onClick={() => setInfoAbierto(true)} title="Ver formato Excel" type="button">
+            <FiInfo size={16} />
           </button>
           <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleArchivoExcel} />
         </div>
@@ -465,6 +477,13 @@ export default function HotelesPage() {
           </div>
         </div>
       )}
+      <InfoImportModal
+        abierto={infoAbierto}
+        onCerrar={() => setInfoAbierto(false)}
+        titulo="Hoteles"
+        columnas={HOTELES_INFO}
+        nota="El nombre del destino (columna A) debe coincidir exactamente con uno ya cargado en el sistema. Las estrellas aceptan número (3) o emojis (⭐⭐⭐)."
+      />
     </div>
   );
 }

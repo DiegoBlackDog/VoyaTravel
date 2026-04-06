@@ -1,12 +1,21 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   FiPlus, FiRefreshCw, FiAlertCircle, FiCheck,
-  FiEdit2, FiTrash2, FiSearch, FiX, FiSave, FiUpload,
+  FiEdit2, FiTrash2, FiSearch, FiX, FiSave, FiUpload, FiInfo,
 } from 'react-icons/fi';
 import api from '../../services/api';
+import InfoImportModal from '../../components/admin/InfoImportModal';
 import styles from './DestinosPage.module.css';
 
 const VACIO = { nombre: '', ciudad: '', pais: '', iata: '', icao: '' };
+
+const AEROPUERTOS_INFO = [
+  { letra: 'A', campo: 'Nombre',      descripcion: 'Nombre completo del aeropuerto.', requerido: true },
+  { letra: 'B', campo: 'Ciudad',      descripcion: 'Ciudad donde se ubica.', requerido: true },
+  { letra: 'C', campo: 'País',        descripcion: 'País donde se ubica.', requerido: true },
+  { letra: 'D', campo: 'Código IATA', descripcion: 'Código de 3 letras (ej: MVD, GRU, EZE).', requerido: true },
+  { letra: 'E', campo: 'Código ICAO', descripcion: 'Código de 4 letras (ej: SUMU, SBGR).', requerido: false },
+];
 
 export default function AeropuertosPage() {
   const [aeropuertos, setAeropuertos] = useState([]);
@@ -20,6 +29,7 @@ export default function AeropuertosPage() {
   const [confirmBulk, setConfirmBulk] = useState(false);
   const [seleccionados, setSeleccionados] = useState(new Set());
   const [importando, setImportando] = useState(false);
+  const [infoAbierto, setInfoAbierto] = useState(false);
   const fileRef = useRef(null);
 
   const cargar = useCallback(async () => {
@@ -122,13 +132,16 @@ export default function AeropuertosPage() {
           <button className={styles.botonSecundario} onClick={cargar} disabled={cargando}>
             <FiRefreshCw size={14} /> Recargar
           </button>
-          <button className={styles.botonSecundario} onClick={() => fileRef.current?.click()} disabled={importando}>
-            <FiUpload size={14} /> {importando ? 'Importando...' : 'Importar Excel'}
-          </button>
-          <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImportar} />
           <button className={styles.botonPrimario} onClick={abrirNuevo}>
             <FiPlus size={14} /> Nuevo aeropuerto
           </button>
+          <button className={styles.botonSecundario} onClick={() => fileRef.current?.click()} disabled={importando}>
+            <FiUpload size={14} /> {importando ? 'Importando...' : 'Importar Excel'}
+          </button>
+          <button className={styles.botonIcono} onClick={() => setInfoAbierto(true)} title="Ver formato Excel" type="button">
+            <FiInfo size={16} />
+          </button>
+          <input ref={fileRef} type="file" accept=".xlsx,.xls" style={{ display: 'none' }} onChange={handleImportar} />
         </div>
       </div>
 
@@ -268,6 +281,13 @@ export default function AeropuertosPage() {
           </div>
         </div>
       )}
+      <InfoImportModal
+        abierto={infoAbierto}
+        onCerrar={() => setInfoAbierto(false)}
+        titulo="Aeropuertos"
+        columnas={AEROPUERTOS_INFO}
+        nota="Solo el Nombre (columna A) es obligatorio. Los códigos IATA e ICAO permiten que el sistema identifique automáticamente los aeropuertos en el parser de PNR."
+      />
     </div>
   );
 }

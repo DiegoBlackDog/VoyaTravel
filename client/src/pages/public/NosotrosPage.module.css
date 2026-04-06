@@ -303,15 +303,70 @@
 /* Equipo                                                               */
 /* ------------------------------------------------------------------ */
 
-.equipoGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
+/* ── Infinite carousel ── */
+.equipoCarousel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.carouselViewport {
+  flex: 1;
+  overflow: hidden;
+}
+
+.carouselTrack {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.carouselBtn {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--color-verde);
+  background: transparent;
+  color: var(--color-verde);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.carouselBtn:hover {
+  background: var(--color-verde);
+  color: #fff;
+}
+
+.carouselDots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.carouselDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: #ccc;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+.carouselDotActivo {
+  background: var(--color-verde);
+  transform: scale(1.3);
 }
 
 .equipoCard {
-  text-align: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
   padding: 28px 16px;
+  text-align: center;
   background: var(--color-blanco);
   border-radius: var(--radio-xl);
   box-shadow: var(--sombra-sm);
@@ -489,7 +544,7 @@
 
 @media (max-width: 1024px) {
   .valoresGrid,
-  .equipoGrid {
+  .equipoGrid_UNUSED {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -517,7 +572,7 @@
   }
 
   .valoresGrid,
-  .equipoGrid {
+  .equipoGrid_UNUSED {
     grid-template-columns: 1fr 1fr;
     gap: 16px;
   }
@@ -550,9 +605,10 @@
   .hitoItemDerecho .hitoTextoWrapper { order: unset; text-align: left; }
 }
 
+
 @media (max-width: 480px) {
   .valoresGrid,
-  .equipoGrid {
+  .equipoGrid_UNUSED {
     grid-template-columns: 1fr;
   }
 

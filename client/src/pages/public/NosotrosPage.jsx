@@ -1,13 +1,14 @@
+import { useState, useEffect, useLayoutEffect, useRef, useCallback } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   FaHeart,
   FaGlobe,
   FaShieldAlt,
-  FaMedal,
   FaMapMarkerAlt,
-  FaUsers,
   FaLightbulb,
   FaHandshake,
+  FaChevronLeft,
+  FaChevronRight,
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { useConfiguracion } from '../../hooks/useConfiguracion';
@@ -42,31 +43,38 @@ const VALORES = [
 
 const EQUIPO = [
   {
-    nombre: 'Valentina Sosa',
-    rol: 'Fundadora & Directora',
+    nombre: 'Sebastian Garcia',
+    rol: 'Fundador & Director',
     descripcion: 'Viajera empedernida, soñó con Voyâ mientras recorría el sudeste asiático. Hoy convierte sueños en itinerarios reales.',
-    iniciales: 'VS',
+    iniciales: 'SG',
     color: '#378966',
   },
   {
-    nombre: 'Martín Rodríguez',
-    rol: 'Gerente de Operaciones',
+    nombre: 'Sophia Dreyer',
+    rol: 'Asesora de Viajes',
     descripcion: 'Especialista en logística de viajes. Asegura que cada detalle esté perfecto para que vos solo tengas que disfrutar.',
-    iniciales: 'MR',
+    iniciales: 'SD',
     color: '#fc7c5e',
   },
   {
-    nombre: 'Lucía Fernández',
+    nombre: 'Giuliana Reyes',
     rol: 'Asesora de Viajes',
     descripcion: 'Conoce Europa como la palma de su mano. Su pasión es encontrar el destino ideal para cada tipo de viajero.',
-    iniciales: 'LF',
+    iniciales: 'GR',
     color: '#ffc757',
   },
   {
-    nombre: 'Diego Sánchez',
+    nombre: 'Paula Presta',
     rol: 'Asesor de Viajes',
     descripcion: 'Especialista en Latinoamérica y Caribe. Ha visitado más de 40 países y trae esa experiencia a cada consulta.',
-    iniciales: 'DS',
+    iniciales: 'PP',
+    color: '#378966',
+  },
+  {
+    nombre: 'Ines Alzugaray',
+    rol: 'Asesor de Viajes',
+    descripcion: 'Especialista en Latinoamérica y Caribe. Ha visitado más de 40 países y trae esa experiencia a cada consulta.',
+    iniciales: 'IA',
     color: '#378966',
   },
 ];
@@ -83,8 +91,59 @@ const HITOS = [
 /* Componente principal                                                  */
 /* ------------------------------------------------------------------ */
 
+const GAP = 16;
+// Triple the array so we can jump silently when hitting a clone
+const EQUIPO_EXT = [...EQUIPO, ...EQUIPO, ...EQUIPO];
+
 export default function NosotrosPage() {
   const { configuracion } = useConfiguracion();
+
+  /* ── Infinite carousel ── */
+  const viewportRef = useRef(null);
+  const [numVisible, setNumVisible] = useState(3);
+  const [cardW,      setCardW]      = useState(0);
+  const [idx,        setIdx]        = useState(EQUIPO.length); // start in middle clone
+  const [animate,    setAnimate]    = useState(true);
+
+  // Compute card width + numVisible from viewport size
+  const compute = useCallback(() => {
+    if (!viewportRef.current) return;
+    const vw = viewportRef.current.offsetWidth;
+    const n  = vw >= 900 ? 3 : vw >= 580 ? 2 : 1;
+    setNumVisible(n);
+    setCardW((vw - GAP * (n - 1)) / n);
+  }, []);
+
+  useEffect(() => {
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, [compute]);
+
+  const irAnterior  = () => setIdx((i) => i - 1);
+  const irSiguiente = () => setIdx((i) => i + 1);
+
+  // After each animated slide: if we landed on a clone, do a silent (no-transition) jump
+  const handleTransitionEnd = useCallback(() => {
+    let next = idx;
+    if (idx >= EQUIPO.length * 2) next = idx - EQUIPO.length;
+    else if (idx < EQUIPO.length)  next = idx + EQUIPO.length;
+    if (next === idx) return;
+    // Batch: disable animation + jump index in the same render
+    setAnimate(false);
+    setIdx(next);
+  }, [idx]);
+
+  // After the silent jump render, re-enable animation on the next frame
+  useLayoutEffect(() => {
+    if (!animate) {
+      const raf = requestAnimationFrame(() => setAnimate(true));
+      return () => cancelAnimationFrame(raf);
+    }
+  }, [animate]);
+
+  // Which dot is active (0-based, relative to original array)
+  const dotActivo = ((idx - EQUIPO.length) % EQUIPO.length + EQUIPO.length) % EQUIPO.length;
 
   return (
     <div className={styles.pagina}>
@@ -212,19 +271,50 @@ export default function NosotrosPage() {
             </p>
           </div>
 
-          <div className={styles.equipoGrid}>
-            {EQUIPO.map(({ nombre, rol, descripcion, iniciales, color }) => (
-              <div key={nombre} className={styles.equipoCard}>
-                <div
-                  className={styles.equipoAvatar}
-                  style={{ background: color }}
-                >
-                  {iniciales}
-                </div>
-                <h3 className={styles.equipoNombre}>{nombre}</h3>
-                <p className={styles.equipoRol}>{rol}</p>
-                <p className={styles.equipoDescripcion}>{descripcion}</p>
+          <div className={styles.equipoCarousel}>
+            <button className={styles.carouselBtn} onClick={irAnterior} aria-label="Anterior">
+              <FaChevronLeft size={16} />
+            </button>
+
+            <div ref={viewportRef} className={styles.carouselViewport}>
+              <div
+                className={styles.carouselTrack}
+                style={{
+                  transform: `translateX(${-(idx * (cardW + GAP))}px)`,
+                  transition: animate ? undefined : 'none',
+                }}
+                onTransitionEnd={handleTransitionEnd}
+              >
+                {EQUIPO_EXT.map(({ nombre, rol, descripcion, iniciales, color }, i) => (
+                  <div
+                    key={i}
+                    className={styles.equipoCard}
+                    style={{ width: cardW, marginRight: i < EQUIPO_EXT.length - 1 ? GAP : 0 }}
+                  >
+                    <div className={styles.equipoAvatar} style={{ background: color }}>
+                      {iniciales}
+                    </div>
+                    <h3 className={styles.equipoNombre}>{nombre}</h3>
+                    <p className={styles.equipoRol}>{rol}</p>
+                    <p className={styles.equipoDescripcion}>{descripcion}</p>
+                  </div>
+                ))}
               </div>
+            </div>
+
+            <button className={styles.carouselBtn} onClick={irSiguiente} aria-label="Siguiente">
+              <FaChevronRight size={16} />
+            </button>
+          </div>
+
+          <div className={styles.carouselDots}>
+            {EQUIPO.map((_, i) => (
+              <button
+                key={i}
+                className={`${styles.carouselDot} ${i === dotActivo ? styles.carouselDotActivo : ''}`}
+                onClick={() => setIdx(EQUIPO.length + i)}
+                aria-label={`Ir a ${EQUIPO[i].nombre}`}
+              />
             ))}
           </div>
         </div>

@@ -117,7 +117,7 @@ exports.importarExcel = async (req, res) => {
         nombre:      String(r[2] || '').trim(),
         pais_region: String(r[3] || '').trim() || null,
       }))
-      .filter((r) => r.nombre);
+      .filter((r) => r.iata && r.nombre && r.pais_region);
 
     if (!registros.length) return res.status(400).json({ error: 'Sin datos válidos' });
     await Aerolinea.bulkCreate(registros);

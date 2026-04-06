@@ -1,8 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
-import { FiRefreshCw, FiAlertCircle, FiCheck, FiPlus, FiX, FiEdit2, FiTrash2 } from 'react-icons/fi';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { FiRefreshCw, FiAlertCircle, FiCheck, FiPlus, FiX, FiEdit2, FiTrash2, FiUpload, FiInfo } from 'react-icons/fi';
+import * as XLSX from 'xlsx';
 import api from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
+import InfoImportModal from '../../components/admin/InfoImportModal';
 import styles from './EtiquetasPage.module.css';
+
+const ETIQUETAS_INFO = [
+  { letra: 'A', campo: 'Categoría',       descripcion: 'Nombre de la categoría (ej: Temporada, Tipo de viaje). Si no existe, se crea automáticamente.', requerido: true },
+  { letra: 'B', campo: 'Nombre etiqueta', descripcion: 'Nombre de la etiqueta dentro de esa categoría.', requerido: true },
+];
 
 function slugify(text) {
   return text
@@ -34,6 +41,12 @@ export default function EtiquetasPage() {
 
   // Delete confirmation
   const [confirmEliminar, setConfirmEliminar] = useState(null);
+
+  // Bulk import
+  const importRef = useRef(null);
+  const [importando, setImportando] = useState(false);
+  const [importResultado, setImportResultado] = useState('');
+  const [infoAbierto, setInfoAbierto] = useState(false);
 
   const cargar = useCallback(async () => {
     setCargando(true);
@@ -132,6 +145,67 @@ export default function EtiquetasPage() {
     }
   };
 
+  // ── Bulk import ──
+  const handleImportarExcel = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = '';
+    setImportando(true);
+    setImportResultado('');
+    try {
+      const buffer = await file.arrayBuffer();
+      const wb = XLSX.read(buffer);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+      // col[0] = categoría, col[1] = nombre etiqueta
+      const filas = rows.slice(1).filter((r) => r[0] && r[1]);
+      if (filas.length === 0) { setError('El archivo no tiene datos válidos (categoría / etiqueta).'); return; }
+
+      // Build category lookup from already loaded categories
+      const catMap = {};
+      categorias.forEach((c) => { catMap[c.nombre.toLowerCase()] = c.id; });
+
+      let creadas = 0;
+      let errores = 0;
+
+      for (const row of filas) {
+        const catNombre = String(row[0]).trim();
+        const tagNombre = String(row[1]).trim();
+        if (!catNombre || !tagNombre) continue;
+
+        // Find or create category
+        let catId = catMap[catNombre.toLowerCase()];
+        if (!catId) {
+          try {
+            const { data } = await api.post('/etiquetas/categorias', {
+              nombre: catNombre,
+              slug: slugify(catNombre),
+            });
+            catId = data.categoria?.id || data.id;
+            catMap[catNombre.toLowerCase()] = catId;
+          } catch { errores++; continue; }
+        }
+
+        try {
+          await api.post('/etiquetas', {
+            nombre: tagNombre,
+            slug: slugify(tagNombre),
+            categoria_id: catId,
+          });
+          creadas++;
+        } catch { errores++; }
+      }
+
+      setImportResultado(`Importación completada: ${creadas} etiquetas creadas${errores ? `, ${errores} errores` : ''}.`);
+      cargar();
+    } catch {
+      setError('Error leyendo el archivo Excel.');
+    } finally {
+      setImportando(false);
+    }
+  };
+
   const handleNuevaEtiquetaChange = (categoriaId, field, value) => {
     setNuevaEtiqueta((prev) => {
       const current = prev[categoriaId] || { nombre: '', slug: '', autoSlug: true };
@@ -156,14 +230,39 @@ export default function EtiquetasPage() {
             Categorías y etiquetas para clasificar paquetes
           </p>
         </div>
-        <button
-          className={styles.botonSecundario}
-          onClick={cargar}
-          disabled={cargando}
-        >
-          <FiRefreshCw size={14} className={cargando ? styles.girando : ''} />
-          Recargar
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            className={styles.botonSecundario}
+            onClick={cargar}
+            disabled={cargando}
+          >
+            <FiRefreshCw size={14} className={cargando ? styles.girando : ''} />
+            Recargar
+          </button>
+          <input
+            ref={importRef}
+            type="file"
+            accept=".xlsx,.xls"
+            style={{ display: 'none' }}
+            onChange={handleImportarExcel}
+          />
+          <button
+            className={styles.botonSecundario}
+            onClick={() => importRef.current?.click()}
+            disabled={importando}
+          >
+            <FiUpload size={14} />
+            {importando ? 'Importando...' : 'Importar Excel'}
+          </button>
+          <button
+            className={styles.botonIcono}
+            onClick={() => setInfoAbierto(true)}
+            title="Ver formato esperado del Excel"
+            type="button"
+          >
+            <FiInfo size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Alerts */}
@@ -179,6 +278,13 @@ export default function EtiquetasPage() {
           <FiCheck size={15} />
           <span>{exito}</span>
           <button className={styles.alertaCerrar} onClick={() => setExito('')}>×</button>
+        </div>
+      )}
+      {importResultado && (
+        <div className={styles.alertaExito} role="status">
+          <FiCheck size={15} />
+          <span>{importResultado}</span>
+          <button className={styles.alertaCerrar} onClick={() => setImportResultado('')}>×</button>
         </div>
       )}
 
@@ -330,6 +436,14 @@ export default function EtiquetasPage() {
       {!cargando && categorias.length === 0 && (
         <div className={styles.cargando}>No hay categorías creadas. Crea una arriba para comenzar.</div>
       )}
+
+      <InfoImportModal
+        abierto={infoAbierto}
+        onCerrar={() => setInfoAbierto(false)}
+        titulo="Etiquetas"
+        columnas={ETIQUETAS_INFO}
+        nota="Si la categoría indicada en la columna A no existe, se crea automáticamente."
+      />
 
       {/* Delete confirmation */}
       {confirmEliminar && (

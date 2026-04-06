@@ -27,8 +27,8 @@ export default function ImageUploader({ paqueteId, imagenes = [], onUpdate }) {
         setError(`Formato no soportado: ${archivo.name}. Usa JPG, PNG o WebP.`);
         return;
       }
-      if (archivo.size > 5 * 1024 * 1024) {
-        setError(`${archivo.name} excede el limite de 5 MB.`);
+      if (archivo.size > 20 * 1024 * 1024) {
+        setError(`${archivo.name} excede el limite de 20 MB.`);
         return;
       }
     }
@@ -169,7 +169,7 @@ export default function ImageUploader({ paqueteId, imagenes = [], onUpdate }) {
               Arrastra imagenes aqui o haz clic para seleccionar
             </p>
             <p className={styles.dropHint}>
-              JPG, PNG o WebP. Max 5 MB por imagen. Max 10 imagenes.
+              JPG, PNG o WebP. Max 20 MB por imagen. Max 10 imagenes.
             </p>
           </>
         )}

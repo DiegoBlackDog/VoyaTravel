@@ -200,6 +200,8 @@ export default function PaqueteDetallePage() {
     : (() => { try { return JSON.parse(no_incluye); } catch { return []; } })();
 
   const destinoPrincipal = destinos[0];
+  const API_BASE = import.meta.env.DEV ? 'http://localhost:4000' : '';
+  const resolverImg = (img) => (img?.startsWith('http') ? img : `${API_BASE}${img}`);
 
   return (
     <div className={styles.pagina}>
@@ -232,7 +234,7 @@ export default function PaqueteDetallePage() {
         style={
           destinoPrincipal?.imagen
             ? {
-                backgroundImage: `url(${destinoPrincipal.imagen})`,
+                backgroundImage: `url(${resolverImg(destinoPrincipal.imagen)})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'no-repeat',

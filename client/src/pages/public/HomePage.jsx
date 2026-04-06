@@ -421,6 +421,7 @@ export default function HomePage() {
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={24}
                 slidesPerView={1}
+                loop
                 navigation={{
                   nextEl: `.${styles.swiperNext}`,
                   prevEl: `.${styles.swiperPrev}`,
@@ -539,6 +540,7 @@ export default function HomePage() {
                 modules={[Navigation, Pagination, Autoplay]}
                 spaceBetween={24}
                 slidesPerView={1}
+                loop
                 navigation={{
                   nextEl: `.${styles.testimonioNext}`,
                   prevEl: `.${styles.testimonioPrev}`,
